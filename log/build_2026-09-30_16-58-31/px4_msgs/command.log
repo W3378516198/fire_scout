@@ -1,0 +1,6 @@
+Invoking command in '/home/wei/fire_scout_ws/build/px4_msgs': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/wei/fire_scout_ws/src/px4_msgs -DCMAKE_INSTALL_PREFIX=/home/wei/fire_scout_ws/install/px4_msgs
+Invoked command in '/home/wei/fire_scout_ws/build/px4_msgs' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/wei/fire_scout_ws/src/px4_msgs -DCMAKE_INSTALL_PREFIX=/home/wei/fire_scout_ws/install/px4_msgs
+Invoking command in '/home/wei/fire_scout_ws/build/px4_msgs': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/px4_msgs -- -j32 -l32
+Invoked command in '/home/wei/fire_scout_ws/build/px4_msgs' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/px4_msgs -- -j32 -l32
+Invoking command in '/home/wei/fire_scout_ws/build/px4_msgs': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/px4_msgs
+Invoked command in '/home/wei/fire_scout_ws/build/px4_msgs' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/px4_msgs

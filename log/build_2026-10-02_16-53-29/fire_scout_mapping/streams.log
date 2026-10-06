@@ -1,0 +1,25 @@
+[0.015s] Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_mapping': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_mapping -- -j32 -l32
+[0.102s] [100%] Built target radar_map_builder
+[0.114s] Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_mapping' returned '0': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_mapping -- -j32 -l32
+[0.117s] Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_mapping': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_mapping
+[0.128s] -- Install configuration: ""
+[0.129s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/lib/fire_scout_mapping/radar_map_builder
+[0.129s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/launch
+[0.129s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/launch/planning_map.launch.py
+[0.129s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/launch/radar_mapping.launch.py
+[0.130s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/ament_index/resource_index/package_run_dependencies/fire_scout_mapping
+[0.130s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/ament_index/resource_index/parent_prefix_path/fire_scout_mapping
+[0.130s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/environment/ament_prefix_path.sh
+[0.130s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/environment/ament_prefix_path.dsv
+[0.130s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/environment/path.sh
+[0.130s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/environment/path.dsv
+[0.130s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/local_setup.bash
+[0.130s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/local_setup.sh
+[0.130s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/local_setup.zsh
+[0.130s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/local_setup.dsv
+[0.130s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/package.dsv
+[0.130s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/ament_index/resource_index/packages/fire_scout_mapping
+[0.130s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/cmake/fire_scout_mappingConfig.cmake
+[0.131s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/cmake/fire_scout_mappingConfig-version.cmake
+[0.131s] -- Up-to-date: /home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/package.xml
+[0.133s] Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_mapping' returned '0': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_mapping

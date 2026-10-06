@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/ultrasonic_memory_test.dir/tests/ultrasonic_memory_test.cpp.o -o ultrasonic_memory_test 

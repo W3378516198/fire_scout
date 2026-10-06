@@ -1,0 +1,64 @@
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+-- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+-- Found rclcpp: 16.0.19 (/opt/ros/humble/share/rclcpp/cmake)
+-- Found rosidl_generator_c: 3.1.8 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+-- Found rosidl_adapter: 3.1.8 (/opt/ros/humble/share/rosidl_adapter/cmake)
+-- Found rosidl_generator_cpp: 3.1.8 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+-- Found rmw_cyclonedds_cpp: 1.3.4 (/opt/ros/humble/share/rmw_cyclonedds_cpp/cmake)
+-- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Found px4_msgs: 2.0.1 (/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/cmake)
+-- Found sensor_msgs: 4.9.1 (/opt/ros/humble/share/sensor_msgs/cmake)
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/wei/fire_scout_ws/build/fire_scout_control
+[ 33%] [32mBuilding CXX object CMakeFiles/entrance_wall_search.dir/src/entrance_wall_search.cpp.o[0m
+[ 33%] [32mBuilding CXX object CMakeFiles/scout_enter_window.dir/src/scout_enter_window.cpp.o[0m
+[ 50%] [32mBuilding CXX object CMakeFiles/scout_takeoff.dir/src/scout_takeoff.cpp.o[0m
+[ 66%] [32m[1mLinking CXX executable scout_takeoff[0m
+[ 66%] Built target scout_takeoff
+[ 83%] [32m[1mLinking CXX executable scout_enter_window[0m
+[ 83%] Built target scout_enter_window
+[100%] [32m[1mLinking CXX executable entrance_wall_search[0m
+[100%] Built target entrance_wall_search
+-- Install configuration: ""
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/lib/fire_scout_control/scout_takeoff
+-- Set runtime path of "/home/wei/fire_scout_ws/install/fire_scout_control/lib/fire_scout_control/scout_takeoff" to ""
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/lib/fire_scout_control/scout_enter_window
+-- Set runtime path of "/home/wei/fire_scout_ws/install/fire_scout_control/lib/fire_scout_control/scout_enter_window" to ""
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/lib/fire_scout_control/entrance_wall_search
+-- Set runtime path of "/home/wei/fire_scout_ws/install/fire_scout_control/lib/fire_scout_control/entrance_wall_search" to ""
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/ament_index/resource_index/package_run_dependencies/fire_scout_control
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/ament_index/resource_index/parent_prefix_path/fire_scout_control
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/environment/ament_prefix_path.sh
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/environment/ament_prefix_path.dsv
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/environment/path.sh
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/environment/path.dsv
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/local_setup.bash
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/local_setup.sh
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/local_setup.zsh
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/local_setup.dsv
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/package.dsv
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/ament_index/resource_index/packages/fire_scout_control
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/cmake/fire_scout_controlConfig.cmake
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/cmake/fire_scout_controlConfig-version.cmake
+-- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/package.xml

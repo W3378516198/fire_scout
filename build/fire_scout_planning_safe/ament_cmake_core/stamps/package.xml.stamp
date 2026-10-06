@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>fire_scout_planning_safe</name>
+  <version>2.1.2</version>
+  <description>
+    Simulation-oriented ROS2 planning for Fire Scout:
+    free/occupied/unknown mapping, RACER-compatible task allocation,
+    tangent-continuous local repair, symmetric peer separation, deadlock-safe
+    narrow-passage coordination, arbitrary-fleet centered startup formation,
+    obstacle-hold staging, cooperative mapping and PX4 following.
+  </description>
+
+  <maintainer email="user@example.com">fire_scout</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>rcl_interfaces</depend>
+  <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>px4_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+
+  <exec_depend>ros2launch</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

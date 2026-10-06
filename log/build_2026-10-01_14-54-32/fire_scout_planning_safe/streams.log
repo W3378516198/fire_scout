@@ -1,0 +1,113 @@
+[0.010s] Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_planning_safe': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake /home/wei/fire_scout_ws/src/fire_scout_planning_safe -DCMAKE_BUILD_TYPE=Release -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/wei/fire_scout_ws/install/fire_scout_planning_safe
+[0.067s] -- The C compiler identification is GNU 11.4.0
+[0.122s] -- The CXX compiler identification is GNU 11.4.0
+[0.127s] -- Detecting C compiler ABI info
+[0.191s] -- Detecting C compiler ABI info - done
+[0.196s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.197s] -- Detecting C compile features
+[0.197s] -- Detecting C compile features - done
+[0.199s] -- Detecting CXX compiler ABI info
+[0.271s] -- Detecting CXX compiler ABI info - done
+[0.279s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.279s] -- Detecting CXX compile features
+[0.279s] -- Detecting CXX compile features - done
+[0.280s] -- Fire Scout 2.0.3: building mapping, fusion, planning and follower ROS nodes
+[0.280s] -- Looking for pthread.h
+[0.342s] -- Looking for pthread.h - found
+[0.342s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[0.416s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[0.418s] -- Found Threads: TRUE  
+[0.420s] -- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.538s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.588s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[0.607s] -- Found rclcpp: 16.0.19 (/opt/ros/humble/share/rclcpp/cmake)
+[0.641s] -- Found rosidl_generator_c: 3.1.8 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[0.644s] -- Found rosidl_adapter: 3.1.8 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.649s] -- Found rosidl_generator_cpp: 3.1.8 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[0.657s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.667s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.695s] -- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[0.696s] -- Found rmw_cyclonedds_cpp: 1.3.4 (/opt/ros/humble/share/rmw_cyclonedds_cpp/cmake)
+[0.710s] -- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+[0.748s] -- Found sensor_msgs: 4.9.1 (/opt/ros/humble/share/sensor_msgs/cmake)
+[0.768s] -- Found nav_msgs: 4.9.1 (/opt/ros/humble/share/nav_msgs/cmake)
+[0.779s] -- Found std_srvs: 4.9.1 (/opt/ros/humble/share/std_srvs/cmake)
+[0.786s] -- Found tf2: 0.25.22 (/opt/ros/humble/share/tf2/cmake)
+[0.793s] -- Found tf2_ros: 0.25.22 (/opt/ros/humble/share/tf2_ros/cmake)
+[0.850s] -- Found px4_msgs: 2.0.1 (/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/cmake)
+[0.996s] -- Configuring done
+[1.026s] -- Generating done
+[1.037s] -- Build files have been written to: /home/wei/fire_scout_ws/build/fire_scout_planning_safe
+[1.044s] Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_planning_safe' returned '0': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake /home/wei/fire_scout_ws/src/fire_scout_planning_safe -DCMAKE_BUILD_TYPE=Release -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/wei/fire_scout_ws/install/fire_scout_planning_safe
+[1.046s] Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_planning_safe': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_planning_safe -- -j32 -l32
+[1.094s] [  2%] [32mBuilding CXX object CMakeFiles/multi_uav_map_fusion.dir/src/multi_uav_map_fusion.cpp.o[0m
+[1.095s] [  5%] [32mBuilding CXX object CMakeFiles/route_switch_test.dir/tests/route_switch_test.cpp.o[0m
+[1.096s] [  8%] [32mBuilding CXX object CMakeFiles/v2_coordination_test.dir/tests/v2_coordination_test.cpp.o[0m
+[1.098s] [ 11%] [32mBuilding CXX object CMakeFiles/v2_local_retime_test.dir/tests/v2_local_retime_test.cpp.o[0m
+[1.099s] [ 13%] [32mBuilding CXX object CMakeFiles/racer_task_allocator.dir/src/racer_task_allocator.cpp.o[0m
+[1.100s] [ 16%] [32mBuilding CXX object CMakeFiles/incremental_repair_v19_test.dir/tests/incremental_repair_v19_test.cpp.o[0m
+[1.100s] [ 19%] [32mBuilding CXX object CMakeFiles/ultrasonic_memory_test.dir/tests/ultrasonic_memory_test.cpp.o[0m
+[1.102s] [ 25%] [32mBuilding CXX object CMakeFiles/v2_topology_routes_test.dir/tests/v2_topology_routes_test.cpp.o[0m
+[1.102s] [ 25%] [32mBuilding CXX object CMakeFiles/radar_free_space_mapper.dir/src/radar_free_space_mapper.cpp.o[0m
+[1.103s] [ 27%] [32mBuilding CXX object CMakeFiles/coordination_components_test.dir/tests/coordination_components_test.cpp.o[0m
+[1.103s] [ 33%] [32mBuilding CXX object CMakeFiles/v2_horizon_topology_test.dir/tests/v2_horizon_topology_test.cpp.o[0m
+[1.103s] [ 33%] [32mBuilding CXX object CMakeFiles/safe_airfar_like_planner.dir/src/safe_airfar_like_planner.cpp.o[0m
+[1.103s] [ 36%] [32mBuilding CXX object CMakeFiles/passage_coordinator.dir/src/passage_coordinator.cpp.o[0m
+[1.104s] [ 38%] [32mBuilding CXX object CMakeFiles/follower_alignment_test.dir/tests/follower_alignment_test.cpp.o[0m
+[1.105s] [ 41%] [32mBuilding CXX object CMakeFiles/safe_airfar_path_follower.dir/src/safe_airfar_path_follower.cpp.o[0m
+[1.106s] [ 44%] [32mBuilding CXX object CMakeFiles/v2_trajectory_test.dir/tests/v2_trajectory_test.cpp.o[0m
+[1.107s] [ 47%] [32mBuilding CXX object CMakeFiles/v2_tracking_guard_test.dir/tests/v2_tracking_guard_test.cpp.o[0m
+[1.108s] [ 50%] [32mBuilding CXX object CMakeFiles/v2_execution_transition_test.dir/tests/v2_execution_transition_test.cpp.o[0m
+[2.077s] [ 52%] [32m[1mLinking CXX executable route_switch_test[0m
+[2.156s] [ 52%] Built target route_switch_test
+[2.253s] In file included from [01m[K/home/wei/fire_scout_ws/src/fire_scout_planning_safe/include/fire_scout/route_candidates.hpp:3[m[K,
+[2.253s]                  from [01m[K/home/wei/fire_scout_ws/src/fire_scout_planning_safe/src/safe_airfar_like_planner.cpp:7[m[K:
+[2.253s] [01m[K/home/wei/fire_scout_ws/src/fire_scout_planning_safe/include/fire_scout/racer_task_allocator.hpp:[m[K In function ‘[01m[Kdouble fire_scout::route_detail::nearestRouteDistance(fire_scout::Vec3, const std::vector<fire_scout::Vec3>&)[m[K’:
+[2.253s] [01m[K/home/wei/fire_scout_ws/src/fire_scout_planning_safe/include/fire_scout/racer_task_allocator.hpp:93:47:[m[K [01;31m[Kerror: [m[Kcall of overloaded ‘[01m[KpointSegmentDistance(fire_scout::Vec3&, const value_type&, const value_type&)[m[K’ is ambiguous
+[2.253s]    93 |     best = std::min(best, [01;31m[KpointSegmentDistance(point, route[i - 1], route[i])[m[K);
+[2.253s]       |                           [01;31m[K~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+[2.253s] [01m[K/home/wei/fire_scout_ws/src/fire_scout_planning_safe/include/fire_scout/racer_task_allocator.hpp:80:15:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Kdouble fire_scout::route_detail::pointSegmentDistance(fire_scout::Vec3, fire_scout::Vec3, fire_scout::Vec3)[m[K’
+[2.253s]    80 | inline double [01;36m[KpointSegmentDistance[m[K(Vec3 point, Vec3 a, Vec3 b) {
+[2.254s]       |               [01;36m[K^~~~~~~~~~~~~~~~~~~~[m[K
+[2.254s] In file included from [01m[K/home/wei/fire_scout_ws/src/fire_scout_planning_safe/include/fire_scout/route_execution.hpp:3[m[K,
+[2.254s]                  from [01m[K/home/wei/fire_scout_ws/src/fire_scout_planning_safe/src/safe_airfar_like_planner.cpp:6[m[K:
+[2.254s] [01m[K/home/wei/fire_scout_ws/src/fire_scout_planning_safe/include/fire_scout/timed_trajectory.hpp:58:15:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Kdouble fire_scout::pointSegmentDistance(fire_scout::Vec3, fire_scout::Vec3, fire_scout::Vec3)[m[K’
+[2.254s]    58 | inline double [01;36m[KpointSegmentDistance[m[K(Vec3 p,Vec3 a,Vec3 b){
+[2.254s]       |               [01;36m[K^~~~~~~~~~~~~~~~~~~~[m[K
+[2.953s] [ 55%] [32m[1mLinking CXX executable ultrasonic_memory_test[0m
+[3.039s] [ 55%] Built target ultrasonic_memory_test
+[3.325s] [ 58%] [32m[1mLinking CXX executable v2_local_retime_test[0m
+[3.354s] [ 61%] [32m[1mLinking CXX executable follower_alignment_test[0m
+[3.433s] [ 61%] Built target v2_local_retime_test
+[3.459s] [ 61%] Built target follower_alignment_test
+[3.602s] [ 63%] [32m[1mLinking CXX executable coordination_components_test[0m
+[3.682s] [ 63%] Built target coordination_components_test
+[4.400s] [ 66%] [32m[1mLinking CXX executable v2_tracking_guard_test[0m
+[4.435s] [ 69%] [32m[1mLinking CXX executable incremental_repair_v19_test[0m
+[4.498s] [ 69%] Built target v2_tracking_guard_test
+[4.517s] [ 69%] Built target incremental_repair_v19_test
+[4.841s] [ 72%] [32m[1mLinking CXX executable v2_trajectory_test[0m
+[4.933s] [ 72%] Built target v2_trajectory_test
+[5.082s] [ 75%] [32m[1mLinking CXX executable v2_execution_transition_test[0m
+[5.176s] [ 75%] Built target v2_execution_transition_test
+[5.703s] [ 77%] [32m[1mLinking CXX executable v2_topology_routes_test[0m
+[5.759s] [ 80%] [32m[1mLinking CXX executable v2_horizon_topology_test[0m
+[5.792s] [ 80%] Built target v2_topology_routes_test
+[5.827s] [ 80%] Built target v2_horizon_topology_test
+[6.183s] [ 83%] [32m[1mLinking CXX executable v2_coordination_test[0m
+[6.255s] [ 83%] Built target v2_coordination_test
+[9.740s] gmake[2]: *** [CMakeFiles/safe_airfar_like_planner.dir/build.make:76：CMakeFiles/safe_airfar_like_planner.dir/src/safe_airfar_like_planner.cpp.o] 错误 1
+[9.741s] gmake[1]: *** [CMakeFiles/Makefile2:249：CMakeFiles/safe_airfar_like_planner.dir/all] 错误 2
+[9.741s] gmake[1]: *** 正在等待未完成的任务....
+[11.633s] [ 86%] [32m[1mLinking CXX executable passage_coordinator[0m
+[11.771s] [ 86%] Built target passage_coordinator
+[15.969s] [ 88%] [32m[1mLinking CXX executable multi_uav_map_fusion[0m
+[16.069s] [ 91%] [32m[1mLinking CXX executable radar_free_space_mapper[0m
+[16.122s] [ 91%] Built target multi_uav_map_fusion
+[16.241s] [ 91%] Built target radar_free_space_mapper
+[19.802s] [ 94%] [32m[1mLinking CXX executable racer_task_allocator[0m
+[19.994s] [ 94%] Built target racer_task_allocator
+[40.824s] [ 97%] [32m[1mLinking CXX executable safe_airfar_path_follower[0m
+[41.132s] [ 97%] Built target safe_airfar_path_follower
+[41.133s] gmake: *** [Makefile:146：all] 错误 2
+[41.135s] Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_planning_safe' returned '2': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_planning_safe -- -j32 -l32

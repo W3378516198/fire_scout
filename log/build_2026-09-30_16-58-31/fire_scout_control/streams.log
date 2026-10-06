@@ -1,0 +1,70 @@
+[0.015s] Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_control': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake /home/wei/fire_scout_ws/src/fire_scout_control -DCMAKE_INSTALL_PREFIX=/home/wei/fire_scout_ws/install/fire_scout_control
+[0.067s] -- The C compiler identification is GNU 11.4.0
+[0.116s] -- The CXX compiler identification is GNU 11.4.0
+[0.122s] -- Detecting C compiler ABI info
+[0.180s] -- Detecting C compiler ABI info - done
+[0.186s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.186s] -- Detecting C compile features
+[0.186s] -- Detecting C compile features - done
+[0.189s] -- Detecting CXX compiler ABI info
+[0.258s] -- Detecting CXX compiler ABI info - done
+[0.267s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.267s] -- Detecting CXX compile features
+[0.268s] -- Detecting CXX compile features - done
+[0.270s] -- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.405s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.474s] -- Found rclcpp: 16.0.19 (/opt/ros/humble/share/rclcpp/cmake)
+[0.512s] -- Found rosidl_generator_c: 3.1.8 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[0.515s] -- Found rosidl_adapter: 3.1.8 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.521s] -- Found rosidl_generator_cpp: 3.1.8 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[0.529s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.540s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.578s] -- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[0.579s] -- Found rmw_cyclonedds_cpp: 1.3.4 (/opt/ros/humble/share/rmw_cyclonedds_cpp/cmake)
+[0.594s] -- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+[0.599s] -- Looking for pthread.h
+[0.660s] -- Looking for pthread.h - found
+[0.661s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[0.727s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[0.728s] -- Found Threads: TRUE  
+[0.764s] -- Found px4_msgs: 2.0.1 (/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/cmake)
+[0.773s] -- Found sensor_msgs: 4.9.1 (/opt/ros/humble/share/sensor_msgs/cmake)
+[0.842s] -- Configuring done
+[0.852s] -- Generating done
+[0.856s] -- Build files have been written to: /home/wei/fire_scout_ws/build/fire_scout_control
+[0.864s] Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_control' returned '0': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake /home/wei/fire_scout_ws/src/fire_scout_control -DCMAKE_INSTALL_PREFIX=/home/wei/fire_scout_ws/install/fire_scout_control
+[0.866s] Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_control': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_control -- -j32 -l32
+[0.923s] [ 33%] [32mBuilding CXX object CMakeFiles/entrance_wall_search.dir/src/entrance_wall_search.cpp.o[0m
+[0.923s] [ 33%] [32mBuilding CXX object CMakeFiles/scout_enter_window.dir/src/scout_enter_window.cpp.o[0m
+[0.923s] [ 50%] [32mBuilding CXX object CMakeFiles/scout_takeoff.dir/src/scout_takeoff.cpp.o[0m
+[5.779s] [ 66%] [32m[1mLinking CXX executable scout_takeoff[0m
+[6.075s] [ 66%] Built target scout_takeoff
+[6.561s] [ 83%] [32m[1mLinking CXX executable scout_enter_window[0m
+[6.859s] [ 83%] Built target scout_enter_window
+[16.605s] [100%] [32m[1mLinking CXX executable entrance_wall_search[0m
+[17.381s] [100%] Built target entrance_wall_search
+[17.396s] Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_control' returned '0': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_control -- -j32 -l32
+[17.397s] Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_control': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_control
+[17.404s] -- Install configuration: ""
+[17.404s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/lib/fire_scout_control/scout_takeoff
+[17.405s] -- Set runtime path of "/home/wei/fire_scout_ws/install/fire_scout_control/lib/fire_scout_control/scout_takeoff" to ""
+[17.405s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/lib/fire_scout_control/scout_enter_window
+[17.406s] -- Set runtime path of "/home/wei/fire_scout_ws/install/fire_scout_control/lib/fire_scout_control/scout_enter_window" to ""
+[17.406s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/lib/fire_scout_control/entrance_wall_search
+[17.412s] -- Set runtime path of "/home/wei/fire_scout_ws/install/fire_scout_control/lib/fire_scout_control/entrance_wall_search" to ""
+[17.412s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/ament_index/resource_index/package_run_dependencies/fire_scout_control
+[17.412s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/ament_index/resource_index/parent_prefix_path/fire_scout_control
+[17.412s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/environment/ament_prefix_path.sh
+[17.412s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/environment/ament_prefix_path.dsv
+[17.413s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/environment/path.sh
+[17.413s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/environment/path.dsv
+[17.413s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/local_setup.bash
+[17.413s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/local_setup.sh
+[17.413s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/local_setup.zsh
+[17.413s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/local_setup.dsv
+[17.413s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/package.dsv
+[17.413s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/ament_index/resource_index/packages/fire_scout_control
+[17.413s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/cmake/fire_scout_controlConfig.cmake
+[17.413s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/cmake/fire_scout_controlConfig-version.cmake
+[17.413s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/package.xml
+[17.415s] Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_control' returned '0': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_control

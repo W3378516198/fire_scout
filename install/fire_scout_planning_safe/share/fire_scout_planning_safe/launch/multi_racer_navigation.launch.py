@@ -1,0 +1,1 @@
+/home/wei/fire_scout_ws/src/fire_scout_planning_safe/launch/multi_racer_navigation.launch.py

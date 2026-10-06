@@ -1,0 +1,46 @@
+[0.013s] Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_bringup': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake /home/wei/fire_scout_ws/src/fire_scout_bringup -DCMAKE_INSTALL_PREFIX=/home/wei/fire_scout_ws/install/fire_scout_bringup
+[0.074s] -- The C compiler identification is GNU 11.4.0
+[0.137s] -- The CXX compiler identification is GNU 11.4.0
+[0.146s] -- Detecting C compiler ABI info
+[0.224s] -- Detecting C compiler ABI info - done
+[0.234s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.235s] -- Detecting C compile features
+[0.235s] -- Detecting C compile features - done
+[0.239s] -- Detecting CXX compiler ABI info
+[0.334s] -- Detecting CXX compiler ABI info - done
+[0.343s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.343s] -- Detecting CXX compile features
+[0.343s] -- Detecting CXX compile features - done
+[0.347s] -- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.504s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.675s] -- Configuring done
+[0.678s] -- Generating done
+[0.681s] -- Build files have been written to: /home/wei/fire_scout_ws/build/fire_scout_bringup
+[0.686s] Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_bringup' returned '0': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake /home/wei/fire_scout_ws/src/fire_scout_bringup -DCMAKE_INSTALL_PREFIX=/home/wei/fire_scout_ws/install/fire_scout_bringup
+[0.689s] Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_bringup': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_bringup -- -j32 -l32
+[0.733s] Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_bringup' returned '0': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_bringup -- -j32 -l32
+[0.735s] Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_bringup': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_bringup
+[0.744s] -- Install configuration: ""
+[0.745s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/launch
+[0.745s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/launch/single_scout.launch.py
+[0.745s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/launch/multi_scout.launch.py
+[0.745s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/docs
+[0.745s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/docs/TF_STARTUP_TROUBLESHOOTING_ZH.md
+[0.745s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/lib/fire_scout_bringup/start_radar_bridge.sh
+[0.745s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/lib/fire_scout_bringup/diagnose_multi_tf.sh
+[0.745s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/ament_index/resource_index/package_run_dependencies/fire_scout_bringup
+[0.746s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/ament_index/resource_index/parent_prefix_path/fire_scout_bringup
+[0.746s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/environment/ament_prefix_path.sh
+[0.746s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/environment/ament_prefix_path.dsv
+[0.746s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/environment/path.sh
+[0.746s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/environment/path.dsv
+[0.746s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/local_setup.bash
+[0.746s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/local_setup.sh
+[0.747s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/local_setup.zsh
+[0.747s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/local_setup.dsv
+[0.747s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/package.dsv
+[0.747s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/ament_index/resource_index/packages/fire_scout_bringup
+[0.747s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/cmake/fire_scout_bringupConfig.cmake
+[0.747s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/cmake/fire_scout_bringupConfig-version.cmake
+[0.747s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/package.xml
+[0.750s] Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_bringup' returned '0': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_bringup

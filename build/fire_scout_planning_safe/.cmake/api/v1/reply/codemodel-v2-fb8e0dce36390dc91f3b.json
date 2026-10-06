@@ -1,0 +1,223 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Release-3b3d8f572ae868dadcc3.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "fire_scout_planning_safe",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "coordination_components_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-coordination_components_test-Release-95fec8e4e651894eb739.json",
+					"name" : "coordination_components_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "fire_scout_planning_safe_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-fire_scout_planning_safe_uninstall-Release-e0f5de0d8959c19242b1.json",
+					"name" : "fire_scout_planning_safe_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "follower_alignment_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-follower_alignment_test-Release-7ca915ec9d4653a65bdb.json",
+					"name" : "follower_alignment_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "incremental_repair_v19_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-incremental_repair_v19_test-Release-159452254f45851209d9.json",
+					"name" : "incremental_repair_v19_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "map_input_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-map_input_test-Release-8168de1a8145a13ae428.json",
+					"name" : "map_input_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "map_snapshot_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-map_snapshot_test-Release-739f5dab634357da4b5d.json",
+					"name" : "map_snapshot_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "multi_uav_map_fusion::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-multi_uav_map_fusion-Release-067834e90afa83f7a5eb.json",
+					"name" : "multi_uav_map_fusion",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "passage_coordinator::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-passage_coordinator-Release-c5631dff5d483cfa0d39.json",
+					"name" : "passage_coordinator",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "racer_task_allocator::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-racer_task_allocator-Release-8504a14150cf2e2b69e2.json",
+					"name" : "racer_task_allocator",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "radar_free_space_mapper::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-radar_free_space_mapper-Release-aa5d4c625e04f3f06537.json",
+					"name" : "radar_free_space_mapper",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "route_switch_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-route_switch_test-Release-7a642807e801e6aeaf0b.json",
+					"name" : "route_switch_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "safe_airfar_like_planner::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-safe_airfar_like_planner-Release-6319d57eb387cfb5ebf9.json",
+					"name" : "safe_airfar_like_planner",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "safe_airfar_path_follower::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-safe_airfar_path_follower-Release-977ad645e16f024409a4.json",
+					"name" : "safe_airfar_path_follower",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ultrasonic_memory_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ultrasonic_memory_test-Release-55e23706e3cfd17ce86f.json",
+					"name" : "ultrasonic_memory_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-Release-b7b749e50df6b6061d58.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "v210_entrance_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-v210_entrance_test-Release-959364f9a681be6d9c87.json",
+					"name" : "v210_entrance_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "v210_header_integration_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-v210_header_integration_test-Release-eaa2eebc208043ded416.json",
+					"name" : "v210_header_integration_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "v210_route_channel_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-v210_route_channel_test-Release-3163d75ec497f39e04c7.json",
+					"name" : "v210_route_channel_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "v2_passage_handshake_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-v2_passage_handshake_test-Release-634db09ca6cdec7dbb36.json",
+					"name" : "v2_passage_handshake_test",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/wei/fire_scout_ws/build/fire_scout_planning_safe",
+		"source" : "/home/wei/fire_scout_ws/src/fire_scout_planning_safe"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

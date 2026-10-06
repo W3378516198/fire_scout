@@ -1,0 +1,119 @@
+{
+  "version": "2.1.2",
+  "base": "uploaded 2.1.1, identical to previous delivered source",
+  "portable_tests": [
+    {
+      "test": "coordination_components_test",
+      "exit_code": 0,
+      "seconds": 2.26,
+      "output": "coordination_components_test: PASS\n"
+    },
+    {
+      "test": "incremental_repair_v19_test",
+      "exit_code": 0,
+      "seconds": 3.08,
+      "output": "incremental_repair_v19_test: PASS\n"
+    },
+    {
+      "test": "follower_alignment_test",
+      "exit_code": 0,
+      "seconds": 1.17,
+      "output": "follower_alignment_test: PASS\n"
+    },
+    {
+      "test": "route_switch_test",
+      "exit_code": 0,
+      "seconds": 0.91,
+      "output": "route_switch_test: PASS\n"
+    },
+    {
+      "test": "ultrasonic_memory_test",
+      "exit_code": 0,
+      "seconds": 1.18,
+      "output": "ultrasonic_memory_test: PASS\n"
+    },
+    {
+      "test": "v2_passage_handshake_test",
+      "exit_code": 0,
+      "seconds": 1.0,
+      "output": "scout1 logged exit: lease retained through old stop, completion recoverable\nscout2 logged exit: lease retained through old stop, completion recoverable\nv2_passage_handshake_test: PASS log replay, completion, FIFO, owner loss, clustered anchors, wait monitor, reentry\n"
+    },
+    {
+      "test": "v210_entrance_test",
+      "exit_code": 0,
+      "seconds": 3.86,
+      "output": "v210_entrance_test: PASS three doors, unchanged corridor, one-door fallback, budget/count, detour bound, committed approach\n"
+    },
+    {
+      "test": "v210_route_channel_test",
+      "exit_code": 0,
+      "seconds": 1.3,
+      "output": "v210_route_channel_test: PASS revisions, DDS arrival skew, no heartbeat reset, stale input, recovery eligibility, publisher restart\n"
+    },
+    {
+      "test": "v210_header_integration_test",
+      "exit_code": 0,
+      "seconds": 1.0,
+      "output": ""
+    },
+    {
+      "test": "map_snapshot_test",
+      "exit_code": 0,
+      "seconds": 2.11,
+      "output": "map_snapshot_test: PASS; synthetic_free_cells=800000 xyz_bytes=12800000 snapshot_bytes=96024 codec_roundtrip_ms=386.003\n"
+    },
+    {
+      "test": "map_input_test",
+      "exit_code": 0,
+      "seconds": 1.26,
+      "output": "map_input_test: PASS stale-fusion/fresh-local, both-stale rejection, clock skew, conservative occupied and no stale remote free\n"
+    },
+    {
+      "test": "v2_node_passage_test",
+      "exit_code": 0,
+      "seconds": 2.26,
+      "output": "v2_node_passage_test: PASS actual follower/coordinator methods, both logged exits, local release, dropped completion, old reply, wrong frame/id, inside rejection, rewind\n"
+    },
+    {
+      "test": "v210_launch_test",
+      "exit_code": 0,
+      "seconds": 1.63,
+      "output": "v210_launch_test: PASS real 1..4 scout wiring, DAG priority, radius agreement, YAML/CLI resolution, coordinator switch\n"
+    },
+    {
+      "test": "v210_node_continuity_test",
+      "exit_code": 0,
+      "seconds": 7.68,
+      "output": "v210_node_continuity_test: PASS actual odometry/publisher/worker/completion; retained progress beyond 8m, fixed revision, reused geometry, past/future obstacles, stale-map denial\n"
+    },
+    {
+      "test": "v212_map_pipeline_test",
+      "exit_code": 0,
+      "seconds": 1.78,
+      "output": "v212_map_pipeline_test: PASS actual envelope/callback/drain/selector; fusion outage, recovery, both-stale hold, retained progress, coalescing, missing TF, malformed packet, bounded follower decode\n"
+    }
+  ],
+  "test_count": 15,
+  "all_passed": true,
+  "scope": "ROS transport/TF interfaces are stubs in node-body tests; no ROS node link, DDS pressure test or flight simulation available",
+  "core_geometry_headers_unchanged": [
+    "grid.hpp",
+    "planner.hpp",
+    "tracker.hpp",
+    "bspline.hpp"
+  ],
+  "config_changes": [
+    "map_transport=compact",
+    "publish_free_clouds=false",
+    "local_map_fallback_enabled=true",
+    "snapshot topic wiring"
+  ],
+  "source_log": "fire_scout_log_20261002T104950Z",
+  "fault_reproduction": "legacy four-entry exact-stamp buffer starves when free samples lag six samples; complete snapshot recovers independently after packet loss",
+  "sanitizers": {
+    "test": "v212_map_pipeline_test",
+    "asan": true,
+    "ubsan": true,
+    "leak_detection": false
+  }
+}

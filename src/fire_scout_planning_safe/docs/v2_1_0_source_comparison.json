@@ -1,0 +1,13 @@
+{
+  "version": "2.1.0",
+  "base_archive": "fire_scout_planning_safe.tar(20261002-090053).xz",
+  "base_sha256": "bd42ba5f94a6282404c51146a2b45a4bdf7750a40f94307142ca40debd145742",
+  "reference_archive": "fire_scout_planning_safe.tar(20261002-090047).xz",
+  "reference_sha256": "f515261533c2a57b07b6ffb66da84f2f7c054f5a6d7b4297342eeabc98c510be",
+  "unchanged_core": {
+    "bspline.hpp": "e5d58e1f507106564028fc46e8aecebca6b391b3f558f27660f672fc23e3b49e",
+    "tracker.hpp": "957f11798ca10c27ae57e0a02757f2b74b5fd16da4ae785229bc5d3f8d9c9454",
+    "planner.hpp": "b6892c325c4808568f9629d15786cf5da4ec431dc48d0d6c933954acb7d30cbe",
+    "grid.hpp": "5bf95328ced70466e37480dfa41a9a3a1c7e645c77ebd95eb29670f88d1706e6"
+  }
+}

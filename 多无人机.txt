@@ -1,0 +1,96 @@
+Agent:
+source ~/fire_scout_ws/setup_fire_scout.sh
+MicroXRCEAgent udp4 -p 8888
+
+
+scout1:
+cd ~/PX4-Autopilot-v1.17
+export ROS_DOMAIN_ID=0
+export GZ_PARTITION=fire_scout_sim
+export PX4_UXRCE_DDS_SYNCT=0
+PX4_GZ_WORLD=fire_scout_floor \
+PX4_GZ_MODEL_POSE="-12.5,-8.0,0.2,0,0,0" \
+PX4_UXRCE_DDS_NS=scout1 \
+PX4_SYS_AUTOSTART=4013 \
+PX4_SIM_MODEL=gz_x500_lidar_2d \
+./build/px4_sitl_default/bin/px4 -i 1
+
+
+scout2:
+cd ~/PX4-Autopilot-v1.17
+export ROS_DOMAIN_ID=0
+export GZ_PARTITION=fire_scout_sim
+export PX4_UXRCE_DDS_SYNCT=0
+PX4_GZ_STANDALONE=1 \
+PX4_GZ_WORLD=fire_scout_floor \
+PX4_GZ_MODEL_POSE="-12.5,-1.0,0.2,0,0,0" \
+PX4_UXRCE_DDS_NS=scout2 \
+PX4_SYS_AUTOSTART=4013 \
+PX4_SIM_MODEL=gz_x500_lidar_2d \
+./build/px4_sitl_default/bin/px4 -i 2
+
+scout3:
+cd ~/PX4-Autopilot-v1.17
+export ROS_DOMAIN_ID=0
+export GZ_PARTITION=fire_scout_sim
+export PX4_UXRCE_DDS_SYNCT=0
+PX4_GZ_STANDALONE=1 \
+PX4_GZ_WORLD=fire_scout_floor \
+PX4_GZ_MODEL_POSE="-12.5,9.0,0.2,0,0,0" \
+PX4_UXRCE_DDS_NS=scout3 \
+PX4_SYS_AUTOSTART=4013 \
+PX4_SIM_MODEL=gz_x500_lidar_2d \
+./build/px4_sitl_default/bin/px4 -i 3
+
+scout4:
+cd ~/PX4-Autopilot-v1.17
+export ROS_DOMAIN_ID=0
+export GZ_PARTITION=fire_scout_sim
+export PX4_UXRCE_DDS_SYNCT=0
+PX4_GZ_STANDALONE=1 \
+PX4_GZ_WORLD=fire_scout_floor \
+PX4_GZ_MODEL_POSE="-12.5,3.0,0.2,0,0,0" \
+PX4_UXRCE_DDS_NS=scout4 \
+PX4_SYS_AUTOSTART=4013 \
+PX4_SIM_MODEL=gz_x500_lidar_2d \
+./build/px4_sitl_default/bin/px4 -i 4
+
+
+桥接和驱动：
+cd ~/fire_scout_ws
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+export ROS_DOMAIN_ID=0
+export GZ_PARTITION=fire_scout_sim
+export FIRE_SCOUT_GZ_WORLD=fire_scout_floor
+ros2 launch fire_scout_bringup multi_scout.launch.py \
+  scout_count:=4 \
+  first_model_index:=1 \
+  use_rviz:=true
+
+
+规划和建图：
+cd ~/fire_scout_ws
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+export ROS_DOMAIN_ID=0
+ros2 launch fire_scout_planning_safe multi_racer_navigation.launch.py   scout_count:=4   use_sim_time:=true   start_mapper:=true   racer_enabled:=false   auto_arm:=true
+
+
+
+
+
+发布目标点：
+cd ~/fire_scout_ws
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+export ROS_DOMAIN_ID=0
+export GZ_PARTITION=fire_scout_sim
+export FIRE_SCOUT_GZ_WORLD=fire_scout_floor
+ros2 service call \
+  /racer_task_allocator/set_enabled \
+  std_srvs/srv/SetBool \
+  "{data: true}"
+ros2 topic pub --once /fire_goal geometry_msgs/msg/PoseStamped \
+"{header: {frame_id: 'world'}, pose: {position: {x: 50.0, y: 6.0, z: 1.5}, orientation: {w: 1.0}}}"
+

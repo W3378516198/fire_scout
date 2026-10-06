@@ -1,0 +1,97 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-da955d9c0a2802fafc41.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "fire_scout_control",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "entrance_wall_search::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-entrance_wall_search-02c8fe849806b76ef4ea.json",
+					"name" : "entrance_wall_search",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "fire_scout_control_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-fire_scout_control_uninstall-53660641c70b477feb35.json",
+					"name" : "fire_scout_control_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "scout_enter_window::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-scout_enter_window-c7cf48aa83482b491ebf.json",
+					"name" : "scout_enter_window",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "scout_takeoff::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-scout_takeoff-92ee9734e9fb66233b50.json",
+					"name" : "scout_takeoff",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-294f9d7f2bbc524801b6.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/wei/fire_scout_ws/build/fire_scout_control",
+		"source" : "/home/wei/fire_scout_ws/src/fire_scout_control"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

@@ -1,0 +1,482 @@
+# V2.1.2：完整压缩地图快照＋本机地图接管；保留原路径几何、跟踪、入口预约与硬包络
+# 通用单位：距离/尺寸/半径=m，速度=m/s，加速度=m/s²，加加速度=m/s³，
+# 时间/超时=s，频率=Hz，名称带 _deg 的角度=度，weight/score/count 为无量纲。
+# wheelbase 是对角两个电机轴之间的距离，不是包含桨叶后的整机宽度。
+#
+# 当前自动计算结果（由下面的机体参数得到）：
+#   物理旋翼半径约 0.390 m；考虑 15° 倾斜后约 0.409 m；
+#   狭窄通道硬规划半径约 0.469 m，硬直径约 0.938 m；
+#   垂直半高约 0.272 m，完整高度约 0.544 m。
+# 当前体素为 18 cm。机体硬包络保持原值；不要缩小它来换取穿门。
+/**:
+  ros__parameters:
+    map_transport: compact      # compact=占据/自由一次原子传输＋无损行程压缩；legacy=旧的两个XYZ话题
+    publish_free_clouds: false   # compact模式关闭大尺寸XYZ自由地图显示输出；安全检查仍收到完整自由体素
+    voxel_size: 0.18             # m/体素；边长18 cm，建图、融合、规划必须一致
+    vehicle_wheelbase: 0.50      # m；对角电机轴距，参与计算机体硬半径
+    propeller_diameter: 0.28     # m；PX4 x500桨叶直径；不得用缩小机体尺寸换取穿门
+    vehicle_body_length: 0.30    # m；机身长度
+    vehicle_body_width: 0.22     # m；机身宽度
+    vehicle_height: 0.25         # m；机体高度
+    vehicle_max_tilt_deg: 15.0   # 度；最大倾斜角，角度越大占用的水平/垂直空间越大
+    safety_margin_xy: 0.08       # m；普通开阔区域的水平安全余量（8 cm）
+    tracking_error_margin: 0.04  # m；控制跟踪误差硬余量（4 cm），会增大入口所需宽度
+    # Body + full tracking reserve + 2 cm are hard. The remaining 6 cm stay
+    # in the preferred clearance cost; tight passages receive a strict speed cap.
+    separate_comfort_clearance: true  # true时狭窄通道可使用较小硬半径；建议保持true
+    minimum_safety_margin_xy: 0.02    # m；狭窄通道仍保留的硬余量（源码下限2 cm）
+    goal_approach_max_offset: 0.50    # m；目标被障碍占据时允许挪动目标的最大距离
+    safety_margin_z: 0.05             # m；垂直硬安全余量（5 cm）
+    recovery_margin_xy: 0.02          # m；只在严格远离脱困时使用：倾斜旋翼外仍保留2 cm
+    # Legacy explicit inflation is an additional lower bound; 0 = automatic geometry.
+    inflation_radius: 0.0        # m；额外水平膨胀下限。0=按机体自动算，并非取消膨胀
+    inflation_z: 0.0             # m；额外垂直膨胀下限。0=按机体自动算
+    preferred_clearance: 0.75    # m；软舒适距离，不是硬膨胀；偏大会让规划器回避窄入口
+    # Never shrinks the hard radius. Shared by planner and follower.
+    adaptive_gap_enabled: true
+    gap_margin_weight: 1.0       # 无量纲；越大越偏好额外侧向空间，只影响软代价
+    gap_speed_weight: 1.0        # 无量纲；越大则通道变宽时提速越快
+    gap_scale: 0.09              # m；硬直径以外的剩余宽度尺度
+    gap_max_extra_margin: 0.22   # m/每侧；最大软余量，不属于硬膨胀
+    gap_probe_distance: 1.0      # m；向路径左右探测通道宽度的距离
+    gap_min_speed: 0.50          # m/s；窄通道速度下限，其他安全条件仍可将速度降为0
+    z_min: 0.65                  # m；按x500实体保留的最低安全高度，不随世界缩放
+    z_max: 6.00                  # m；配套2×楼层的允许飞行最高高度
+    ultrasonic_topic: /scout1/ultrasonic/front/scan
+    ultrasonic_offset_x: 0.20    # m；超声波相对机体原点的前向安装偏移
+    ultrasonic_offset_y: 0.0     # m；超声波相对机体原点的横向安装偏移
+    ultrasonic_offset_z: 0.07    # m；超声波相对机体原点的垂直安装偏移
+    ultrasonic_yaw_deg: 0.0      # 度；超声波水平安装偏航角
+    ultrasonic_half_angle_deg: 10.0  # 度；保护锥半角，总角度约20°
+
+radar_free_space_mapper:
+  ros__parameters:
+    front_topic: /scout1/radar/front/mmwave_points
+    left_topic: /scout1/radar/left/mmwave_points
+    right_topic: /scout1/radar/right/mmwave_points
+    occupied_topic: /scout1/map/radar_occupied
+    free_topic: /scout1/map/radar_free
+    map_snapshot_topic: /scout1/map/radar_snapshot # 完整原子快照；内部传输，不是RViz显示点云
+    ultrasonic_occupied_topic: /scout1/map/ultrasonic_occupied
+    odom_topic: /scout1/odom
+    map_frame: scout1/odom
+    frame_prefix: scout1/
+    min_range: 0.25              # m；雷达最小有效距离
+    max_range: 12.0              # m；雷达最大建图距离
+    min_z: -0.30                 # m；保留点云的最低z
+    max_z: 8.50                  # m；覆盖配套2×楼层的8m墙体高度
+    publish_rate: 3.0            # Hz；多机时降低全量点云DDS/CPU负载
+    visualization_topic: /scout1/map/radar_cloud
+    radar_only_topic: /scout1/map/radar_only_occupied
+    # 连续回波确认占据，同时保留已有自由空间证据。
+    hit_score: 3                 # 分/次；一次命中增加的占据证据，无量纲
+    miss_score: 1                # 分/次；一次自由射线减少的占据证据，无量纲
+    min_score: -4                # 占据证据下限，无量纲
+    max_score: 10                # 占据证据上限，无量纲
+    occupied_threshold: 5        # 占据阈值；当前通常连续2次命中即可成为障碍
+    tf_wait_timeout: 0.25        # s；等待点云TF的最长时间
+    map_ultrasonic: true
+    ultrasonic_odom_fallback: true
+    ultrasonic_confirm_frames: 2          # 帧；连续确认次数
+    ultrasonic_confirmation_window: 0.80  # s；命中/清空连续确认窗口
+    ultrasonic_clear_confirm_frames: 2    # 帧；连续自由射线确认后主动删除旧回波
+    ultrasonic_clear_endpoint_guard: 0.12 # m；不清除当前测距端点前的保护长度
+    ultrasonic_inf_is_clear: true         # Gazebo +Inf表示量程内无回波
+    ultrasonic_stamp_reset_threshold: 0.50 # s；时间戳回退超过此值视为仿真重置
+    ultrasonic_obstacle_half_height: 0.20 # m；超声障碍在测量点上下各扩展20 cm
+    ultrasonic_obstacle_ttl: 5.0 # s；两帧确认后保留5秒，避免单次假回波永久堵门
+
+multi_uav_map_fusion:
+  ros__parameters:
+    world_frame: world
+    voxel_size: 0.18             # m/体素；融合地图分辨率，与各单机地图一致
+    publish_rate: 1.0            # Hz；融合地图发布频率
+    source_timeout: 5.0          # s；给多机DDS/CPU短时拥塞留余量
+    tf_wait_timeout: 0.20        # s；融合时等待TF的最长时间
+    timestamp_reset_threshold: 0.50 # s；任一地图源时间回退时清除该源旧缓存
+    max_points_per_cloud: 2000000 # 点；单帧融合点云上限
+    # Remove dynamic UAV bodies only from maps reported by OTHER scouts.
+    # Full dimensions in the peer body frame: x=length, y=width, z=height.
+    # Keep this box only large enough to cover the body/rotor radar return;
+    # the observing scout never filters its own box, preserving nearby walls.
+    peer_filter_enabled: true
+    peer_filter_length: 1.00     # m；其他无人机过滤框完整长度
+    peer_filter_width: 1.00      # m；其他无人机过滤框完整宽度
+    peer_filter_height: 1.00     # m；其他无人机过滤框完整高度
+    peer_filter_pose_timeout: 0.80 # s；其他无人机位置超时后停止使用过滤框
+    # Personalized confidence fusion: each scout's own fresh observation wins
+    # a direct conflict; peer-only evidence still fills unseen space.
+    self_map_confidence: 1.0       # 无量纲；本机地图置信度
+    peer_map_confidence: 0.45      # 无量纲；其他无人机地图置信度
+    history_map_confidence: 0.20   # 无量纲；历史地图最低置信度
+    peer_obstacle_decay_time: 1.50 # s；其他无人机障碍证据的时间衰减尺度
+    self_observation_priority: true
+    occupied_conflict_bias: 1.05       # 无量纲；占据证据冲突时的偏置
+    minimum_occupied_confidence: 0.20  # 无量纲；保留占据点的最低置信度
+    # Occupied voxels inside a live peer body box become uncertain, not free.
+    peer_body_obstacle_confidence: 0.05 # 无量纲；其他无人机机体框内障碍置信度
+    odom_topics: [/scout1/odom, /scout2/odom, /scout3/odom, /scout4/odom]
+    shared_occupied_topic: /fire_scout/map/fused_occupied
+    shared_free_topic: /fire_scout/map/fused_free
+    shared_snapshot_topic: /fire_scout/map/fused_snapshot
+    status_topic: /fire_scout/map/fusion_status
+
+# Route coordinator. It no longer performs frontier exploration or creates
+# observation viewpoints. It assigns only final arrival slots around one shared
+# mission goal; each local planner owns and validates one committed route.
+racer_task_allocator:
+  ros__parameters:
+    fire_goal_topic: /fire_goal
+    rviz_fire_goal_topic: /goal_pose
+    enabled: false  # 建议先查看状态和候选终点，再通过服务启用
+    require_all_robots: true
+    world_frame: world
+    occupied_topic: /fire_scout/map/fused_occupied
+    candidate_goal_topic: /fire_scout/racer/candidate_goals
+    assigned_topic: /fire_scout/racer/assigned_goals
+    status_topic: /fire_scout/racer/status
+    assignment_rate: 1.0          # Hz；终点分配循环频率
+    map_timeout: 5.0              # s；融合占据地图有效期
+    odom_timeout: 1.5             # s；无人机里程计有效期
+    tf_wait_timeout: 0.20         # s；坐标转换等待时间
+    goal_reached_distance: 0.35   # m；认为到达所分配终点的距离
+    goal_update_distance: 0.20    # m；公共目标移动超过此值时重新分配
+    goal_refresh_period: 2.0      # s；重复发布最终目标的周期
+    planner_failure_delay: 4.00   # s；短时规划失败不立即更换终点
+    blocked_path_timeout: 12.0    # s；持续NO_PATH多久后更换终点泊位
+    blocked_slot_radius: 0.45     # m；失败终点周围的临时排除半径
+    terminal_slot_invalid_confirm_time: 5.00 # s；泊位连续失效后才重新分配，抑制地图闪烁
+
+    # 多机终点泊位。它们只用于防止多架无人机占据同一坐标，不表示观察点。
+    terminal_include_exact_goal: true # 一架无人机可占据精确公共目标
+    terminal_slot_radius: 1.00    # m；其余终点距公共目标的初始半径
+    terminal_slot_max_radius: 2.00 # m；障碍遮挡时允许搜索的最大半径
+    terminal_slot_radius_step: 0.35 # m；终点候选环的半径增量
+    terminal_min_separation: 0.90 # m；不同无人机终点之间的硬间距
+    terminal_clearance_xy: 0.48   # m；终点水平障碍净空
+    terminal_clearance_z: 0.25    # m；终点垂直障碍净空
+    terminal_angular_samples: 16  # 个/环；终点候选角度采样数
+    scout_names: [scout1, scout2, scout3, scout4]
+    scout_frames: [scout1/odom, scout2/odom, scout3/odom, scout4/odom]
+    odom_topics: [/scout1/odom, /scout2/odom, /scout3/odom, /scout4/odom]
+    goal_topics: [/scout1/mission/fire_goal, /scout2/mission/fire_goal,
+                  /scout3/mission/fire_goal, /scout4/mission/fire_goal]
+    planner_status_topics: [/scout1/planning/status, /scout2/planning/status,
+                            /scout3/planning/status, /scout4/planning/status]
+
+passage_coordinator:
+  ros__parameters:
+    world_frame: world
+    scout_names: [scout1, scout2, scout3, scout4]
+    passage_merge_radius: 1.40 # m；不同无人机检测到的同一入口合并半径
+    passage_exit_radius: 2.20 # m；multi launch 自动与 follower 的释放半径保持一致
+    passage_request_timeout: 0.80 # s；失联的占用者保持隔离，不能按超时判定入口为空
+
+safe_airfar_like_planner:
+  ros__parameters:
+    map_snapshot_topic: /scout1/map/radar_snapshot # multi launch自动改为各机fused_snapshot
+    local_map_snapshot_topic: /scout1/map/radar_snapshot
+    local_map_fallback_enabled: true # 融合过期时由本机新鲜地图重新验证；双方过期仍停车
+    occupied_topic: /scout1/map/radar_occupied
+    free_topic: /scout1/map/radar_free
+    odom_topic: /scout1/odom
+    goal_topic: /scout1/mission/fire_goal
+    rviz_goal_topic: /goal_pose
+    path_topic: /scout1/planning/global_path
+    execution_state_topic: /scout1/planning/execution_state # 路径版本与执行许可，保留路径时仍受新鲜地图约束
+    raw_path_topic: /scout1/planning/astar_path
+    planner_status_topic: /scout1/planning/status
+    replan_request_topic: /scout1/planning/replan_request
+    frame_id: scout1/odom
+
+    # 每架无人机只拥有一条承诺路径。高优先级同伴仅在“路径+实时位置”均新鲜时，
+    # 对短时间前方轨迹产生软代价，不再生成三条完整路线后择优。
+    peer_path_timeout: 3.0         # s；高优先级无人机路径有效期
+    peer_odom_timeout: 1.5         # s；高优先级无人机位置有效期
+    peer_tf_wait_timeout: 0.0      # s；非阻塞TF查询，避免高频同伴odom拖住规划执行器
+    peer_replan_min_period: 3.0    # s；路径冲突触发检查的最小间隔
+    peer_route_separation: 1.20    # m；短时轨迹冲突距离尺度
+    peer_nominal_speed: 1.20       # m/s；预计同伴到达时间使用的速度
+    peer_time_step: 0.30           # s；时空冲突预测采样周期
+    peer_conflict_horizon: 6.0     # m；只检查各机当前位置前方这段路线
+    peer_conflict_threshold: 0.12  # 冲突积分阈值；空间重合但错时不触发换路
+    peer_route_penalty_weight: 0.0 # 无量纲；默认不沿整条邻机路线加排斥，避免走廊小折线；动态间距仍由跟随器保护
+
+    # 新地图只做快速路线体检。近处障碍立即修补；远处变化必须由连续匹配地图确认。
+    route_immediate_repair_distance: 1.50
+    route_near_invalidation_confirm_time: 0.20 # s；近障也须在成对地图中短时持续，过滤单帧同伴回波
+    route_near_invalidation_confirm_updates: 2 # 次；跟随器在确认期间仍执行即时制动
+    route_invalidation_confirm_time: 0.60
+    route_invalidation_confirm_updates: 2
+    local_repair_enabled: true
+    local_repair_pre_margin: 0.45   # m；失效区段前的接出余量
+    local_repair_post_margin: 0.75  # m；失效区段后的接回余量
+    local_repair_max_span: 6.0      # m；超过此范围才允许整段回退规划
+    local_repair_search_margin: 2.5 # m；局部修补搜索边界
+    local_repair_search_ms: 140.0   # ms；局部修补预算
+    local_repair_max_detour_ratio: 2.5 # 倍；局部绕行相对直连的最大长度
+
+    # 仅用于同伴冲突等非地图紧急的整路回退方案。跟随器单独报告卡住不会解锁换路；
+    # 地图确认旧路线失效时先局部修补，必要时才绕过迟滞进行安全重规划。
+    route_switch_hysteresis_enabled: true
+    route_switch_lookahead: 0.90       # m；计算旧/新路径稳定切线的前视距离
+    route_switch_backtrack_horizon: 1.50 # m；统计新路径前段后退距离的范围
+    route_switch_angle_soft_deg: 20.0  # 度；低于此角度不要求连续确认
+    route_switch_angle_medium_deg: 45.0 # 度；中等方向变化分界
+    route_switch_angle_large_deg: 90.0 # 度；大幅转向分界
+    route_switch_angle_reverse_deg: 120.0 # 度；接近回头的分界
+    route_switch_angle_weight: 2.50    # 代价；按1-cos(角度)惩罚路径切换
+    route_switch_backtrack_weight: 4.00 # 代价/m；新路径前段反向位移惩罚
+    route_switch_min_absolute_gain: 0.15 # 代价；切路所需最小绝对收益
+    route_switch_min_gain_ratio: 0.05  # 比例；小角度切路至少改善5%
+    route_switch_medium_gain_ratio: 0.12 # 比例；45°附近至少改善12%
+    route_switch_large_gain_ratio: 0.25 # 比例；90°附近至少改善25%
+    route_switch_reverse_gain_ratio: 0.40 # 比例；120°以上至少改善40%
+    route_switch_confirm_time: 0.75    # s；大角度候选连续胜出后才切换
+    route_switch_cooldown: 2.0         # s；一次切换后的非紧急切换冷却时间
+    route_switch_candidate_heading_tolerance_deg: 18.0 # 度；连续候选视为同一方向的容差
+    route_switch_candidate_endpoint_tolerance: 0.40 # m；连续候选终点匹配容差
+
+    cruise_altitude: 3.00        # m；配套2×楼层的优先巡航高度（原1.50m等效高度）
+    # Retained optimistic policy for this SIMULATION; unknown is not measured free space.
+    # 只有与优先级更高的无人机共享入口时才生成分流候选。
+    # 空旷区域/普通走廊无入口竞争时保留第二份原路线，不额外增加绕行点。
+    candidate_path_count: 3 # 个；每次入口搜索最多评估的路线数，含原路线，范围 1..6
+    candidate_budget_ms: 300.0 # ms；一次入口候选搜索总预算，异步运行，范围 20..1000
+    topology_enabled: true # 是否按物理入口分流；关闭后仍可用入口预约排队
+    topology_passage_width: 3.40 # m；两侧均有实体障碍且宽度小于此值，才认为是窄入口
+    topology_probe_distance: 2.50 # m；探测入口左右障碍的最大距离，应 >= 入口宽度/2
+    topology_merge_distance: 1.20 # m；规划器识别同一入口的中心容差
+    topology_shared_passage_weight: 45.0 # 无量纲；同入口的代价；prefer_distinct=true 时优先比较共享入口数量
+    topology_cut_thickness: 0.60 # m；只在临时搜索副本中封闭入口的厚度，不写入传感地图
+    topology_commit_distance: 2.00 # m；距入口/规划终点太近时不强迫换入口
+    topology_max_detour_ratio: 1.80 # 倍；替代路线长度/原路线长度上限
+    topology_max_extra_length: 16.0 # m；替代路线额外长度上限；与比例上限同时满足
+    topology_refresh_period: 1.50 # s（墙钟）；邻机路径或新地图出现后周期复核入口
+    topology_search_resolution: 0.30 # m；保守候选引导网格，结果仍由原细网格验碰
+    topology_prefer_distinct_passages: true # 在绕行上限内优先不同入口，不是单纯让门内中心线分开
+    topology_max_gates: 8 # 个；每次检测最多保留的入口数
+    allow_unknown: true
+    unknown_cost: 2.0            # 无量纲；经过未知区域的附加代价
+    vertical_weight: 1.5         # 无量纲；垂直运动代价权重
+    altitude_weight: 0.25        # 无量纲；偏离巡航高度的代价权重
+    altitude_boundary_weight: 8.0 # 无量纲；靠近高度上下界的代价权重
+    altitude_boundary_reserve: 0.15 # m；高度边界软预留距离
+    enable_3d_search: true
+    multi_altitude_slices: true
+    search_snapshot_max_age: 8.0  # s；搜索快照最大复用时间
+    allow_goal_approach: true
+    goal_approach_clearance: 0.04 # m；目标靠近阶段额外要求的净空
+    goal_approach_topic: /scout1/planning/goal_approach
+    flat_search_fraction: 0.45    # 比例；总搜索预算中优先分给平面搜索的部分
+    vertical_bridge_step: 0.30    # m；垂直桥接步长
+    vertical_bridge_max_change: 1.20 # m；一次垂直桥接允许的最大高度变化
+    clearance_weight: 5.0        # 无量纲；靠近障碍的软惩罚，偏大会回避窄入口
+    search_margin: 10.0          # m；配套2×楼层中起点终点外的初始搜索余量
+    max_plan_distance: 48.0      # m；配套2×楼层的单次规划最大路径距离
+    max_astar_expansions: 150000 # 个节点；A*单轮最大扩展数量
+    max_search_ms: 180.0         # ms；普通规划最大计算时间
+    max_retry_search_ms: 360.0   # ms；重试规划最大计算时间
+    max_search_margin: 30.0      # m；配套2×楼层中重试搜索区域最大余量
+    heuristic_weight: 1.5        # 无量纲；A*启发函数权重
+    lock_valid_route: true
+    reverse_weight: 5.0          # 无量纲；规划反向运动的软惩罚
+    reverse_distance: 3.0        # m；反向惩罚从起点逐渐衰减的距离
+    replan_period: 0.25          # s；重规划周期
+    path_publish_period: 0.20    # s；路径发布周期
+    timestamp_reset_threshold: 0.50 # s；地图/里程计时间回退时丢弃旧路径与旧地图缓存
+    replan_improvement_ratio: 0.18 # 比例；新路径相对改善阈值
+    replan_improvement_absolute: 0.45 # m/代价尺度；新路径绝对改善阈值
+    map_timeout: 5.0             # s；多机负载下地图最大允许数据年龄
+    odom_timeout: 1.2            # s；里程计最大允许数据年龄
+    use_bspline: true
+    bspline_control_spacing: 0.40     # m；B样条控制点目标间距
+    bspline_max_control_spacing: 0.80 # m；B样条控制点最大间距
+    bspline_max_deviation: 0.30       # m；平滑路径偏离原始安全路径的上限
+    bspline_sample_spacing: 0.06      # m；平滑路径碰撞检查采样间距
+    bspline_attempts: 4               # 次；平滑尝试次数
+    bspline_optimize: true
+    bspline_jerk_weight: 3.0          # 无量纲；加加速度平滑权重
+    bspline_bending_weight: 1.5       # 无量纲；弯曲程度权重
+    bspline_fitting_weight: 1.0       # 无量纲；贴近原路径权重
+    bspline_max_control_offset: 0.20  # m；单个控制点最大移动距离
+    bspline_optimization_budget_ms: 8.0 # ms；每次样条优化预算
+    bspline_optimization_iterations: 96 # 次；优化最大迭代次数
+    bspline_obstacle_weight: 12.0     # 无量纲；样条靠近障碍的惩罚权重
+
+safe_airfar_path_follower:
+  ros__parameters:
+    map_snapshot_topic: /scout1/map/radar_snapshot # 跟踪器始终使用本机最新地图
+    px4_timestamp_clock: auto  # use_sim_time=true requires PX4 UXRCE_DDS_SYNCT=0; flight heartbeat never gated by health
+    envelope_separation_enabled: true
+    envelope_separation_max_overlap: 0.15 # m；最多覆盖一个体素边长；仅允许低速单调远离
+    envelope_separation_speed: 0.10       # m/s；包络重叠时的受限脱离速度
+    # 独立于雷达地图的对称多机保护。启动文件会给每架跟随器注入其他
+    # 无人机的里程计与稳定优先级；硬距离对所有编号都生效。
+    peer_safety_enabled: true
+    peer_hard_separation: 0.0           # m；0=自动取两架硬规划半径之和，当前约0.938m
+    peer_vertical_separation: 0.0       # m；0=自动取两架垂直半高之和，当前约0.544m
+    peer_reaction_time: 0.55            # s；DDS、控制和飞控响应总预留
+    peer_brake_accel: 1.00              # m/s²；多机闭合速度制动减速度
+    peer_prediction_horizon: 2.50       # s；交叉/对向冲突的最近接预测范围
+    peer_safety_odom_timeout: 0.80      # s；同伴里程计超过此年龄不用于动态外推
+    peer_safety_tf_wait_timeout: 0.0    # s；非阻塞TF查询；TF未就绪只丢当前帧，不阻塞40Hz控制
+    peer_separation_escape_speed: 0.10  # m/s；硬距离内仅允许沿远离同伴方向慢速脱离
+    peer_rear_ignore_distance: 0.15     # m；沿当前通道方向落后超过此值的后机不能要求前机让行
+    peer_yield_retreat_speed: 0.18      # m/s；让行死锁时仅允许不接近任何同伴的受限退让速度
+    peer_yield_deadlock_timeout: 3.0    # s；阻挡者在该时间内位移不足则判为让行死锁
+    peer_blocker_progress_distance: 0.12 # m；阻挡者在完整3秒窗口内的净位移达到此值才刷新租约
+    peer_yield_replan_period: 1.0       # s；死锁持续时请求重规划/脱困的最小周期
+    # 通道宽度低于1.35m时启用通行权。已进入通道者优先清空；两边同时
+    # 接近时才以own_priority（编号较小）打破平局。几何上位于后方的无人机
+    # 无权让前机停车；阻挡者3秒无进展时后机使用已验证历史轨迹退让。
+    peer_passage_width: 1.35
+    peer_passage_lookahead: 2.80
+    peer_passage_reservation_radius: 1.80
+    peer_passage_priority_hysteresis: 0.20
+    local_recovery_enabled: true
+    autonomous_recovery: true
+    recovery_total_distance: 4.0       # m；一次任务累计允许的最大脱困距离
+    recovery_total_actions: 6          # 次；一次任务最多脱困动作数
+    recovery_retry_cooldown: 2.5       # s；两次脱困尝试间隔
+    observed_escape_max_length: 1.20   # m；沿已观测空间脱困的最大长度
+    observed_escape_height_change: 0.50 # m；脱困允许的最大高度变化
+    goal_approach_topic: /scout1/planning/goal_approach
+    local_recovery_wait: 0.90       # s；判定需要局部脱困前的等待时间
+    local_recovery_duration: 3.50   # s；单次局部脱困最长持续时间
+    local_recovery_distance: 0.45   # m；单次局部脱困目标距离
+    local_recovery_speed: 0.25      # m/s；局部脱困速度
+    local_recovery_attempts: 2      # 次；局部脱困尝试次数
+    historical_retreat_enabled: true
+    historical_retreat_seconds: 30.0       # s；保留历史轨迹的时间
+    historical_retreat_max_distance: 0.80  # m；沿历史轨迹后退的最大距离
+    historical_retreat_min_displacement: 0.35 # m；启用历史后退所需的最小有效位移
+    historical_retreat_duration: 8.0       # s；历史后退最长持续时间
+    local_map_half_extent: 6.0             # m；跟随器局部地图半边长
+    free_topic: /scout1/map/radar_free
+    radar_only_topic: /scout1/map/radar_only_occupied
+    adaptive_direction: true
+    lateral_speed_limit: 0.60       # m/s；侧向飞行速度上限
+    reverse_speed_limit: 0.40       # m/s；倒飞速度上限
+    nonforward_max_distance: 1.50   # m；连续侧飞/倒飞最大距离
+    nonforward_max_seconds: 8.0     # s；连续侧飞/倒飞最大时间
+    nonforward_reset_distance: 0.30 # m；恢复前向运动多少距离后重置预算
+    retreat_history_seconds: 10.0   # s；普通后退使用的历史轨迹时间
+    retreat_tracking_tolerance: 0.04 # m；后退轨迹跟踪容差
+    glass_risk_distance: 1.0        # m；玻璃风险触发距离
+    glass_radar_match_distance: 0.25 # m；超声与雷达匹配距离
+    glass_radar_timeout: 1.50       # s；雷达匹配数据有效期
+    glass_release_delay: 1.0        # s；玻璃风险解除延迟
+    # Optional detector Bool topic. Empty = no detector; sonar memory stays active.
+    glass_risk_topic: ""
+    glass_signal_timeout: 1.0       # s；外部玻璃检测信号有效期
+    # Optional [xmin,ymin,zmin,xmax,ymax,zmax,...] in scout1/odom, NOT SDF world.
+    # glass_risk_boxes is omitted: the node uses a typed empty double array.
+    path_topic: /scout1/planning/global_path
+    execution_state_topic: /scout1/planning/execution_state # 路径版本与执行许可，保留路径时仍受新鲜地图约束
+    odom_topic: /scout1/odom
+    occupied_topic: /scout1/map/radar_occupied
+    status_topic: ""  # auto: installed px4_msgs MESSAGE_VERSION
+    offboard_topic: ""  # auto: installed px4_msgs MESSAGE_VERSION
+    setpoint_topic: ""  # auto: installed px4_msgs MESSAGE_VERSION
+    command_topic: ""  # auto: installed px4_msgs MESSAGE_VERSION
+    tracking_target_topic: /scout1/planning/tracking_target
+    follower_state_topic: /scout1/planning/follower_state
+    diagnostics_topic: /scout1/planning/control_diagnostics
+    replan_request_topic: /scout1/planning/replan_request
+    frame_id: scout1/odom
+    target_system: 1
+    takeoff_altitude: 3.00          # m；配套2×楼层起飞高度，确保通过等比例抬高的入口
+    # 起飞到达高度后，multi launch 根据全部 scout_origins 求机群中心，并沿
+    # world Y 轴生成中心对称、相邻距离完全相同的最终位置。它按出生点左右顺序
+    # 分配位置，避免直线路径交叉；offset_x/y、rank/count 由 launch 自动覆盖。
+    # 该阶段不调用规划/绕行；检测到地图、超声或玻璃风险即原地悬停。
+    startup_spread_enabled: true
+    startup_spread_spacing: 9.0      # m；最终相邻两架无人机的中心间距（主要配置项）
+    startup_spread_offset_x: 0.0     # m；自动注入的本机odom X位移，勿手工批量复制
+    startup_spread_offset_y: 0.0     # m；自动注入的本机odom Y位移
+    startup_formation_rank: 0        # 从world Y较小到较大的位置编号，由launch注入
+    startup_formation_count: 1       # 当前编队无人机总数，由launch注入
+    startup_spread_speed: 0.80       # m/s；固定目标直飞的水平速度上限
+    startup_spread_tolerance: 0.25   # m；进入该半径且速度稳定后结束疏散
+    startup_spread_obstacle_lookahead: 1.00 # m；至少检查此前向距离及完整制动距离
+    auto_arm: true
+    prestream_seconds: 1.50       # s；切入Offboard前预发送控制心跳时间
+    lookahead: 0.65               # m；高速下提前跟踪路径方向，减少追点摆动
+    planner_execution_timeout: 0.80 # s；执行许可同时按 ROS 时间和墙钟检查，超时停在安全约束下
+    passage_scheduler_enabled: false # multi launch 在多机+融合时自动启用；单机保持关闭
+    passage_request_topic: /scout1/planning/passage_request
+    passage_grant_topic: /scout1/planning/passage_grant
+    passage_admission_width: 2.60 # m；需要容量一预约的窄入口宽度
+    passage_admission_lookahead: 5.00 # m；前方检测预约入口的距离
+    passage_wait_distance: 2.00 # m；未获许可时在入口之前预留的停车距离
+    passage_release_distance: 2.20 # m；机体距离入口超过此值+0.20m后释放；双方使用同一界限
+    passage_lease_timeout: 0.80 # s；许可/请求源时间超时；不能以超时强行通过
+    passage_detect_period: 0.25 # s；入口检测周期，单次计算预算 6ms
+    passage_wait_timeout: 8.00 # s（墙钟）；排队过久后请求复核，仍保留硬安全和占用权
+    passage_wait_retry_period: 4.00 # s（墙钟）；复核请求的最短重复间隔
+    max_speed_xy: 1.80            # m/s；最大水平速度
+    max_speed_z: 0.50             # m/s；最大垂直速度
+    max_accel_xy: 1.50            # m/s²；最大水平加速度
+    max_accel_z: 0.70             # m/s²；最大垂直加速度
+    max_jerk_xy: 4.50             # m/s³；最大水平加加速度
+    max_jerk_z: 3.00              # m/s³；最大垂直加加速度
+    max_lateral_accel: 1.00       # m/s²；转弯时最大横向加速度
+    narrow_passage_speed: 0.50    # m/s；窄通道速度上限，只减速不封路
+    clearance_slow_distance: 0.40 # m；剩余净空低于此值开始减速
+    kp_xy: 1.20                  # 1/s；水平位置比例增益
+    kp_z: 1.00                   # 1/s；垂直位置比例增益
+    kd_xy: 0.10                  # 无量纲；水平速度阻尼增益
+    kd_z: 0.20                   # 无量纲；垂直速度阻尼增益
+    cross_track_gain: 0.90       # 1/s；横向路径误差修正增益
+    cross_track_damping: 0.65    # 无量纲；横向修正阻尼
+    cross_track_speed: 0.45      # m/s；横向纠偏速度上限
+    progress_timeout: 2.0        # s；无有效进展的判定时间
+    progress_repeat: 1.0         # s；停滞报告/重试间隔
+    max_alignment_time: 8.0      # s；转向对准允许的最长时间
+    goal_tolerance: 0.18         # m；跟随器目标到达容差
+    max_yaw_rate: 1.20           # rad/s；最大偏航角速度，加快路径方向对准
+    max_yaw_accel: 1.20          # rad/s²；最大偏航角加速度
+    yaw_deadband: 0.025          # rad；偏航误差死区，约1.43°
+    yaw_preview_time: 0.30       # s；偏航方向预测时间
+    face_motion: true
+    # 航向误差采用分级降速。所有速度仍受地图、超声、制动距离、窄通道
+    # 和 max_speed_xy 限制；下列最小速度不会越过这些安全上限。
+    heading_speed_scaling_enabled: true
+    heading_full_speed_deg: 10.0 # 度；不超过该误差时保持正常速度
+    heading_slow_deg: 25.0       # 度；到达该误差时降至 heading_slow_speed_scale
+    heading_min_speed_deg: 60.0  # 度；超过后保持最低速度比例直至硬停止阈值
+    heading_stop_deg: 85.0       # 度；达到该误差才停止水平平移并原地对准
+    heading_slow_speed_scale: 0.60 # 比例；25°时保留的水平速度比例
+    heading_min_speed_scale: 0.25  # 比例；60°~85°保留的水平速度比例
+    min_forward_speed: 0.12      # m/s；有效路径且安全允许时的最小前进速度
+    allow_forward_during_alignment: true # 对准过程中允许小速度前进
+    alignment_forward_speed_cap: 0.45 # m/s；偏航未对准时前向替代动作的绝对上限
+    forward_motion_half_angle_deg: 35.0 # 度；地图已验证时视为正常前进的方向扇区
+    sharp_turn_stop_deg: 80.0    # 度；仅非常急的路径折角才先停车转向
+    path_timeout: 5.0            # s；路径数据有效期
+    odom_timeout: 1.20           # s；里程计数据有效期
+    status_timeout: 3.0          # s；PX4状态在多机负载下的容许年龄
+    map_timeout: 5.0             # s；地图数据有效期
+    map_age_slow_start: 1.50     # s；地图超过此年龄开始平滑减速
+    control_rate_hz: 40.0        # Hz；跟随器控制频率
+    recovery_speed: 0.25         # m/s；常规恢复/后退速度
+    use_ultrasonic_guard: true
+    require_ultrasonic: false    # 丢帧时由雷达地图接管；新鲜实测近障仍立即制动
+    stop_distance: 0.45          # m；新鲜超声低于此值停车
+    resume_distance: 0.60        # m；超声高于此值恢复，形成15 cm迟滞
+    ultrasonic_distance_margin: 0.05 # m；超声停车距离额外余量
+    ultrasonic_brake_accel: 1.20 # m/s²；按超声距离制动时采用的减速度
+    ultrasonic_reaction_time: 0.30 # s；制动距离计算中的反应时间
+    ultrasonic_timeout: 0.80     # s；超声数据最大允许年龄
+    follower_sonar_confirm_frames: 2 # 帧；写入碰撞记忆前的确认数
+    follower_sonar_confirmation_window: 0.80 # s；确认帧窗口
+    follower_sonar_memory_ttl: 4.0 # s；有限距离回波记忆自动过期
+    follower_sonar_clear_confirm_frames: 2 # 帧；连续自由观测后主动清除射线内旧回波
+    follower_sonar_clear_endpoint_guard: 0.12 # m；保留当前命中端点，防止同帧误清
+    follower_sonar_half_height: 0.20 # m；回波上下扩展高度
+    unlocalized_sonar_ttl: 2.0   # s；无法定位的过近/异常回波记忆时间
+    ultrasonic_stamp_reset_threshold: 0.50 # s；仿真时间回退时立即换代并清空旧记忆
+    ultrasonic_max_tilt_deg: 20.0 # 度；超过该倾角时超声测距不作为正常前向距离
+    # Gazebo LaserScan +Inf = no hit within range. Set false for unqualified hardware no-echo.
+    ultrasonic_inf_is_clear: true

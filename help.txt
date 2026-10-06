@@ -1,0 +1,69 @@
+Agent
+source ~/fire_scout_ws/setup_fire_scout.sh
+export ROS_DOMAIN_ID=0
+export GZ_PARTITION=fire_scout_sim
+MicroXRCEAgent udp4 -p 8888
+
+
+PX4 + Gazebo
+cd ~/PX4-Autopilot-v1.17
+export ROS_DOMAIN_ID=0
+PX4_GZ_WORLD=fire_scout_floor \
+PX4_GZ_MODEL_POSE="-12.5,0,0.2,0,0,0" \
+PX4_UXRCE_DDS_NS=scout1 \
+make px4_sitl gz_x500_lidar_2d
+
+
+整个 Scout ROS 系统
+source ~/fire_scout_ws/setup_fire_scout.sh
+ros2 launch \
+  fire_scout_bringup \
+  single_scout.launch.py
+
+
+穿窗
+source ~/fire_scout_ws/setup_fire_scout.sh
+ros2 run fire_scout_control scout_enter_window \
+  --ros-args \
+  -p px4_prefix:=/scout1 \
+  -p target_system:=1 \
+  -p takeoff_height:=1.5 \
+  -p horizontal_speed:=0.35
+
+
+找入口：
+ros2 run fire_scout_control entrance_wall_search --ros-args \
+  -p use_sim_time:=true \
+  -p px4_prefix:=/scout1 \
+  -p target_system:=1 \
+  -p takeoff_height:=1.5 \
+  -p wall_yaw_deg:=90.0 \
+  -p wall_distance:=1.5 \
+  -p search_speed:=0.8 \
+  -p search_direction:=1 \
+  -p vertical_speed:=0.7 \
+  -p setpoint_acceleration:=0.6
+
+
+规划：
+source ~/fire_scout_ws/setup_fire_scout.sh
+ros2 launch fire_scout_planning_safe safe_airfar_navigation.launch.py use_sim_time:=true
+
+目标点：
+source ~/fire_scout_ws/setup_fire_scout.sh
+ros2 topic pub --once /scout1/mission/fire_goal geometry_msgs/msg/PoseStamped \
+  "{header: {frame_id: 'scout1/odom'}, pose: {position: {x: 15.0, y: 5.0, z: 1.5}, orientation: {w: 1.0}}}"
+
+建图：
+source ~/fire_scout_ws/setup_fire_scout.sh
+ros2 launch fire_scout_mapping radar_mapping.launch.py
+
+
+
+
+source /opt/ros/humble/setup.bash
+source "$HOME/fire_scout_ws/install/setup.bash"
+cd "$HOME/fire_scout_ws"
+
+colcon build \
+  --event-handlers console_direct+

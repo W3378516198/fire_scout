@@ -1,0 +1,217 @@
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Fire Scout 2.0.8: building mapping, fusion, planning and follower ROS nodes
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+-- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+-- Override CMake install command with custom implementation using symlinks instead of copying resources
+-- Found rclcpp: 16.0.19 (/opt/ros/humble/share/rclcpp/cmake)
+-- Found rosidl_generator_c: 3.1.8 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+-- Found rosidl_adapter: 3.1.8 (/opt/ros/humble/share/rosidl_adapter/cmake)
+-- Found rosidl_generator_cpp: 3.1.8 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+-- Found rmw_cyclonedds_cpp: 1.3.4 (/opt/ros/humble/share/rmw_cyclonedds_cpp/cmake)
+-- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+-- Found sensor_msgs: 4.9.1 (/opt/ros/humble/share/sensor_msgs/cmake)
+-- Found nav_msgs: 4.9.1 (/opt/ros/humble/share/nav_msgs/cmake)
+-- Found std_srvs: 4.9.1 (/opt/ros/humble/share/std_srvs/cmake)
+-- Found tf2: 0.25.22 (/opt/ros/humble/share/tf2/cmake)
+-- Found tf2_ros: 0.25.22 (/opt/ros/humble/share/tf2_ros/cmake)
+-- Found px4_msgs: 2.0.1 (/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/cmake)
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/wei/fire_scout_ws/build/fire_scout_planning_safe
+[  1%] [32mBuilding CXX object CMakeFiles/radar_free_space_mapper.dir/src/radar_free_space_mapper.cpp.o[0m
+[  3%] [32mBuilding CXX object CMakeFiles/multi_uav_map_fusion.dir/src/multi_uav_map_fusion.cpp.o[0m
+[  5%] [32mBuilding CXX object CMakeFiles/safe_airfar_like_planner.dir/src/safe_airfar_like_planner.cpp.o[0m
+[  7%] [32mBuilding CXX object CMakeFiles/racer_task_allocator.dir/src/racer_task_allocator.cpp.o[0m
+[  9%] [32mBuilding CXX object CMakeFiles/safe_airfar_path_follower.dir/src/safe_airfar_path_follower.cpp.o[0m
+[ 11%] [32mBuilding CXX object CMakeFiles/v2_topology_routes_test.dir/tests/v2_topology_routes_test.cpp.o[0m
+[ 13%] [32mBuilding CXX object CMakeFiles/follower_alignment_test.dir/tests/follower_alignment_test.cpp.o[0m
+[ 15%] [32mBuilding CXX object CMakeFiles/passage_coordinator.dir/src/passage_coordinator.cpp.o[0m
+[ 17%] [32mBuilding CXX object CMakeFiles/v2_coordination_test.dir/tests/v2_coordination_test.cpp.o[0m
+[ 19%] [32mBuilding CXX object CMakeFiles/v2_execution_transition_test.dir/tests/v2_execution_transition_test.cpp.o[0m
+[ 21%] [32mBuilding CXX object CMakeFiles/route_switch_test.dir/tests/route_switch_test.cpp.o[0m
+[ 23%] [32mBuilding CXX object CMakeFiles/incremental_repair_v19_test.dir/tests/incremental_repair_v19_test.cpp.o[0m
+[ 25%] [32mBuilding CXX object CMakeFiles/coordination_components_test.dir/tests/coordination_components_test.cpp.o[0m
+[ 26%] [32mBuilding CXX object CMakeFiles/ultrasonic_memory_test.dir/tests/ultrasonic_memory_test.cpp.o[0m
+[ 32%] [32mBuilding CXX object CMakeFiles/v207_map_blocks_test.dir/tests/v207_map_blocks_test.cpp.o[0m
+[ 32%] [32mBuilding CXX object CMakeFiles/v2_tracking_guard_test.dir/tests/v2_tracking_guard_test.cpp.o[0m
+[ 36%] [32mBuilding CXX object CMakeFiles/v2_header_integration_test.dir/tests/v2_header_integration_test.cpp.o[0m
+[ 36%] [32mBuilding CXX object CMakeFiles/v2_header_reverse_order_test.dir/tests/v2_header_reverse_order_test.cpp.o[0m
+[ 36%] [32mBuilding CXX object CMakeFiles/v2_trajectory_test.dir/tests/v2_trajectory_test.cpp.o[0m
+[ 40%] [32mBuilding CXX object CMakeFiles/v207_block_fusion_test.dir/tests/v207_block_fusion_test.cpp.o[0m
+[ 40%] [32mBuilding CXX object CMakeFiles/v2_horizon_topology_test.dir/tests/v2_horizon_topology_test.cpp.o[0m
+[ 42%] [32mBuilding CXX object CMakeFiles/v206_voxel_snapshot_test.dir/tests/v206_voxel_snapshot_test.cpp.o[0m
+[ 44%] [32mBuilding CXX object CMakeFiles/v206_sparse_fusion_test.dir/tests/v206_sparse_fusion_test.cpp.o[0m
+[ 46%] [32mBuilding CXX object CMakeFiles/v2_passage_handshake_test.dir/tests/v2_passage_handshake_test.cpp.o[0m
+[ 48%] [32mBuilding CXX object CMakeFiles/v2_local_retime_test.dir/tests/v2_local_retime_test.cpp.o[0m
+[ 50%] [32mBuilding CXX object CMakeFiles/v206_handoff_speed_test.dir/tests/v206_handoff_speed_test.cpp.o[0m
+[ 51%] [32m[1mLinking CXX executable route_switch_test[0m
+[ 51%] Built target route_switch_test
+[ 53%] [32m[1mLinking CXX executable v206_sparse_fusion_test[0m
+[ 55%] [32m[1mLinking CXX executable v206_voxel_snapshot_test[0m
+[ 57%] [32m[1mLinking CXX executable ultrasonic_memory_test[0m
+[ 59%] [32m[1mLinking CXX executable v2_header_integration_test[0m
+[ 61%] [32m[1mLinking CXX executable v2_passage_handshake_test[0m
+[ 61%] Built target v206_sparse_fusion_test
+[ 61%] Built target v206_voxel_snapshot_test
+[ 61%] Built target ultrasonic_memory_test
+[ 61%] Built target v2_header_integration_test
+[ 61%] Built target v2_passage_handshake_test
+[ 63%] [32m[1mLinking CXX executable v2_header_reverse_order_test[0m
+[ 63%] Built target v2_header_reverse_order_test
+[ 65%] [32m[1mLinking CXX executable follower_alignment_test[0m
+[ 65%] Built target follower_alignment_test
+[ 67%] [32m[1mLinking CXX executable v206_handoff_speed_test[0m
+[ 67%] Built target v206_handoff_speed_test
+[ 69%] [32m[1mLinking CXX executable coordination_components_test[0m
+[ 69%] Built target coordination_components_test
+[ 71%] [32m[1mLinking CXX executable v2_local_retime_test[0m
+[ 73%] [32m[1mLinking CXX executable v2_execution_transition_test[0m
+[ 73%] Built target v2_local_retime_test
+[ 73%] Built target v2_execution_transition_test
+[ 75%] [32m[1mLinking CXX executable v2_tracking_guard_test[0m
+[ 75%] Built target v2_tracking_guard_test
+[ 76%] [32m[1mLinking CXX executable v2_trajectory_test[0m
+[ 76%] Built target v2_trajectory_test
+[ 78%] [32m[1mLinking CXX executable v207_map_blocks_test[0m
+[ 78%] Built target v207_map_blocks_test
+[ 80%] [32m[1mLinking CXX executable incremental_repair_v19_test[0m
+[ 80%] Built target incremental_repair_v19_test
+[ 82%] [32m[1mLinking CXX executable v2_coordination_test[0m
+[ 82%] Built target v2_coordination_test
+[ 84%] [32m[1mLinking CXX executable v207_block_fusion_test[0m
+[ 84%] Built target v207_block_fusion_test
+[ 86%] [32m[1mLinking CXX executable v2_topology_routes_test[0m
+[ 86%] Built target v2_topology_routes_test
+[ 88%] [32m[1mLinking CXX executable v2_horizon_topology_test[0m
+[ 88%] Built target v2_horizon_topology_test
+[ 90%] [32m[1mLinking CXX executable passage_coordinator[0m
+[ 90%] Built target passage_coordinator
+[ 92%] [32m[1mLinking CXX executable racer_task_allocator[0m
+[ 92%] Built target racer_task_allocator
+[ 94%] [32m[1mLinking CXX executable radar_free_space_mapper[0m
+[ 94%] Built target radar_free_space_mapper
+[ 96%] [32m[1mLinking CXX executable multi_uav_map_fusion[0m
+[ 96%] Built target multi_uav_map_fusion
+[ 98%] [32m[1mLinking CXX executable safe_airfar_like_planner[0m
+[ 98%] Built target safe_airfar_like_planner
+[100%] [32m[1mLinking CXX executable safe_airfar_path_follower[0m
+[100%] Built target safe_airfar_path_follower
+-- Install configuration: "Release"
+-- Execute custom install script
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/radar_free_space_mapper
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/multi_uav_map_fusion
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/racer_task_allocator
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/safe_airfar_like_planner
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/safe_airfar_path_follower
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/passage_coordinator
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/fire_scout_light_logger.py
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/collect_fire_scout_logs.sh
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/install_fire_scout_planning_safe.sh
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/launch/multi_map_fusion.launch.py
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/launch/multi_racer_navigation.launch.py
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/launch/multi_safe_airfar_navigation.launch.py
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/launch/multi_safe_airfar_planner_only.launch.py
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/launch/safe_airfar_navigation.launch.py
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/launch/safe_airfar_planner_only.launch.py
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/config/safe_airfar.yaml
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/LOG_COLLECTION_ZH.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/RACER_TASK_ALLOCATION_ZH.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V19_1_SONAR_MEMORY_FIX_ZH.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V19_INCREMENTAL_ROUTE_REPAIR_ZH.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V20_PEER_SAFETY_AND_ROUTE_CONTINUITY_ZH.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V21_PEER_DEADLOCK_AND_SCALED_WORLD_ZH.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V22_STARTUP_SPREAD_ZH.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V2_0_1_GUIDE_ZH.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V2_0_1_VALIDATION.txt
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V2_0_2_GUIDE_ZH.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V2_0_2_VALIDATION.txt
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V2_0_3_GUIDE_ZH.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V2_0_4_BUILD_FIX_ZH.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V2_0_5_PASSAGE_FIX_ZH.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V2_0_6_GUIDE_ZH.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V2_0_6_TEST_RESULTS.json
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V2_0_7_GUIDE_ZH.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V2_0_8_GUIDE_ZH.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V2_0_GUIDE_ZH.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V2_0_VALIDATION.txt
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/VALIDATION.txt
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/README.md
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/autonomous_recovery.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/block_fusion.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/bspline.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/confidence_fusion.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/cooperative_map_ros.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/directional_motion.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/envelope_escape.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/gap_policy.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/geometry.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/glass_risk.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/goal_approach.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/grid.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/hold_safety.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/input_freshness.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/local_recovery.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/map_blocks.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/map_blocks_ros.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/map_pair_buffer.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/map_snapshot_ros.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/navigation_contract.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/observation_gate.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/passage_scheduler.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/peer_safety.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/peer_uav_filter.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/planner.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/pose_history.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/px4_command_clock.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/px4_topics.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/racer_task_allocator.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/retreat_route.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/ros_utils.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/route_candidates.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/route_execution.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/route_memory.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/route_repair.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/route_switch.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/route_topology.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/snapshot_stamp.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/sparse_fusion.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/timed_trajectory.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/tracker.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/ultrasonic.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/vehicle.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/visibility_memory.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/voxel_snapshot.hpp
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/ament_index/resource_index/package_run_dependencies/fire_scout_planning_safe
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/ament_index/resource_index/parent_prefix_path/fire_scout_planning_safe
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/environment/ament_prefix_path.sh
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/environment/ament_prefix_path.dsv
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/environment/path.sh
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/environment/path.dsv
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/local_setup.bash
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/local_setup.sh
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/local_setup.zsh
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/local_setup.dsv
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/package.dsv
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/ament_index/resource_index/packages/fire_scout_planning_safe
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/cmake/fire_scout_planning_safeConfig.cmake
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/cmake/fire_scout_planning_safeConfig-version.cmake
+-- Symlinking: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/package.xml

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>fire_scout_sensors</name>
+  <version>0.1.0</version>
+  <description>Fire Scout simulated mmWave sensor interface.</description>
+  <maintainer email="wei@example.com">wei</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>px4_msgs</depend>
+  
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

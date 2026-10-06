@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/coordination_components_test.dir/tests/coordination_components_test.cpp.o -o coordination_components_test 

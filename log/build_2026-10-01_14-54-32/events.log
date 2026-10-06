@@ -1,0 +1,537 @@
+[0.000000] (-) TimerEvent: {}
+[0.000446] (-) JobUnselected: {'identifier': 'fire_scout_bringup'}
+[0.000507] (-) JobUnselected: {'identifier': 'fire_scout_control'}
+[0.000541] (-) JobUnselected: {'identifier': 'fire_scout_gazebo'}
+[0.000561] (-) JobUnselected: {'identifier': 'fire_scout_localization'}
+[0.000582] (-) JobUnselected: {'identifier': 'fire_scout_mapping'}
+[0.000601] (-) JobUnselected: {'identifier': 'fire_scout_sensors'}
+[0.000634] (-) JobUnselected: {'identifier': 'px4_msgs'}
+[0.000689] (fire_scout_planning_safe) JobQueued: {'identifier': 'fire_scout_planning_safe', 'dependencies': OrderedDict([('px4_msgs', '/home/wei/fire_scout_ws/install/px4_msgs')])}
+[0.000716] (fire_scout_planning_safe) JobStarted: {'identifier': 'fire_scout_planning_safe'}
+[0.007892] (fire_scout_planning_safe) JobProgress: {'identifier': 'fire_scout_planning_safe', 'progress': 'cmake'}
+[0.008309] (fire_scout_planning_safe) Command: {'cmd': ['/usr/bin/cmake', '/home/wei/fire_scout_ws/src/fire_scout_planning_safe', '-DCMAKE_BUILD_TYPE=Release', '-DAMENT_CMAKE_SYMLINK_INSTALL=1', '-DCMAKE_INSTALL_PREFIX=/home/wei/fire_scout_ws/install/fire_scout_planning_safe'], 'cwd': '/home/wei/fire_scout_ws/build/fire_scout_planning_safe', 'env': OrderedDict([('GJS_DEBUG_TOPICS', 'JS ERROR;JS LOG'), ('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'zh_CN:en'), ('USER', 'wei'), ('LC_TIME', 'en_US.UTF-8'), ('XDG_SESSION_TYPE', 'wayland'), ('SHLVL', '2'), ('LD_LIBRARY_PATH', '/home/wei/fire_scout_ws/install/px4_msgs/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/wei'), ('OLDPWD', '/home/wei/fire_scout_ws'), ('DESKTOP_SESSION', 'ubuntu'), ('GIO_LAUNCHED_DESKTOP_FILE', '/usr/share/applications/terminator.desktop'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('LC_MONETARY', 'en_US.UTF-8'), ('MANAGERPID', '1376'), ('SYSTEMD_EXEC_PID', '1569'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLORTERM', 'truecolor'), ('TERMINATOR_DBUS_NAME', 'net.tenshu.Terminator25ef4b219e3b005583550f2b0f9f990c3'), ('GIO_LAUNCHED_DESKTOP_FILE_PID', '4657'), ('IM_CONFIG_PHASE', '1'), ('WAYLAND_DISPLAY', 'wayland-0'), ('ROS_DISTRO', 'humble'), ('LOGNAME', 'wei'), ('JOURNAL_STREAM', '8:6294'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('USERNAME', 'wei'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('PATH', '/opt/ros/humble/bin:/home/wei/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/wei:@/tmp/.ICE-unix/1535,unix/wei:/tmp/.ICE-unix/1535'), ('INVOCATION_ID', 'a8d0484d0cad45308c0c6122af15d6c6'), ('PAPERSIZE', 'letter'), ('XDG_MENU_PREFIX', 'gnome-'), ('LC_ADDRESS', 'en_US.UTF-8'), ('GNOME_SETUP_DISPLAY', ':1'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('TERMINATOR_DBUS_PATH', '/net/tenshu/Terminator2'), ('LANG', 'zh_CN.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('IBUS_DISABLE_SNOOPER', '1'), ('LC_TELEPHONE', 'en_US.UTF-8'), ('RMW_IMPLEMENTATION', 'rmw_cyclonedds_cpp'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1000/.mutter-Xwaylandauth.DDDHW3'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('LC_NAME', 'en_US.UTF-8'), ('TERMINATOR_UUID', 'urn:uuid:146f5ab0-307f-4282-96e6-5b9f984f12b5'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('LC_MEASUREMENT', 'en_US.UTF-8'), ('GJS_DEBUG_OUTPUT', 'stderr'), ('LC_IDENTIFICATION', 'en_US.UTF-8'), ('GZ_VERSION', 'harmonic'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/wei/fire_scout_ws/build/fire_scout_planning_safe'), ('LC_ALL', 'en_US.UTF-8'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/home/wei/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('LC_NUMERIC', 'en_US.UTF-8'), ('LC_PAPER', 'en_US.UTF-8'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble')]), 'shell': False}
+[0.067667] (fire_scout_planning_safe) StdoutLine: {'line': b'-- The C compiler identification is GNU 11.4.0\n'}
+[0.099743] (-) TimerEvent: {}
+[0.122335] (fire_scout_planning_safe) StdoutLine: {'line': b'-- The CXX compiler identification is GNU 11.4.0\n'}
+[0.127453] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Detecting C compiler ABI info\n'}
+[0.191749] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Detecting C compiler ABI info - done\n'}
+[0.197098] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Check for working C compiler: /usr/bin/cc - skipped\n'}
+[0.197211] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Detecting C compile features\n'}
+[0.197701] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Detecting C compile features - done\n'}
+[0.199476] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info\n'}
+[0.199800] (-) TimerEvent: {}
+[0.271170] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info - done\n'}
+[0.279543] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Check for working CXX compiler: /usr/bin/c++ - skipped\n'}
+[0.279879] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Detecting CXX compile features\n'}
+[0.280005] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Detecting CXX compile features - done\n'}
+[0.280454] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Fire Scout 2.0.3: building mapping, fusion, planning and follower ROS nodes\n'}
+[0.281172] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Looking for pthread.h\n'}
+[0.299969] (-) TimerEvent: {}
+[0.342637] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Looking for pthread.h - found\n'}
+[0.342956] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n'}
+[0.400160] (-) TimerEvent: {}
+[0.416922] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n'}
+[0.418224] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Found Threads: TRUE  \n'}
+[0.420922] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)\n'}
+[0.500361] (-) TimerEvent: {}
+[0.538948] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter \n'}
+[0.588584] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Override CMake install command with custom implementation using symlinks instead of copying resources\n'}
+[0.600455] (-) TimerEvent: {}
+[0.607766] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Found rclcpp: 16.0.19 (/opt/ros/humble/share/rclcpp/cmake)\n'}
+[0.641470] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Found rosidl_generator_c: 3.1.8 (/opt/ros/humble/share/rosidl_generator_c/cmake)\n'}
+[0.644378] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Found rosidl_adapter: 3.1.8 (/opt/ros/humble/share/rosidl_adapter/cmake)\n'}
+[0.649722] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Found rosidl_generator_cpp: 3.1.8 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)\n'}
+[0.657666] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c\n'}
+[0.667689] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp\n'}
+[0.695360] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)\n'}
+[0.697043] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Found rmw_cyclonedds_cpp: 1.3.4 (/opt/ros/humble/share/rmw_cyclonedds_cpp/cmake)\n'}
+[0.700547] (-) TimerEvent: {}
+[0.710375] (fire_scout_planning_safe) StdoutLine: {'line': b"-- Using RMW implementation 'rmw_cyclonedds_cpp' as default\n"}
+[0.748537] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Found sensor_msgs: 4.9.1 (/opt/ros/humble/share/sensor_msgs/cmake)\n'}
+[0.768557] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Found nav_msgs: 4.9.1 (/opt/ros/humble/share/nav_msgs/cmake)\n'}
+[0.779814] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Found std_srvs: 4.9.1 (/opt/ros/humble/share/std_srvs/cmake)\n'}
+[0.786343] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Found tf2: 0.25.22 (/opt/ros/humble/share/tf2/cmake)\n'}
+[0.793448] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Found tf2_ros: 0.25.22 (/opt/ros/humble/share/tf2_ros/cmake)\n'}
+[0.800749] (-) TimerEvent: {}
+[0.850136] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Found px4_msgs: 2.0.1 (/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/cmake)\n'}
+[0.900957] (-) TimerEvent: {}
+[0.996581] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Configuring done\n'}
+[1.001173] (-) TimerEvent: {}
+[1.026558] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Generating done\n'}
+[1.037823] (fire_scout_planning_safe) StdoutLine: {'line': b'-- Build files have been written to: /home/wei/fire_scout_ws/build/fire_scout_planning_safe\n'}
+[1.044208] (fire_scout_planning_safe) CommandEnded: {'returncode': 0}
+[1.044915] (fire_scout_planning_safe) JobProgress: {'identifier': 'fire_scout_planning_safe', 'progress': 'build'}
+[1.045809] (fire_scout_planning_safe) Command: {'cmd': ['/usr/bin/cmake', '--build', '/home/wei/fire_scout_ws/build/fire_scout_planning_safe', '--', '-j32', '-l32'], 'cwd': '/home/wei/fire_scout_ws/build/fire_scout_planning_safe', 'env': OrderedDict([('GJS_DEBUG_TOPICS', 'JS ERROR;JS LOG'), ('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'zh_CN:en'), ('USER', 'wei'), ('LC_TIME', 'en_US.UTF-8'), ('XDG_SESSION_TYPE', 'wayland'), ('SHLVL', '2'), ('LD_LIBRARY_PATH', '/home/wei/fire_scout_ws/install/px4_msgs/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/wei'), ('OLDPWD', '/home/wei/fire_scout_ws'), ('DESKTOP_SESSION', 'ubuntu'), ('GIO_LAUNCHED_DESKTOP_FILE', '/usr/share/applications/terminator.desktop'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('LC_MONETARY', 'en_US.UTF-8'), ('MANAGERPID', '1376'), ('SYSTEMD_EXEC_PID', '1569'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLORTERM', 'truecolor'), ('TERMINATOR_DBUS_NAME', 'net.tenshu.Terminator25ef4b219e3b005583550f2b0f9f990c3'), ('GIO_LAUNCHED_DESKTOP_FILE_PID', '4657'), ('IM_CONFIG_PHASE', '1'), ('WAYLAND_DISPLAY', 'wayland-0'), ('ROS_DISTRO', 'humble'), ('LOGNAME', 'wei'), ('JOURNAL_STREAM', '8:6294'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('USERNAME', 'wei'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('PATH', '/opt/ros/humble/bin:/home/wei/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/wei:@/tmp/.ICE-unix/1535,unix/wei:/tmp/.ICE-unix/1535'), ('INVOCATION_ID', 'a8d0484d0cad45308c0c6122af15d6c6'), ('PAPERSIZE', 'letter'), ('XDG_MENU_PREFIX', 'gnome-'), ('LC_ADDRESS', 'en_US.UTF-8'), ('GNOME_SETUP_DISPLAY', ':1'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('TERMINATOR_DBUS_PATH', '/net/tenshu/Terminator2'), ('LANG', 'zh_CN.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('IBUS_DISABLE_SNOOPER', '1'), ('LC_TELEPHONE', 'en_US.UTF-8'), ('RMW_IMPLEMENTATION', 'rmw_cyclonedds_cpp'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1000/.mutter-Xwaylandauth.DDDHW3'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('LC_NAME', 'en_US.UTF-8'), ('TERMINATOR_UUID', 'urn:uuid:146f5ab0-307f-4282-96e6-5b9f984f12b5'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('LC_MEASUREMENT', 'en_US.UTF-8'), ('GJS_DEBUG_OUTPUT', 'stderr'), ('LC_IDENTIFICATION', 'en_US.UTF-8'), ('GZ_VERSION', 'harmonic'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/wei/fire_scout_ws/build/fire_scout_planning_safe'), ('LC_ALL', 'en_US.UTF-8'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/home/wei/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('LC_NUMERIC', 'en_US.UTF-8'), ('LC_PAPER', 'en_US.UTF-8'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble')]), 'shell': False}
+[1.094263] (fire_scout_planning_safe) StdoutLine: {'line': b'[  2%] \x1b[32mBuilding CXX object CMakeFiles/multi_uav_map_fusion.dir/src/multi_uav_map_fusion.cpp.o\x1b[0m\n'}
+[1.095693] (fire_scout_planning_safe) StdoutLine: {'line': b'[  5%] \x1b[32mBuilding CXX object CMakeFiles/route_switch_test.dir/tests/route_switch_test.cpp.o\x1b[0m\n'}
+[1.096707] (fire_scout_planning_safe) StdoutLine: {'line': b'[  8%] \x1b[32mBuilding CXX object CMakeFiles/v2_coordination_test.dir/tests/v2_coordination_test.cpp.o\x1b[0m\n'}
+[1.098916] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 11%] \x1b[32mBuilding CXX object CMakeFiles/v2_local_retime_test.dir/tests/v2_local_retime_test.cpp.o\x1b[0m\n'}
+[1.099493] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 13%] \x1b[32mBuilding CXX object CMakeFiles/racer_task_allocator.dir/src/racer_task_allocator.cpp.o\x1b[0m\n'}
+[1.100263] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 16%] \x1b[32mBuilding CXX object CMakeFiles/incremental_repair_v19_test.dir/tests/incremental_repair_v19_test.cpp.o\x1b[0m\n'}
+[1.100872] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 19%] \x1b[32mBuilding CXX object CMakeFiles/ultrasonic_memory_test.dir/tests/ultrasonic_memory_test.cpp.o\x1b[0m\n'}
+[1.101267] (-) TimerEvent: {}
+[1.102120] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 25%] \x1b[32mBuilding CXX object CMakeFiles/v2_topology_routes_test.dir/tests/v2_topology_routes_test.cpp.o\x1b[0m\n'}
+[1.102333] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 25%] \x1b[32mBuilding CXX object CMakeFiles/radar_free_space_mapper.dir/src/radar_free_space_mapper.cpp.o\x1b[0m\n'}
+[1.103221] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 27%] \x1b[32mBuilding CXX object CMakeFiles/coordination_components_test.dir/tests/coordination_components_test.cpp.o\x1b[0m\n'}
+[1.103401] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 33%] \x1b[32mBuilding CXX object CMakeFiles/v2_horizon_topology_test.dir/tests/v2_horizon_topology_test.cpp.o\x1b[0m\n'}
+[1.103551] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 33%] \x1b[32mBuilding CXX object CMakeFiles/safe_airfar_like_planner.dir/src/safe_airfar_like_planner.cpp.o\x1b[0m\n'}
+[1.103756] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 36%] \x1b[32mBuilding CXX object CMakeFiles/passage_coordinator.dir/src/passage_coordinator.cpp.o\x1b[0m\n'}
+[1.104541] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 38%] \x1b[32mBuilding CXX object CMakeFiles/follower_alignment_test.dir/tests/follower_alignment_test.cpp.o\x1b[0m\n'}
+[1.105733] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 41%] \x1b[32mBuilding CXX object CMakeFiles/safe_airfar_path_follower.dir/src/safe_airfar_path_follower.cpp.o\x1b[0m\n'}
+[1.106874] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 44%] \x1b[32mBuilding CXX object CMakeFiles/v2_trajectory_test.dir/tests/v2_trajectory_test.cpp.o\x1b[0m\n'}
+[1.107117] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 47%] \x1b[32mBuilding CXX object CMakeFiles/v2_tracking_guard_test.dir/tests/v2_tracking_guard_test.cpp.o\x1b[0m\n'}
+[1.108773] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 50%] \x1b[32mBuilding CXX object CMakeFiles/v2_execution_transition_test.dir/tests/v2_execution_transition_test.cpp.o\x1b[0m\n'}
+[1.201533] (-) TimerEvent: {}
+[1.301904] (-) TimerEvent: {}
+[1.402329] (-) TimerEvent: {}
+[1.502677] (-) TimerEvent: {}
+[1.603019] (-) TimerEvent: {}
+[1.703394] (-) TimerEvent: {}
+[1.803777] (-) TimerEvent: {}
+[1.904168] (-) TimerEvent: {}
+[2.004545] (-) TimerEvent: {}
+[2.077726] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 52%] \x1b[32m\x1b[1mLinking CXX executable route_switch_test\x1b[0m\n'}
+[2.104657] (-) TimerEvent: {}
+[2.156955] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 52%] Built target route_switch_test\n'}
+[2.204853] (-) TimerEvent: {}
+[2.253292] (fire_scout_planning_safe) StderrLine: {'line': b'In file included from \x1b[01m\x1b[K/home/wei/fire_scout_ws/src/fire_scout_planning_safe/include/fire_scout/route_candidates.hpp:3\x1b[m\x1b[K,\n'}
+[2.253576] (fire_scout_planning_safe) StderrLine: {'line': b'                 from \x1b[01m\x1b[K/home/wei/fire_scout_ws/src/fire_scout_planning_safe/src/safe_airfar_like_planner.cpp:7\x1b[m\x1b[K:\n'}
+[2.253686] (fire_scout_planning_safe) StderrLine: {'line': b'\x1b[01m\x1b[K/home/wei/fire_scout_ws/src/fire_scout_planning_safe/include/fire_scout/racer_task_allocator.hpp:\x1b[m\x1b[K In function \xe2\x80\x98\x1b[01m\x1b[Kdouble fire_scout::route_detail::nearestRouteDistance(fire_scout::Vec3, const std::vector<fire_scout::Vec3>&)\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[2.253781] (fire_scout_planning_safe) StderrLine: {'line': b'\x1b[01m\x1b[K/home/wei/fire_scout_ws/src/fire_scout_planning_safe/include/fire_scout/racer_task_allocator.hpp:93:47:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Kcall of overloaded \xe2\x80\x98\x1b[01m\x1b[KpointSegmentDistance(fire_scout::Vec3&, const value_type&, const value_type&)\x1b[m\x1b[K\xe2\x80\x99 is ambiguous\n'}
+[2.253874] (fire_scout_planning_safe) StderrLine: {'line': b'   93 |     best = std::min(best, \x1b[01;31m\x1b[KpointSegmentDistance(point, route[i - 1], route[i])\x1b[m\x1b[K);\n'}
+[2.253957] (fire_scout_planning_safe) StderrLine: {'line': b'      |                           \x1b[01;31m\x1b[K~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[2.254043] (fire_scout_planning_safe) StderrLine: {'line': b'\x1b[01m\x1b[K/home/wei/fire_scout_ws/src/fire_scout_planning_safe/include/fire_scout/racer_task_allocator.hpp:80:15:\x1b[m\x1b[K \x1b[01;36m\x1b[Knote: \x1b[m\x1b[Kcandidate: \xe2\x80\x98\x1b[01m\x1b[Kdouble fire_scout::route_detail::pointSegmentDistance(fire_scout::Vec3, fire_scout::Vec3, fire_scout::Vec3)\x1b[m\x1b[K\xe2\x80\x99\n'}
+[2.254133] (fire_scout_planning_safe) StderrLine: {'line': b'   80 | inline double \x1b[01;36m\x1b[KpointSegmentDistance\x1b[m\x1b[K(Vec3 point, Vec3 a, Vec3 b) {\n'}
+[2.254222] (fire_scout_planning_safe) StderrLine: {'line': b'      |               \x1b[01;36m\x1b[K^~~~~~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[2.254334] (fire_scout_planning_safe) StderrLine: {'line': b'In file included from \x1b[01m\x1b[K/home/wei/fire_scout_ws/src/fire_scout_planning_safe/include/fire_scout/route_execution.hpp:3\x1b[m\x1b[K,\n'}
+[2.254424] (fire_scout_planning_safe) StderrLine: {'line': b'                 from \x1b[01m\x1b[K/home/wei/fire_scout_ws/src/fire_scout_planning_safe/src/safe_airfar_like_planner.cpp:6\x1b[m\x1b[K:\n'}
+[2.254510] (fire_scout_planning_safe) StderrLine: {'line': b'\x1b[01m\x1b[K/home/wei/fire_scout_ws/src/fire_scout_planning_safe/include/fire_scout/timed_trajectory.hpp:58:15:\x1b[m\x1b[K \x1b[01;36m\x1b[Knote: \x1b[m\x1b[Kcandidate: \xe2\x80\x98\x1b[01m\x1b[Kdouble fire_scout::pointSegmentDistance(fire_scout::Vec3, fire_scout::Vec3, fire_scout::Vec3)\x1b[m\x1b[K\xe2\x80\x99\n'}
+[2.254598] (fire_scout_planning_safe) StderrLine: {'line': b'   58 | inline double \x1b[01;36m\x1b[KpointSegmentDistance\x1b[m\x1b[K(Vec3 p,Vec3 a,Vec3 b){\n'}
+[2.254684] (fire_scout_planning_safe) StderrLine: {'line': b'      |               \x1b[01;36m\x1b[K^~~~~~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[2.305037] (-) TimerEvent: {}
+[2.405451] (-) TimerEvent: {}
+[2.505779] (-) TimerEvent: {}
+[2.606272] (-) TimerEvent: {}
+[2.706607] (-) TimerEvent: {}
+[2.807030] (-) TimerEvent: {}
+[2.907442] (-) TimerEvent: {}
+[2.953584] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 55%] \x1b[32m\x1b[1mLinking CXX executable ultrasonic_memory_test\x1b[0m\n'}
+[3.007666] (-) TimerEvent: {}
+[3.039358] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 55%] Built target ultrasonic_memory_test\n'}
+[3.107808] (-) TimerEvent: {}
+[3.208136] (-) TimerEvent: {}
+[3.308491] (-) TimerEvent: {}
+[3.325955] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 58%] \x1b[32m\x1b[1mLinking CXX executable v2_local_retime_test\x1b[0m\n'}
+[3.354637] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 61%] \x1b[32m\x1b[1mLinking CXX executable follower_alignment_test\x1b[0m\n'}
+[3.408687] (-) TimerEvent: {}
+[3.433531] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 61%] Built target v2_local_retime_test\n'}
+[3.459734] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 61%] Built target follower_alignment_test\n'}
+[3.508795] (-) TimerEvent: {}
+[3.602101] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 63%] \x1b[32m\x1b[1mLinking CXX executable coordination_components_test\x1b[0m\n'}
+[3.608967] (-) TimerEvent: {}
+[3.682228] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 63%] Built target coordination_components_test\n'}
+[3.709172] (-) TimerEvent: {}
+[3.809552] (-) TimerEvent: {}
+[3.909897] (-) TimerEvent: {}
+[4.010232] (-) TimerEvent: {}
+[4.110586] (-) TimerEvent: {}
+[4.210900] (-) TimerEvent: {}
+[4.311389] (-) TimerEvent: {}
+[4.400434] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 66%] \x1b[32m\x1b[1mLinking CXX executable v2_tracking_guard_test\x1b[0m\n'}
+[4.411499] (-) TimerEvent: {}
+[4.435890] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 69%] \x1b[32m\x1b[1mLinking CXX executable incremental_repair_v19_test\x1b[0m\n'}
+[4.498122] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 69%] Built target v2_tracking_guard_test\n'}
+[4.511616] (-) TimerEvent: {}
+[4.517607] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 69%] Built target incremental_repair_v19_test\n'}
+[4.611727] (-) TimerEvent: {}
+[4.712197] (-) TimerEvent: {}
+[4.812551] (-) TimerEvent: {}
+[4.841066] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 72%] \x1b[32m\x1b[1mLinking CXX executable v2_trajectory_test\x1b[0m\n'}
+[4.912661] (-) TimerEvent: {}
+[4.934034] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 72%] Built target v2_trajectory_test\n'}
+[5.012798] (-) TimerEvent: {}
+[5.083037] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 75%] \x1b[32m\x1b[1mLinking CXX executable v2_execution_transition_test\x1b[0m\n'}
+[5.112927] (-) TimerEvent: {}
+[5.176411] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 75%] Built target v2_execution_transition_test\n'}
+[5.213104] (-) TimerEvent: {}
+[5.313540] (-) TimerEvent: {}
+[5.414028] (-) TimerEvent: {}
+[5.514514] (-) TimerEvent: {}
+[5.614818] (-) TimerEvent: {}
+[5.703897] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 77%] \x1b[32m\x1b[1mLinking CXX executable v2_topology_routes_test\x1b[0m\n'}
+[5.715049] (-) TimerEvent: {}
+[5.759344] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 80%] \x1b[32m\x1b[1mLinking CXX executable v2_horizon_topology_test\x1b[0m\n'}
+[5.792897] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 80%] Built target v2_topology_routes_test\n'}
+[5.815367] (-) TimerEvent: {}
+[5.827331] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 80%] Built target v2_horizon_topology_test\n'}
+[5.915476] (-) TimerEvent: {}
+[6.015846] (-) TimerEvent: {}
+[6.116162] (-) TimerEvent: {}
+[6.183624] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 83%] \x1b[32m\x1b[1mLinking CXX executable v2_coordination_test\x1b[0m\n'}
+[6.216273] (-) TimerEvent: {}
+[6.255464] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 83%] Built target v2_coordination_test\n'}
+[6.316399] (-) TimerEvent: {}
+[6.416735] (-) TimerEvent: {}
+[6.517081] (-) TimerEvent: {}
+[6.617500] (-) TimerEvent: {}
+[6.717797] (-) TimerEvent: {}
+[6.818220] (-) TimerEvent: {}
+[6.918542] (-) TimerEvent: {}
+[7.018939] (-) TimerEvent: {}
+[7.119297] (-) TimerEvent: {}
+[7.219630] (-) TimerEvent: {}
+[7.320103] (-) TimerEvent: {}
+[7.420438] (-) TimerEvent: {}
+[7.520778] (-) TimerEvent: {}
+[7.621175] (-) TimerEvent: {}
+[7.721504] (-) TimerEvent: {}
+[7.821803] (-) TimerEvent: {}
+[7.922236] (-) TimerEvent: {}
+[8.022545] (-) TimerEvent: {}
+[8.122859] (-) TimerEvent: {}
+[8.223363] (-) TimerEvent: {}
+[8.323816] (-) TimerEvent: {}
+[8.424226] (-) TimerEvent: {}
+[8.524627] (-) TimerEvent: {}
+[8.624918] (-) TimerEvent: {}
+[8.725290] (-) TimerEvent: {}
+[8.825697] (-) TimerEvent: {}
+[8.926118] (-) TimerEvent: {}
+[9.026512] (-) TimerEvent: {}
+[9.126828] (-) TimerEvent: {}
+[9.227223] (-) TimerEvent: {}
+[9.327652] (-) TimerEvent: {}
+[9.428104] (-) TimerEvent: {}
+[9.528444] (-) TimerEvent: {}
+[9.628768] (-) TimerEvent: {}
+[9.729213] (-) TimerEvent: {}
+[9.740999] (fire_scout_planning_safe) StderrLine: {'line': b'gmake[2]: *** [CMakeFiles/safe_airfar_like_planner.dir/build.make:76\xef\xbc\x9aCMakeFiles/safe_airfar_like_planner.dir/src/safe_airfar_like_planner.cpp.o] \xe9\x94\x99\xe8\xaf\xaf 1\n'}
+[9.741199] (fire_scout_planning_safe) StderrLine: {'line': b'gmake[1]: *** [CMakeFiles/Makefile2:249\xef\xbc\x9aCMakeFiles/safe_airfar_like_planner.dir/all] \xe9\x94\x99\xe8\xaf\xaf 2\n'}
+[9.741289] (fire_scout_planning_safe) StderrLine: {'line': b'gmake[1]: *** \xe6\xad\xa3\xe5\x9c\xa8\xe7\xad\x89\xe5\xbe\x85\xe6\x9c\xaa\xe5\xae\x8c\xe6\x88\x90\xe7\x9a\x84\xe4\xbb\xbb\xe5\x8a\xa1....\n'}
+[9.829384] (-) TimerEvent: {}
+[9.929657] (-) TimerEvent: {}
+[10.029960] (-) TimerEvent: {}
+[10.130370] (-) TimerEvent: {}
+[10.230714] (-) TimerEvent: {}
+[10.331130] (-) TimerEvent: {}
+[10.431576] (-) TimerEvent: {}
+[10.531857] (-) TimerEvent: {}
+[10.632212] (-) TimerEvent: {}
+[10.732610] (-) TimerEvent: {}
+[10.832994] (-) TimerEvent: {}
+[10.933380] (-) TimerEvent: {}
+[11.033779] (-) TimerEvent: {}
+[11.134176] (-) TimerEvent: {}
+[11.234605] (-) TimerEvent: {}
+[11.335007] (-) TimerEvent: {}
+[11.435484] (-) TimerEvent: {}
+[11.535839] (-) TimerEvent: {}
+[11.634020] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 86%] \x1b[32m\x1b[1mLinking CXX executable passage_coordinator\x1b[0m\n'}
+[11.636044] (-) TimerEvent: {}
+[11.736444] (-) TimerEvent: {}
+[11.771802] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 86%] Built target passage_coordinator\n'}
+[11.836546] (-) TimerEvent: {}
+[11.936828] (-) TimerEvent: {}
+[12.037224] (-) TimerEvent: {}
+[12.137542] (-) TimerEvent: {}
+[12.237939] (-) TimerEvent: {}
+[12.338347] (-) TimerEvent: {}
+[12.438622] (-) TimerEvent: {}
+[12.539008] (-) TimerEvent: {}
+[12.639458] (-) TimerEvent: {}
+[12.739898] (-) TimerEvent: {}
+[12.840308] (-) TimerEvent: {}
+[12.940649] (-) TimerEvent: {}
+[13.040996] (-) TimerEvent: {}
+[13.141430] (-) TimerEvent: {}
+[13.241709] (-) TimerEvent: {}
+[13.342043] (-) TimerEvent: {}
+[13.442279] (-) TimerEvent: {}
+[13.542547] (-) TimerEvent: {}
+[13.642821] (-) TimerEvent: {}
+[13.743135] (-) TimerEvent: {}
+[13.843396] (-) TimerEvent: {}
+[13.943633] (-) TimerEvent: {}
+[14.043950] (-) TimerEvent: {}
+[14.144261] (-) TimerEvent: {}
+[14.244485] (-) TimerEvent: {}
+[14.344739] (-) TimerEvent: {}
+[14.445052] (-) TimerEvent: {}
+[14.545403] (-) TimerEvent: {}
+[14.645622] (-) TimerEvent: {}
+[14.745926] (-) TimerEvent: {}
+[14.846270] (-) TimerEvent: {}
+[14.946503] (-) TimerEvent: {}
+[15.046754] (-) TimerEvent: {}
+[15.147069] (-) TimerEvent: {}
+[15.247405] (-) TimerEvent: {}
+[15.347733] (-) TimerEvent: {}
+[15.448053] (-) TimerEvent: {}
+[15.548373] (-) TimerEvent: {}
+[15.648599] (-) TimerEvent: {}
+[15.748903] (-) TimerEvent: {}
+[15.849219] (-) TimerEvent: {}
+[15.949530] (-) TimerEvent: {}
+[15.969167] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 88%] \x1b[32m\x1b[1mLinking CXX executable multi_uav_map_fusion\x1b[0m\n'}
+[16.049722] (-) TimerEvent: {}
+[16.069464] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 91%] \x1b[32m\x1b[1mLinking CXX executable radar_free_space_mapper\x1b[0m\n'}
+[16.122698] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 91%] Built target multi_uav_map_fusion\n'}
+[16.149938] (-) TimerEvent: {}
+[16.241814] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 91%] Built target radar_free_space_mapper\n'}
+[16.250137] (-) TimerEvent: {}
+[16.350531] (-) TimerEvent: {}
+[16.450909] (-) TimerEvent: {}
+[16.551300] (-) TimerEvent: {}
+[16.651677] (-) TimerEvent: {}
+[16.752076] (-) TimerEvent: {}
+[16.852468] (-) TimerEvent: {}
+[16.952764] (-) TimerEvent: {}
+[17.053148] (-) TimerEvent: {}
+[17.153569] (-) TimerEvent: {}
+[17.253958] (-) TimerEvent: {}
+[17.354379] (-) TimerEvent: {}
+[17.454650] (-) TimerEvent: {}
+[17.555036] (-) TimerEvent: {}
+[17.655438] (-) TimerEvent: {}
+[17.755817] (-) TimerEvent: {}
+[17.856221] (-) TimerEvent: {}
+[17.956574] (-) TimerEvent: {}
+[18.056989] (-) TimerEvent: {}
+[18.157406] (-) TimerEvent: {}
+[18.257781] (-) TimerEvent: {}
+[18.358165] (-) TimerEvent: {}
+[18.458578] (-) TimerEvent: {}
+[18.558967] (-) TimerEvent: {}
+[18.659349] (-) TimerEvent: {}
+[18.759628] (-) TimerEvent: {}
+[18.859971] (-) TimerEvent: {}
+[18.960387] (-) TimerEvent: {}
+[19.060633] (-) TimerEvent: {}
+[19.160961] (-) TimerEvent: {}
+[19.261303] (-) TimerEvent: {}
+[19.361517] (-) TimerEvent: {}
+[19.461762] (-) TimerEvent: {}
+[19.562069] (-) TimerEvent: {}
+[19.662388] (-) TimerEvent: {}
+[19.762603] (-) TimerEvent: {}
+[19.802758] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 94%] \x1b[32m\x1b[1mLinking CXX executable racer_task_allocator\x1b[0m\n'}
+[19.862716] (-) TimerEvent: {}
+[19.963023] (-) TimerEvent: {}
+[19.994415] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 94%] Built target racer_task_allocator\n'}
+[20.063201] (-) TimerEvent: {}
+[20.163411] (-) TimerEvent: {}
+[20.263618] (-) TimerEvent: {}
+[20.363831] (-) TimerEvent: {}
+[20.464118] (-) TimerEvent: {}
+[20.564396] (-) TimerEvent: {}
+[20.664611] (-) TimerEvent: {}
+[20.764858] (-) TimerEvent: {}
+[20.865172] (-) TimerEvent: {}
+[20.965410] (-) TimerEvent: {}
+[21.065626] (-) TimerEvent: {}
+[21.165914] (-) TimerEvent: {}
+[21.266202] (-) TimerEvent: {}
+[21.366416] (-) TimerEvent: {}
+[21.466628] (-) TimerEvent: {}
+[21.566873] (-) TimerEvent: {}
+[21.667178] (-) TimerEvent: {}
+[21.767394] (-) TimerEvent: {}
+[21.867600] (-) TimerEvent: {}
+[21.967831] (-) TimerEvent: {}
+[22.068127] (-) TimerEvent: {}
+[22.168383] (-) TimerEvent: {}
+[22.268598] (-) TimerEvent: {}
+[22.368835] (-) TimerEvent: {}
+[22.469139] (-) TimerEvent: {}
+[22.569363] (-) TimerEvent: {}
+[22.669574] (-) TimerEvent: {}
+[22.769811] (-) TimerEvent: {}
+[22.870124] (-) TimerEvent: {}
+[22.970397] (-) TimerEvent: {}
+[23.070627] (-) TimerEvent: {}
+[23.170946] (-) TimerEvent: {}
+[23.271262] (-) TimerEvent: {}
+[23.371488] (-) TimerEvent: {}
+[23.471731] (-) TimerEvent: {}
+[23.572037] (-) TimerEvent: {}
+[23.672361] (-) TimerEvent: {}
+[23.772577] (-) TimerEvent: {}
+[23.872826] (-) TimerEvent: {}
+[23.973128] (-) TimerEvent: {}
+[24.073346] (-) TimerEvent: {}
+[24.173552] (-) TimerEvent: {}
+[24.273794] (-) TimerEvent: {}
+[24.374084] (-) TimerEvent: {}
+[24.474407] (-) TimerEvent: {}
+[24.574613] (-) TimerEvent: {}
+[24.674862] (-) TimerEvent: {}
+[24.775188] (-) TimerEvent: {}
+[24.875548] (-) TimerEvent: {}
+[24.975909] (-) TimerEvent: {}
+[25.076310] (-) TimerEvent: {}
+[25.176674] (-) TimerEvent: {}
+[25.277077] (-) TimerEvent: {}
+[25.377377] (-) TimerEvent: {}
+[25.477768] (-) TimerEvent: {}
+[25.578122] (-) TimerEvent: {}
+[25.678464] (-) TimerEvent: {}
+[25.778858] (-) TimerEvent: {}
+[25.879221] (-) TimerEvent: {}
+[25.979724] (-) TimerEvent: {}
+[26.080081] (-) TimerEvent: {}
+[26.180410] (-) TimerEvent: {}
+[26.280713] (-) TimerEvent: {}
+[26.381006] (-) TimerEvent: {}
+[26.481321] (-) TimerEvent: {}
+[26.581626] (-) TimerEvent: {}
+[26.681925] (-) TimerEvent: {}
+[26.782240] (-) TimerEvent: {}
+[26.882590] (-) TimerEvent: {}
+[26.982929] (-) TimerEvent: {}
+[27.083287] (-) TimerEvent: {}
+[27.183613] (-) TimerEvent: {}
+[27.283991] (-) TimerEvent: {}
+[27.384359] (-) TimerEvent: {}
+[27.484612] (-) TimerEvent: {}
+[27.584954] (-) TimerEvent: {}
+[27.685305] (-) TimerEvent: {}
+[27.785538] (-) TimerEvent: {}
+[27.885850] (-) TimerEvent: {}
+[27.986173] (-) TimerEvent: {}
+[28.086415] (-) TimerEvent: {}
+[28.186627] (-) TimerEvent: {}
+[28.286843] (-) TimerEvent: {}
+[28.387167] (-) TimerEvent: {}
+[28.487420] (-) TimerEvent: {}
+[28.587732] (-) TimerEvent: {}
+[28.688048] (-) TimerEvent: {}
+[28.788392] (-) TimerEvent: {}
+[28.888713] (-) TimerEvent: {}
+[28.989032] (-) TimerEvent: {}
+[29.089338] (-) TimerEvent: {}
+[29.189647] (-) TimerEvent: {}
+[29.289902] (-) TimerEvent: {}
+[29.390198] (-) TimerEvent: {}
+[29.490430] (-) TimerEvent: {}
+[29.590653] (-) TimerEvent: {}
+[29.690903] (-) TimerEvent: {}
+[29.791211] (-) TimerEvent: {}
+[29.891440] (-) TimerEvent: {}
+[29.991665] (-) TimerEvent: {}
+[30.091962] (-) TimerEvent: {}
+[30.192267] (-) TimerEvent: {}
+[30.292571] (-) TimerEvent: {}
+[30.392884] (-) TimerEvent: {}
+[30.493198] (-) TimerEvent: {}
+[30.593601] (-) TimerEvent: {}
+[30.693862] (-) TimerEvent: {}
+[30.794134] (-) TimerEvent: {}
+[30.894398] (-) TimerEvent: {}
+[30.994620] (-) TimerEvent: {}
+[31.094838] (-) TimerEvent: {}
+[31.195162] (-) TimerEvent: {}
+[31.295515] (-) TimerEvent: {}
+[31.395768] (-) TimerEvent: {}
+[31.496086] (-) TimerEvent: {}
+[31.596461] (-) TimerEvent: {}
+[31.696702] (-) TimerEvent: {}
+[31.797009] (-) TimerEvent: {}
+[31.897371] (-) TimerEvent: {}
+[31.997706] (-) TimerEvent: {}
+[32.098024] (-) TimerEvent: {}
+[32.198256] (-) TimerEvent: {}
+[32.298573] (-) TimerEvent: {}
+[32.398901] (-) TimerEvent: {}
+[32.499237] (-) TimerEvent: {}
+[32.599570] (-) TimerEvent: {}
+[32.699872] (-) TimerEvent: {}
+[32.800188] (-) TimerEvent: {}
+[32.900528] (-) TimerEvent: {}
+[33.000921] (-) TimerEvent: {}
+[33.101259] (-) TimerEvent: {}
+[33.201525] (-) TimerEvent: {}
+[33.301805] (-) TimerEvent: {}
+[33.402160] (-) TimerEvent: {}
+[33.502390] (-) TimerEvent: {}
+[33.602715] (-) TimerEvent: {}
+[33.703055] (-) TimerEvent: {}
+[33.803455] (-) TimerEvent: {}
+[33.903793] (-) TimerEvent: {}
+[34.004125] (-) TimerEvent: {}
+[34.104403] (-) TimerEvent: {}
+[34.204654] (-) TimerEvent: {}
+[34.304905] (-) TimerEvent: {}
+[34.405203] (-) TimerEvent: {}
+[34.505426] (-) TimerEvent: {}
+[34.605652] (-) TimerEvent: {}
+[34.705993] (-) TimerEvent: {}
+[34.806329] (-) TimerEvent: {}
+[34.906565] (-) TimerEvent: {}
+[35.006825] (-) TimerEvent: {}
+[35.107146] (-) TimerEvent: {}
+[35.207392] (-) TimerEvent: {}
+[35.307608] (-) TimerEvent: {}
+[35.407868] (-) TimerEvent: {}
+[35.508177] (-) TimerEvent: {}
+[35.608527] (-) TimerEvent: {}
+[35.708782] (-) TimerEvent: {}
+[35.809091] (-) TimerEvent: {}
+[35.909417] (-) TimerEvent: {}
+[36.009750] (-) TimerEvent: {}
+[36.110069] (-) TimerEvent: {}
+[36.210397] (-) TimerEvent: {}
+[36.310724] (-) TimerEvent: {}
+[36.411018] (-) TimerEvent: {}
+[36.511327] (-) TimerEvent: {}
+[36.611660] (-) TimerEvent: {}
+[36.711937] (-) TimerEvent: {}
+[36.812276] (-) TimerEvent: {}
+[36.912497] (-) TimerEvent: {}
+[37.012728] (-) TimerEvent: {}
+[37.113038] (-) TimerEvent: {}
+[37.213351] (-) TimerEvent: {}
+[37.313655] (-) TimerEvent: {}
+[37.413971] (-) TimerEvent: {}
+[37.514310] (-) TimerEvent: {}
+[37.614711] (-) TimerEvent: {}
+[37.715052] (-) TimerEvent: {}
+[37.815414] (-) TimerEvent: {}
+[37.915642] (-) TimerEvent: {}
+[38.015984] (-) TimerEvent: {}
+[38.116298] (-) TimerEvent: {}
+[38.216617] (-) TimerEvent: {}
+[38.316854] (-) TimerEvent: {}
+[38.417190] (-) TimerEvent: {}
+[38.517533] (-) TimerEvent: {}
+[38.617863] (-) TimerEvent: {}
+[38.718214] (-) TimerEvent: {}
+[38.818576] (-) TimerEvent: {}
+[38.918921] (-) TimerEvent: {}
+[39.019142] (-) TimerEvent: {}
+[39.119410] (-) TimerEvent: {}
+[39.219700] (-) TimerEvent: {}
+[39.319956] (-) TimerEvent: {}
+[39.420303] (-) TimerEvent: {}
+[39.520535] (-) TimerEvent: {}
+[39.620784] (-) TimerEvent: {}
+[39.721120] (-) TimerEvent: {}
+[39.821581] (-) TimerEvent: {}
+[39.921940] (-) TimerEvent: {}
+[40.022293] (-) TimerEvent: {}
+[40.122510] (-) TimerEvent: {}
+[40.222842] (-) TimerEvent: {}
+[40.323146] (-) TimerEvent: {}
+[40.423478] (-) TimerEvent: {}
+[40.523703] (-) TimerEvent: {}
+[40.624018] (-) TimerEvent: {}
+[40.724240] (-) TimerEvent: {}
+[40.824479] (-) TimerEvent: {}
+[40.824734] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 97%] \x1b[32m\x1b[1mLinking CXX executable safe_airfar_path_follower\x1b[0m\n'}
+[40.924648] (-) TimerEvent: {}
+[41.024880] (-) TimerEvent: {}
+[41.125117] (-) TimerEvent: {}
+[41.132612] (fire_scout_planning_safe) StdoutLine: {'line': b'[ 97%] Built target safe_airfar_path_follower\n'}
+[41.133586] (fire_scout_planning_safe) StderrLine: {'line': b'gmake: *** [Makefile:146\xef\xbc\x9aall] \xe9\x94\x99\xe8\xaf\xaf 2\n'}
+[41.135564] (fire_scout_planning_safe) CommandEnded: {'returncode': 2}
+[41.145561] (fire_scout_planning_safe) JobEnded: {'identifier': 'fire_scout_planning_safe', 'rc': 2}
+[41.156298] (-) EventReactorShutdown: {}

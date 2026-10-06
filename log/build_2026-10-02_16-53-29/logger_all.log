@@ -1,0 +1,614 @@
+[0.067s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build', '--event-handlers', 'console_direct+']
+[0.067s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=False, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=32, event_handlers=['console_direct+'], ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=None, packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, mixin_files=None, mixin=None, verb_parser=<colcon_mixin.mixin.mixin_argument.MixinArgumentDecorator object at 0x7ee1be06ea70>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0x7ee1be06e500>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0x7ee1be06e500>>, mixin_verb=('build',))
+[0.168s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.168s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.168s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.168s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.168s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[0.168s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.168s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/wei/fire_scout_ws'
+[0.168s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.168s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[0.169s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[0.169s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[0.169s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[0.169s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[0.169s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[0.169s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[0.169s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore', 'ignore_ament_install']
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore', 'ignore_ament_install']
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore', 'ignore_ament_install']
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ignore', 'ignore_ament_install']
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore'
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore_ament_install'
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_pkg']
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_pkg'
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_meta']
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_meta'
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ros']
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ros'
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['cmake', 'python']
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'cmake'
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python'
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['python_setup_py']
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python_setup_py'
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_bringup) by extensions ['ignore', 'ignore_ament_install']
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_bringup) by extension 'ignore'
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_bringup) by extension 'ignore_ament_install'
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_bringup) by extensions ['colcon_pkg']
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_bringup) by extension 'colcon_pkg'
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_bringup) by extensions ['colcon_meta']
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_bringup) by extension 'colcon_meta'
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_bringup) by extensions ['ros']
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_bringup) by extension 'ros'
+[0.178s] DEBUG:colcon.colcon_core.package_identification:Package 'src/fire_scout_bringup' with type 'ros.ament_cmake' and name 'fire_scout_bringup'
+[0.178s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_control) by extensions ['ignore', 'ignore_ament_install']
+[0.178s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_control) by extension 'ignore'
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_control) by extension 'ignore_ament_install'
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_control) by extensions ['colcon_pkg']
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_control) by extension 'colcon_pkg'
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_control) by extensions ['colcon_meta']
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_control) by extension 'colcon_meta'
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_control) by extensions ['ros']
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_control) by extension 'ros'
+[0.179s] DEBUG:colcon.colcon_core.package_identification:Package 'src/fire_scout_control' with type 'ros.ament_cmake' and name 'fire_scout_control'
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_gazebo) by extensions ['ignore', 'ignore_ament_install']
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_gazebo) by extension 'ignore'
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_gazebo) by extension 'ignore_ament_install'
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_gazebo) by extensions ['colcon_pkg']
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_gazebo) by extension 'colcon_pkg'
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_gazebo) by extensions ['colcon_meta']
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_gazebo) by extension 'colcon_meta'
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_gazebo) by extensions ['ros']
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_gazebo) by extension 'ros'
+[0.180s] DEBUG:colcon.colcon_core.package_identification:Package 'src/fire_scout_gazebo' with type 'ros.ament_cmake' and name 'fire_scout_gazebo'
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_localization) by extensions ['ignore', 'ignore_ament_install']
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_localization) by extension 'ignore'
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_localization) by extension 'ignore_ament_install'
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_localization) by extensions ['colcon_pkg']
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_localization) by extension 'colcon_pkg'
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_localization) by extensions ['colcon_meta']
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_localization) by extension 'colcon_meta'
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_localization) by extensions ['ros']
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_localization) by extension 'ros'
+[0.180s] DEBUG:colcon.colcon_core.package_identification:Package 'src/fire_scout_localization' with type 'ros.ament_cmake' and name 'fire_scout_localization'
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_mapping) by extensions ['ignore', 'ignore_ament_install']
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_mapping) by extension 'ignore'
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_mapping) by extension 'ignore_ament_install'
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_mapping) by extensions ['colcon_pkg']
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_mapping) by extension 'colcon_pkg'
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_mapping) by extensions ['colcon_meta']
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_mapping) by extension 'colcon_meta'
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_mapping) by extensions ['ros']
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_mapping) by extension 'ros'
+[0.181s] DEBUG:colcon.colcon_core.package_identification:Package 'src/fire_scout_mapping' with type 'ros.ament_cmake' and name 'fire_scout_mapping'
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_planning_safe) by extensions ['ignore', 'ignore_ament_install']
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_planning_safe) by extension 'ignore'
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_planning_safe) by extension 'ignore_ament_install'
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_planning_safe) by extensions ['colcon_pkg']
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_planning_safe) by extension 'colcon_pkg'
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_planning_safe) by extensions ['colcon_meta']
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_planning_safe) by extension 'colcon_meta'
+[0.182s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_planning_safe) by extensions ['ros']
+[0.182s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_planning_safe) by extension 'ros'
+[0.182s] DEBUG:colcon.colcon_core.package_identification:Package 'src/fire_scout_planning_safe' with type 'ros.ament_cmake' and name 'fire_scout_planning_safe'
+[0.182s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_sensors) by extensions ['ignore', 'ignore_ament_install']
+[0.182s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_sensors) by extension 'ignore'
+[0.182s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_sensors) by extension 'ignore_ament_install'
+[0.182s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_sensors) by extensions ['colcon_pkg']
+[0.182s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_sensors) by extension 'colcon_pkg'
+[0.182s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_sensors) by extensions ['colcon_meta']
+[0.182s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_sensors) by extension 'colcon_meta'
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_sensors) by extensions ['ros']
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/fire_scout_sensors) by extension 'ros'
+[0.183s] DEBUG:colcon.colcon_core.package_identification:Package 'src/fire_scout_sensors' with type 'ros.ament_cmake' and name 'fire_scout_sensors'
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/planning1) by extensions ['ignore', 'ignore_ament_install']
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/planning1) by extension 'ignore'
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/planning1) by extension 'ignore_ament_install'
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/planning1) by extensions ['colcon_pkg']
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/planning1) by extension 'colcon_pkg'
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/planning1) by extensions ['colcon_meta']
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/planning1) by extension 'colcon_meta'
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/planning1) by extensions ['ros']
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/planning1) by extension 'ros'
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/planning1) by extensions ['cmake', 'python']
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/planning1) by extension 'cmake'
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/planning1) by extension 'python'
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/planning1) by extensions ['python_setup_py']
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/planning1) by extension 'python_setup_py'
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/px4_msgs) by extensions ['ignore', 'ignore_ament_install']
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/px4_msgs) by extension 'ignore'
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/px4_msgs) by extension 'ignore_ament_install'
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/px4_msgs) by extensions ['colcon_pkg']
+[0.183s] Level 1:colcon.colcon_core.package_identification:_identify(src/px4_msgs) by extension 'colcon_pkg'
+[0.184s] Level 1:colcon.colcon_core.package_identification:_identify(src/px4_msgs) by extensions ['colcon_meta']
+[0.184s] Level 1:colcon.colcon_core.package_identification:_identify(src/px4_msgs) by extension 'colcon_meta'
+[0.184s] Level 1:colcon.colcon_core.package_identification:_identify(src/px4_msgs) by extensions ['ros']
+[0.184s] Level 1:colcon.colcon_core.package_identification:_identify(src/px4_msgs) by extension 'ros'
+[0.184s] DEBUG:colcon.colcon_core.package_identification:Package 'src/px4_msgs' with type 'ros.ament_cmake' and name 'px4_msgs'
+[0.184s] Level 1:colcon.colcon_core.package_identification:_identify(version_backups) by extensions ['ignore', 'ignore_ament_install']
+[0.184s] Level 1:colcon.colcon_core.package_identification:_identify(version_backups) by extension 'ignore'
+[0.184s] Level 1:colcon.colcon_core.package_identification:_identify(version_backups) ignored
+[0.184s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[0.184s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[0.184s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[0.184s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[0.184s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[0.204s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[0.204s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[0.205s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 8 installed packages in /home/wei/fire_scout_ws/install
+[0.206s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 351 installed packages in /opt/ros/humble
+[0.207s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[0.232s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_gazebo' build argument 'cmake_args' from command line to 'None'
+[0.232s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_gazebo' build argument 'cmake_target' from command line to 'None'
+[0.232s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_gazebo' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.232s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_gazebo' build argument 'cmake_clean_cache' from command line to 'False'
+[0.232s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_gazebo' build argument 'cmake_clean_first' from command line to 'False'
+[0.232s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_gazebo' build argument 'cmake_force_configure' from command line to 'False'
+[0.232s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_gazebo' build argument 'ament_cmake_args' from command line to 'None'
+[0.232s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_gazebo' build argument 'catkin_cmake_args' from command line to 'None'
+[0.232s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_gazebo' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.232s] DEBUG:colcon.colcon_core.verb:Building package 'fire_scout_gazebo' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/wei/fire_scout_ws/build/fire_scout_gazebo', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/wei/fire_scout_ws/install/fire_scout_gazebo', 'merge_install': False, 'path': '/home/wei/fire_scout_ws/src/fire_scout_gazebo', 'symlink_install': False, 'test_result_base': None}
+[0.232s] Level 5:colcon.colcon_core.verb:set package 'px4_msgs' build argument 'cmake_args' from command line to 'None'
+[0.232s] Level 5:colcon.colcon_core.verb:set package 'px4_msgs' build argument 'cmake_target' from command line to 'None'
+[0.232s] Level 5:colcon.colcon_core.verb:set package 'px4_msgs' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.232s] Level 5:colcon.colcon_core.verb:set package 'px4_msgs' build argument 'cmake_clean_cache' from command line to 'False'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'px4_msgs' build argument 'cmake_clean_first' from command line to 'False'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'px4_msgs' build argument 'cmake_force_configure' from command line to 'False'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'px4_msgs' build argument 'ament_cmake_args' from command line to 'None'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'px4_msgs' build argument 'catkin_cmake_args' from command line to 'None'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'px4_msgs' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.233s] DEBUG:colcon.colcon_core.verb:Building package 'px4_msgs' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/wei/fire_scout_ws/build/px4_msgs', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/wei/fire_scout_ws/install/px4_msgs', 'merge_install': False, 'path': '/home/wei/fire_scout_ws/src/px4_msgs', 'symlink_install': False, 'test_result_base': None}
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_control' build argument 'cmake_args' from command line to 'None'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_control' build argument 'cmake_target' from command line to 'None'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_control' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_control' build argument 'cmake_clean_cache' from command line to 'False'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_control' build argument 'cmake_clean_first' from command line to 'False'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_control' build argument 'cmake_force_configure' from command line to 'False'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_control' build argument 'ament_cmake_args' from command line to 'None'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_control' build argument 'catkin_cmake_args' from command line to 'None'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_control' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.233s] DEBUG:colcon.colcon_core.verb:Building package 'fire_scout_control' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/wei/fire_scout_ws/build/fire_scout_control', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/wei/fire_scout_ws/install/fire_scout_control', 'merge_install': False, 'path': '/home/wei/fire_scout_ws/src/fire_scout_control', 'symlink_install': False, 'test_result_base': None}
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_localization' build argument 'cmake_args' from command line to 'None'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_localization' build argument 'cmake_target' from command line to 'None'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_localization' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_localization' build argument 'cmake_clean_cache' from command line to 'False'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_localization' build argument 'cmake_clean_first' from command line to 'False'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_localization' build argument 'cmake_force_configure' from command line to 'False'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_localization' build argument 'ament_cmake_args' from command line to 'None'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_localization' build argument 'catkin_cmake_args' from command line to 'None'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_localization' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.233s] DEBUG:colcon.colcon_core.verb:Building package 'fire_scout_localization' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/wei/fire_scout_ws/build/fire_scout_localization', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/wei/fire_scout_ws/install/fire_scout_localization', 'merge_install': False, 'path': '/home/wei/fire_scout_ws/src/fire_scout_localization', 'symlink_install': False, 'test_result_base': None}
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_planning_safe' build argument 'cmake_args' from command line to 'None'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_planning_safe' build argument 'cmake_target' from command line to 'None'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_planning_safe' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_planning_safe' build argument 'cmake_clean_cache' from command line to 'False'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_planning_safe' build argument 'cmake_clean_first' from command line to 'False'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_planning_safe' build argument 'cmake_force_configure' from command line to 'False'
+[0.233s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_planning_safe' build argument 'ament_cmake_args' from command line to 'None'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_planning_safe' build argument 'catkin_cmake_args' from command line to 'None'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_planning_safe' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.234s] DEBUG:colcon.colcon_core.verb:Building package 'fire_scout_planning_safe' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/wei/fire_scout_ws/build/fire_scout_planning_safe', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/wei/fire_scout_ws/install/fire_scout_planning_safe', 'merge_install': False, 'path': '/home/wei/fire_scout_ws/src/fire_scout_planning_safe', 'symlink_install': False, 'test_result_base': None}
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_sensors' build argument 'cmake_args' from command line to 'None'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_sensors' build argument 'cmake_target' from command line to 'None'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_sensors' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_sensors' build argument 'cmake_clean_cache' from command line to 'False'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_sensors' build argument 'cmake_clean_first' from command line to 'False'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_sensors' build argument 'cmake_force_configure' from command line to 'False'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_sensors' build argument 'ament_cmake_args' from command line to 'None'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_sensors' build argument 'catkin_cmake_args' from command line to 'None'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_sensors' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.234s] DEBUG:colcon.colcon_core.verb:Building package 'fire_scout_sensors' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/wei/fire_scout_ws/build/fire_scout_sensors', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/wei/fire_scout_ws/install/fire_scout_sensors', 'merge_install': False, 'path': '/home/wei/fire_scout_ws/src/fire_scout_sensors', 'symlink_install': False, 'test_result_base': None}
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_bringup' build argument 'cmake_args' from command line to 'None'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_bringup' build argument 'cmake_target' from command line to 'None'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_bringup' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_bringup' build argument 'cmake_clean_cache' from command line to 'False'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_bringup' build argument 'cmake_clean_first' from command line to 'False'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_bringup' build argument 'cmake_force_configure' from command line to 'False'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_bringup' build argument 'ament_cmake_args' from command line to 'None'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_bringup' build argument 'catkin_cmake_args' from command line to 'None'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_bringup' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.234s] DEBUG:colcon.colcon_core.verb:Building package 'fire_scout_bringup' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/wei/fire_scout_ws/build/fire_scout_bringup', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/wei/fire_scout_ws/install/fire_scout_bringup', 'merge_install': False, 'path': '/home/wei/fire_scout_ws/src/fire_scout_bringup', 'symlink_install': False, 'test_result_base': None}
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_mapping' build argument 'cmake_args' from command line to 'None'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_mapping' build argument 'cmake_target' from command line to 'None'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_mapping' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_mapping' build argument 'cmake_clean_cache' from command line to 'False'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_mapping' build argument 'cmake_clean_first' from command line to 'False'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_mapping' build argument 'cmake_force_configure' from command line to 'False'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_mapping' build argument 'ament_cmake_args' from command line to 'None'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_mapping' build argument 'catkin_cmake_args' from command line to 'None'
+[0.234s] Level 5:colcon.colcon_core.verb:set package 'fire_scout_mapping' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.234s] DEBUG:colcon.colcon_core.verb:Building package 'fire_scout_mapping' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/wei/fire_scout_ws/build/fire_scout_mapping', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/wei/fire_scout_ws/install/fire_scout_mapping', 'merge_install': False, 'path': '/home/wei/fire_scout_ws/src/fire_scout_mapping', 'symlink_install': False, 'test_result_base': None}
+[0.235s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[0.235s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[0.236s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/wei/fire_scout_ws/src/px4_msgs' with build type 'ament_cmake'
+[0.236s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/wei/fire_scout_ws/src/px4_msgs'
+[0.237s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[0.237s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.237s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.240s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/wei/fire_scout_ws/src/fire_scout_gazebo' with build type 'ament_cmake'
+[0.240s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/wei/fire_scout_ws/src/fire_scout_gazebo'
+[0.240s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.240s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.246s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/px4_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/px4_msgs -- -j32 -l32
+[0.248s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_gazebo': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_gazebo -- -j32 -l32
+[0.282s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_gazebo' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_gazebo -- -j32 -l32
+[0.292s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_gazebo': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_gazebo
+[0.298s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(fire_scout_gazebo)
+[0.299s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_gazebo' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_gazebo
+[0.300s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_gazebo' for CMake module files
+[0.301s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_gazebo' for CMake config files
+[0.301s] Level 1:colcon.colcon_core.shell:create_environment_hook('fire_scout_gazebo', 'cmake_prefix_path')
+[0.301s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/fire_scout_gazebo/hook/cmake_prefix_path.ps1'
+[0.301s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/fire_scout_gazebo/hook/cmake_prefix_path.dsv'
+[0.302s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/fire_scout_gazebo/hook/cmake_prefix_path.sh'
+[0.302s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_gazebo/bin'
+[0.302s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_gazebo/lib/pkgconfig/fire_scout_gazebo.pc'
+[0.302s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_gazebo/lib/python3.10/site-packages'
+[0.302s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_gazebo/bin'
+[0.303s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/fire_scout_gazebo/package.ps1'
+[0.303s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/fire_scout_gazebo/package.dsv'
+[0.304s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/fire_scout_gazebo/package.sh'
+[0.304s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/fire_scout_gazebo/package.bash'
+[0.305s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/fire_scout_gazebo/package.zsh'
+[0.305s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/colcon-core/packages/fire_scout_gazebo)
+[0.305s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(fire_scout_gazebo)
+[0.306s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_gazebo' for CMake module files
+[0.306s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_gazebo' for CMake config files
+[0.306s] Level 1:colcon.colcon_core.shell:create_environment_hook('fire_scout_gazebo', 'cmake_prefix_path')
+[0.306s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/fire_scout_gazebo/hook/cmake_prefix_path.ps1'
+[0.306s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/fire_scout_gazebo/hook/cmake_prefix_path.dsv'
+[0.307s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/fire_scout_gazebo/hook/cmake_prefix_path.sh'
+[0.307s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_gazebo/bin'
+[0.307s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_gazebo/lib/pkgconfig/fire_scout_gazebo.pc'
+[0.307s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_gazebo/lib/python3.10/site-packages'
+[0.307s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_gazebo/bin'
+[0.308s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/fire_scout_gazebo/package.ps1'
+[0.308s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/fire_scout_gazebo/package.dsv'
+[0.308s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/fire_scout_gazebo/package.sh'
+[0.308s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/fire_scout_gazebo/package.bash'
+[0.309s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/fire_scout_gazebo/package.zsh'
+[0.309s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/wei/fire_scout_ws/install/fire_scout_gazebo/share/colcon-core/packages/fire_scout_gazebo)
+[0.998s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/px4_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/px4_msgs -- -j32 -l32
+[1.000s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/px4_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/px4_msgs
+[1.293s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(px4_msgs)
+[1.293s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/px4_msgs' for CMake module files
+[1.294s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/px4_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/px4_msgs
+[1.294s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/px4_msgs' for CMake config files
+[1.295s] Level 1:colcon.colcon_core.shell:create_environment_hook('px4_msgs', 'cmake_prefix_path')
+[1.295s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/hook/cmake_prefix_path.ps1'
+[1.295s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/hook/cmake_prefix_path.dsv'
+[1.296s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/hook/cmake_prefix_path.sh'
+[1.296s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/px4_msgs/lib'
+[1.296s] Level 1:colcon.colcon_core.shell:create_environment_hook('px4_msgs', 'ld_library_path_lib')
+[1.296s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/hook/ld_library_path_lib.ps1'
+[1.297s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/hook/ld_library_path_lib.dsv'
+[1.297s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/hook/ld_library_path_lib.sh'
+[1.297s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/px4_msgs/bin'
+[1.298s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/px4_msgs/lib/pkgconfig/px4_msgs.pc'
+[1.298s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/px4_msgs/lib/python3.10/site-packages'
+[1.298s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/px4_msgs/bin'
+[1.298s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/package.ps1'
+[1.299s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/package.dsv'
+[1.299s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/package.sh'
+[1.300s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/package.bash'
+[1.300s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/package.zsh'
+[1.300s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/wei/fire_scout_ws/install/px4_msgs/share/colcon-core/packages/px4_msgs)
+[1.301s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(px4_msgs)
+[1.301s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/px4_msgs' for CMake module files
+[1.302s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/px4_msgs' for CMake config files
+[1.302s] Level 1:colcon.colcon_core.shell:create_environment_hook('px4_msgs', 'cmake_prefix_path')
+[1.302s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/hook/cmake_prefix_path.ps1'
+[1.303s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/hook/cmake_prefix_path.dsv'
+[1.303s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/hook/cmake_prefix_path.sh'
+[1.304s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/px4_msgs/lib'
+[1.304s] Level 1:colcon.colcon_core.shell:create_environment_hook('px4_msgs', 'ld_library_path_lib')
+[1.304s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/hook/ld_library_path_lib.ps1'
+[1.304s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/hook/ld_library_path_lib.dsv'
+[1.305s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/hook/ld_library_path_lib.sh'
+[1.305s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/px4_msgs/bin'
+[1.305s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/px4_msgs/lib/pkgconfig/px4_msgs.pc'
+[1.305s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/px4_msgs/lib/python3.10/site-packages'
+[1.305s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/px4_msgs/bin'
+[1.306s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/package.ps1'
+[1.306s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/package.dsv'
+[1.306s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/package.sh'
+[1.307s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/package.bash'
+[1.307s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/package.zsh'
+[1.307s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/wei/fire_scout_ws/install/px4_msgs/share/colcon-core/packages/px4_msgs)
+[1.307s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/wei/fire_scout_ws/src/fire_scout_localization' with build type 'ament_cmake'
+[1.307s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/wei/fire_scout_ws/src/fire_scout_localization'
+[1.307s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[1.307s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[1.310s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/wei/fire_scout_ws/src/fire_scout_planning_safe' with build type 'ament_cmake'
+[1.310s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/wei/fire_scout_ws/src/fire_scout_planning_safe'
+[1.310s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[1.310s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[1.312s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/wei/fire_scout_ws/src/fire_scout_sensors' with build type 'ament_cmake'
+[1.312s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/wei/fire_scout_ws/src/fire_scout_sensors'
+[1.313s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[1.313s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[1.315s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/wei/fire_scout_ws/src/fire_scout_control' with build type 'ament_cmake'
+[1.315s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/wei/fire_scout_ws/src/fire_scout_control'
+[1.315s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[1.315s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[1.322s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_localization': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_localization -- -j32 -l32
+[1.325s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_planning_safe': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake /home/wei/fire_scout_ws/src/fire_scout_planning_safe -DCMAKE_INSTALL_PREFIX=/home/wei/fire_scout_ws/install/fire_scout_planning_safe
+[1.327s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_sensors': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_sensors -- -j32 -l32
+[1.330s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_control': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_control -- -j32 -l32
+[1.388s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_sensors' returned '0': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_sensors -- -j32 -l32
+[1.391s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_sensors': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_sensors
+[1.392s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_localization' returned '0': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_localization -- -j32 -l32
+[1.393s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_localization': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_localization
+[1.394s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_control' returned '0': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_control -- -j32 -l32
+[1.396s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_control': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_control
+[1.399s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(fire_scout_sensors)
+[1.400s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_sensors' for CMake module files
+[1.400s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_sensors' returned '0': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_sensors
+[1.401s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_sensors' for CMake config files
+[1.402s] Level 1:colcon.colcon_core.shell:create_environment_hook('fire_scout_sensors', 'cmake_prefix_path')
+[1.403s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_sensors/share/fire_scout_sensors/hook/cmake_prefix_path.ps1'
+[1.404s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/fire_scout_sensors/share/fire_scout_sensors/hook/cmake_prefix_path.dsv'
+[1.405s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_sensors/share/fire_scout_sensors/hook/cmake_prefix_path.sh'
+[1.407s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_sensors/lib'
+[1.407s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_sensors/bin'
+[1.407s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_sensors/lib/pkgconfig/fire_scout_sensors.pc'
+[1.407s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_sensors/lib/python3.10/site-packages'
+[1.408s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_sensors/bin'
+[1.408s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_sensors/share/fire_scout_sensors/package.ps1'
+[1.409s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/wei/fire_scout_ws/install/fire_scout_sensors/share/fire_scout_sensors/package.dsv'
+[1.410s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_sensors/share/fire_scout_sensors/package.sh'
+[1.411s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_sensors/share/fire_scout_sensors/package.bash'
+[1.411s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_sensors/share/fire_scout_sensors/package.zsh'
+[1.412s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/wei/fire_scout_ws/install/fire_scout_sensors/share/colcon-core/packages/fire_scout_sensors)
+[1.413s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(fire_scout_sensors)
+[1.413s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_sensors' for CMake module files
+[1.413s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_sensors' for CMake config files
+[1.413s] Level 1:colcon.colcon_core.shell:create_environment_hook('fire_scout_sensors', 'cmake_prefix_path')
+[1.413s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_sensors/share/fire_scout_sensors/hook/cmake_prefix_path.ps1'
+[1.414s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/fire_scout_sensors/share/fire_scout_sensors/hook/cmake_prefix_path.dsv'
+[1.414s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_sensors/share/fire_scout_sensors/hook/cmake_prefix_path.sh'
+[1.414s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_sensors/lib'
+[1.414s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_sensors/bin'
+[1.414s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_sensors/lib/pkgconfig/fire_scout_sensors.pc'
+[1.414s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_sensors/lib/python3.10/site-packages'
+[1.415s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_sensors/bin'
+[1.415s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_sensors/share/fire_scout_sensors/package.ps1'
+[1.415s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/wei/fire_scout_ws/install/fire_scout_sensors/share/fire_scout_sensors/package.dsv'
+[1.416s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_sensors/share/fire_scout_sensors/package.sh'
+[1.416s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_sensors/share/fire_scout_sensors/package.bash'
+[1.416s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_sensors/share/fire_scout_sensors/package.zsh'
+[1.416s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/wei/fire_scout_ws/install/fire_scout_sensors/share/colcon-core/packages/fire_scout_sensors)
+[1.418s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(fire_scout_localization)
+[1.418s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_localization' for CMake module files
+[1.419s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_localization' returned '0': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_localization
+[1.419s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_localization' for CMake config files
+[1.419s] Level 1:colcon.colcon_core.shell:create_environment_hook('fire_scout_localization', 'cmake_prefix_path')
+[1.419s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_localization/share/fire_scout_localization/hook/cmake_prefix_path.ps1'
+[1.420s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/fire_scout_localization/share/fire_scout_localization/hook/cmake_prefix_path.dsv'
+[1.420s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_localization/share/fire_scout_localization/hook/cmake_prefix_path.sh'
+[1.420s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_localization/lib'
+[1.420s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_localization/bin'
+[1.420s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_localization/lib/pkgconfig/fire_scout_localization.pc'
+[1.421s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_localization/lib/python3.10/site-packages'
+[1.421s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_localization/bin'
+[1.421s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_localization/share/fire_scout_localization/package.ps1'
+[1.422s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/wei/fire_scout_ws/install/fire_scout_localization/share/fire_scout_localization/package.dsv'
+[1.422s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_localization/share/fire_scout_localization/package.sh'
+[1.422s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_localization/share/fire_scout_localization/package.bash'
+[1.422s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_localization/share/fire_scout_localization/package.zsh'
+[1.423s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/wei/fire_scout_ws/install/fire_scout_localization/share/colcon-core/packages/fire_scout_localization)
+[1.423s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(fire_scout_localization)
+[1.423s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_localization' for CMake module files
+[1.423s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_localization' for CMake config files
+[1.423s] Level 1:colcon.colcon_core.shell:create_environment_hook('fire_scout_localization', 'cmake_prefix_path')
+[1.424s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_localization/share/fire_scout_localization/hook/cmake_prefix_path.ps1'
+[1.424s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/fire_scout_localization/share/fire_scout_localization/hook/cmake_prefix_path.dsv'
+[1.424s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_localization/share/fire_scout_localization/hook/cmake_prefix_path.sh'
+[1.424s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_localization/lib'
+[1.425s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_localization/bin'
+[1.425s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_localization/lib/pkgconfig/fire_scout_localization.pc'
+[1.425s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_localization/lib/python3.10/site-packages'
+[1.425s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_localization/bin'
+[1.425s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_localization/share/fire_scout_localization/package.ps1'
+[1.426s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/wei/fire_scout_ws/install/fire_scout_localization/share/fire_scout_localization/package.dsv'
+[1.426s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_localization/share/fire_scout_localization/package.sh'
+[1.426s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_localization/share/fire_scout_localization/package.bash'
+[1.426s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_localization/share/fire_scout_localization/package.zsh'
+[1.427s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/wei/fire_scout_ws/install/fire_scout_localization/share/colcon-core/packages/fire_scout_localization)
+[1.427s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(fire_scout_control)
+[1.427s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_control' for CMake module files
+[1.428s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_control' returned '0': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_control
+[1.428s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_control' for CMake config files
+[1.428s] Level 1:colcon.colcon_core.shell:create_environment_hook('fire_scout_control', 'cmake_prefix_path')
+[1.428s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/hook/cmake_prefix_path.ps1'
+[1.428s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/hook/cmake_prefix_path.dsv'
+[1.428s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/hook/cmake_prefix_path.sh'
+[1.429s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_control/lib'
+[1.429s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_control/bin'
+[1.429s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_control/lib/pkgconfig/fire_scout_control.pc'
+[1.429s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_control/lib/python3.10/site-packages'
+[1.429s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_control/bin'
+[1.429s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/package.ps1'
+[1.430s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/package.dsv'
+[1.430s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/package.sh'
+[1.430s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/package.bash'
+[1.430s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/package.zsh'
+[1.431s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/wei/fire_scout_ws/install/fire_scout_control/share/colcon-core/packages/fire_scout_control)
+[1.431s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(fire_scout_control)
+[1.431s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_control' for CMake module files
+[1.431s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_control' for CMake config files
+[1.431s] Level 1:colcon.colcon_core.shell:create_environment_hook('fire_scout_control', 'cmake_prefix_path')
+[1.432s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/hook/cmake_prefix_path.ps1'
+[1.432s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/hook/cmake_prefix_path.dsv'
+[1.432s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/hook/cmake_prefix_path.sh'
+[1.432s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_control/lib'
+[1.432s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_control/bin'
+[1.432s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_control/lib/pkgconfig/fire_scout_control.pc'
+[1.432s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_control/lib/python3.10/site-packages'
+[1.433s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_control/bin'
+[1.433s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/package.ps1'
+[1.433s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/package.dsv'
+[1.433s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/package.sh'
+[1.434s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/package.bash'
+[1.434s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_control/share/fire_scout_control/package.zsh'
+[1.434s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/wei/fire_scout_ws/install/fire_scout_control/share/colcon-core/packages/fire_scout_control)
+[1.434s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/wei/fire_scout_ws/src/fire_scout_bringup' with build type 'ament_cmake'
+[1.434s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/wei/fire_scout_ws/src/fire_scout_bringup'
+[1.435s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[1.435s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[1.449s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_bringup': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_bringup -- -j32 -l32
+[1.480s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_bringup' returned '0': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_bringup -- -j32 -l32
+[1.481s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_bringup': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_bringup
+[1.488s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(fire_scout_bringup)
+[1.488s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_bringup' returned '0': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_bringup
+[1.489s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_bringup' for CMake module files
+[1.490s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_bringup' for CMake config files
+[1.490s] Level 1:colcon.colcon_core.shell:create_environment_hook('fire_scout_bringup', 'cmake_prefix_path')
+[1.490s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/hook/cmake_prefix_path.ps1'
+[1.491s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/hook/cmake_prefix_path.dsv'
+[1.491s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/hook/cmake_prefix_path.sh'
+[1.491s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_bringup/lib'
+[1.491s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_bringup/bin'
+[1.491s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_bringup/lib/pkgconfig/fire_scout_bringup.pc'
+[1.492s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_bringup/lib/python3.10/site-packages'
+[1.492s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_bringup/bin'
+[1.492s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/package.ps1'
+[1.492s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/package.dsv'
+[1.493s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/package.sh'
+[1.493s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/package.bash'
+[1.493s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/package.zsh'
+[1.493s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/wei/fire_scout_ws/install/fire_scout_bringup/share/colcon-core/packages/fire_scout_bringup)
+[1.494s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(fire_scout_bringup)
+[1.494s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_bringup' for CMake module files
+[1.494s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_bringup' for CMake config files
+[1.494s] Level 1:colcon.colcon_core.shell:create_environment_hook('fire_scout_bringup', 'cmake_prefix_path')
+[1.494s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/hook/cmake_prefix_path.ps1'
+[1.494s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/hook/cmake_prefix_path.dsv'
+[1.495s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/hook/cmake_prefix_path.sh'
+[1.495s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_bringup/lib'
+[1.495s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_bringup/bin'
+[1.495s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_bringup/lib/pkgconfig/fire_scout_bringup.pc'
+[1.495s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_bringup/lib/python3.10/site-packages'
+[1.495s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_bringup/bin'
+[1.495s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/package.ps1'
+[1.496s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/package.dsv'
+[1.496s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/package.sh'
+[1.496s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/package.bash'
+[1.497s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_bringup/share/fire_scout_bringup/package.zsh'
+[1.497s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/wei/fire_scout_ws/install/fire_scout_bringup/share/colcon-core/packages/fire_scout_bringup)
+[1.757s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_planning_safe' returned '0': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake /home/wei/fire_scout_ws/src/fire_scout_planning_safe -DCMAKE_INSTALL_PREFIX=/home/wei/fire_scout_ws/install/fire_scout_planning_safe
+[1.758s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_planning_safe': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_planning_safe -- -j32 -l32
+[34.111s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_planning_safe' returned '0': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_planning_safe -- -j32 -l32
+[34.111s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_planning_safe': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_planning_safe
+[34.133s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(fire_scout_planning_safe)
+[34.134s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_planning_safe' returned '0': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_planning_safe
+[34.134s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_planning_safe' for CMake module files
+[34.136s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_planning_safe' for CMake config files
+[34.136s] Level 1:colcon.colcon_core.shell:create_environment_hook('fire_scout_planning_safe', 'cmake_prefix_path')
+[34.137s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/hook/cmake_prefix_path.ps1'
+[34.137s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/hook/cmake_prefix_path.dsv'
+[34.138s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/hook/cmake_prefix_path.sh'
+[34.138s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib'
+[34.138s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/bin'
+[34.138s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/pkgconfig/fire_scout_planning_safe.pc'
+[34.139s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/python3.10/site-packages'
+[34.139s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/bin'
+[34.140s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/package.ps1'
+[34.141s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/package.dsv'
+[34.141s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/package.sh'
+[34.142s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/package.bash'
+[34.142s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/package.zsh'
+[34.143s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/colcon-core/packages/fire_scout_planning_safe)
+[34.143s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(fire_scout_planning_safe)
+[34.144s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_planning_safe' for CMake module files
+[34.144s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_planning_safe' for CMake config files
+[34.145s] Level 1:colcon.colcon_core.shell:create_environment_hook('fire_scout_planning_safe', 'cmake_prefix_path')
+[34.145s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/hook/cmake_prefix_path.ps1'
+[34.146s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/hook/cmake_prefix_path.dsv'
+[34.146s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/hook/cmake_prefix_path.sh'
+[34.147s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib'
+[34.147s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/bin'
+[34.147s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/pkgconfig/fire_scout_planning_safe.pc'
+[34.147s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/python3.10/site-packages'
+[34.147s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/bin'
+[34.148s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/package.ps1'
+[34.148s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/package.dsv'
+[34.149s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/package.sh'
+[34.149s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/package.bash'
+[34.150s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/package.zsh'
+[34.150s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/colcon-core/packages/fire_scout_planning_safe)
+[34.151s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/wei/fire_scout_ws/src/fire_scout_mapping' with build type 'ament_cmake'
+[34.151s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/wei/fire_scout_ws/src/fire_scout_mapping'
+[34.151s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[34.151s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[34.167s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_mapping': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_mapping -- -j32 -l32
+[34.266s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_mapping' returned '0': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_mapping -- -j32 -l32
+[34.269s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_mapping': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_mapping
+[34.284s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(fire_scout_mapping)
+[34.284s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_mapping' for CMake module files
+[34.285s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_mapping' returned '0': CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/fire_scout_planning_safe:/home/wei/fire_scout_ws/install/px4_msgs:/home/wei/fire_scout_ws/install/fire_scout_bringup:/home/wei/fire_scout_ws/install/fire_scout_sensors:/home/wei/fire_scout_ws/install/fire_scout_mapping:/home/wei/fire_scout_ws/install/fire_scout_localization:/home/wei/fire_scout_ws/install/fire_scout_control:/home/wei/fire_scout_ws/install/fire_scout_gazebo:/opt/ros/humble /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_mapping
+[34.285s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_mapping' for CMake config files
+[34.286s] Level 1:colcon.colcon_core.shell:create_environment_hook('fire_scout_mapping', 'cmake_prefix_path')
+[34.286s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/hook/cmake_prefix_path.ps1'
+[34.287s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/hook/cmake_prefix_path.dsv'
+[34.287s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/hook/cmake_prefix_path.sh'
+[34.288s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_mapping/lib'
+[34.288s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_mapping/bin'
+[34.288s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_mapping/lib/pkgconfig/fire_scout_mapping.pc'
+[34.289s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_mapping/lib/python3.10/site-packages'
+[34.289s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_mapping/bin'
+[34.289s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/package.ps1'
+[34.290s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/package.dsv'
+[34.291s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/package.sh'
+[34.291s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/package.bash'
+[34.292s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/package.zsh'
+[34.292s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/wei/fire_scout_ws/install/fire_scout_mapping/share/colcon-core/packages/fire_scout_mapping)
+[34.293s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(fire_scout_mapping)
+[34.293s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_mapping' for CMake module files
+[34.293s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_mapping' for CMake config files
+[34.293s] Level 1:colcon.colcon_core.shell:create_environment_hook('fire_scout_mapping', 'cmake_prefix_path')
+[34.294s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/hook/cmake_prefix_path.ps1'
+[34.294s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/hook/cmake_prefix_path.dsv'
+[34.294s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/hook/cmake_prefix_path.sh'
+[34.295s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_mapping/lib'
+[34.295s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_mapping/bin'
+[34.295s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_mapping/lib/pkgconfig/fire_scout_mapping.pc'
+[34.295s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_mapping/lib/python3.10/site-packages'
+[34.295s] Level 1:colcon.colcon_core.environment:checking '/home/wei/fire_scout_ws/install/fire_scout_mapping/bin'
+[34.296s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/package.ps1'
+[34.296s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/package.dsv'
+[34.297s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/package.sh'
+[34.297s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/package.bash'
+[34.297s] INFO:colcon.colcon_core.shell:Creating package script '/home/wei/fire_scout_ws/install/fire_scout_mapping/share/fire_scout_mapping/package.zsh'
+[34.297s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/wei/fire_scout_ws/install/fire_scout_mapping/share/colcon-core/packages/fire_scout_mapping)
+[34.297s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[34.298s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[34.298s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '0'
+[34.298s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[34.302s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[34.302s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[34.302s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify2'
+[34.311s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[34.311s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/wei/fire_scout_ws/install/local_setup.ps1'
+[34.312s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/wei/fire_scout_ws/install/_local_setup_util_ps1.py'
+[34.312s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/wei/fire_scout_ws/install/setup.ps1'
+[34.313s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/wei/fire_scout_ws/install/local_setup.sh'
+[34.314s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/wei/fire_scout_ws/install/_local_setup_util_sh.py'
+[34.314s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/wei/fire_scout_ws/install/setup.sh'
+[34.315s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/wei/fire_scout_ws/install/local_setup.bash'
+[34.315s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/wei/fire_scout_ws/install/setup.bash'
+[34.315s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/wei/fire_scout_ws/install/local_setup.zsh'
+[34.316s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/wei/fire_scout_ws/install/setup.zsh'

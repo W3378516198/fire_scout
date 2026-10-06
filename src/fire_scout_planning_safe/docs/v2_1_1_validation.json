@@ -1,0 +1,24 @@
+{
+  "version": "2.1.1",
+  "base": "2.1.0",
+  "log": "fire_scout_log_20261002T100701Z.tar.xz",
+  "portable_regressions": 12,
+  "memory_check": "Actual node-method harness: ASan/UBSan passed; leak detection disabled",
+  "ros_build": false,
+  "simulation": false,
+  "changed_files": [
+    "CMakeLists.txt",
+    "README.md",
+    "config/safe_airfar.yaml",
+    "docs/V2_1_1_PROGRESS_FIX_ZH.md",
+    "package.xml",
+    "scripts/install_fire_scout_planning_safe.sh",
+    "src/passage_coordinator.cpp",
+    "src/safe_airfar_like_planner.cpp",
+    "src/safe_airfar_path_follower.cpp",
+    "tests/v210_node_continuity_test.py"
+  ],
+  "core_same_as_second": true,
+  "parameters_same_as_log_snapshot": true,
+  "test_output": "coordination_components_test: PASS\ncoordination_components_test: PASS\n\nincremental_repair_v19_test: PASS\nincremental_repair_v19_test: PASS\n\nfollower_alignment_test: PASS\nfollower_alignment_test: PASS\n\nroute_switch_test: PASS\nroute_switch_test: PASS\n\nultrasonic_memory_test: PASS\nultrasonic_memory_test: PASS\n\nv2_passage_handshake_test: PASS\nscout1 logged exit: lease retained through old stop, completion recoverable\nscout2 logged exit: lease retained through old stop, completion recoverable\nv2_passage_handshake_test: PASS log replay, completion, FIFO, owner loss, clustered anchors, wait monitor, reentry\n\nv210_entrance_test: PASS\nv210_entrance_test: PASS three doors, unchanged corridor, one-door fallback, budget/count, detour bound, committed approach\n\nv210_route_channel_test: PASS\nv210_route_channel_test: PASS revisions, DDS arrival skew, no heartbeat reset, stale input, recovery eligibility, publisher restart\n\nv210_header_integration_test: PASS\n\nv2_node_passage_test: PASS\nv2_node_passage_test: PASS actual follower/coordinator methods, both logged exits, local release, dropped completion, old reply, wrong frame/id, inside rejection, rewind\n\nv210_launch_test: PASS\nv210_launch_test: PASS real 1..4 scout wiring, DAG priority, radius agreement, YAML/CLI resolution, coordinator switch\n\nv210_node_continuity_test: PASS\nv210_node_continuity_test: PASS actual odometry/publisher/worker/completion; retained progress beyond 8m, fixed revision, reused geometry, past/future obstacles, stale-map denial\n"
+}

@@ -1,0 +1,172 @@
+[0.014s] Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_planning_safe': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake /home/wei/fire_scout_ws/src/fire_scout_planning_safe -DCMAKE_INSTALL_PREFIX=/home/wei/fire_scout_ws/install/fire_scout_planning_safe
+[0.068s] -- The C compiler identification is GNU 11.4.0
+[0.106s] -- The CXX compiler identification is GNU 11.4.0
+[0.112s] -- Detecting C compiler ABI info
+[0.171s] -- Detecting C compiler ABI info - done
+[0.179s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.179s] -- Detecting C compile features
+[0.179s] -- Detecting C compile features - done
+[0.182s] -- Detecting CXX compiler ABI info
+[0.254s] -- Detecting CXX compiler ABI info - done
+[0.262s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.262s] -- Detecting CXX compile features
+[0.262s] -- Detecting CXX compile features - done
+[0.263s] -- Fire Scout 2.0.0: building mapping, fusion, planning and follower ROS nodes
+[0.263s] -- Looking for pthread.h
+[0.322s] -- Looking for pthread.h - found
+[0.322s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[0.378s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[0.379s] -- Found Threads: TRUE  
+[0.381s] -- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.510s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.571s] -- Found rclcpp: 16.0.19 (/opt/ros/humble/share/rclcpp/cmake)
+[0.615s] -- Found rosidl_generator_c: 3.1.8 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[0.619s] -- Found rosidl_adapter: 3.1.8 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.628s] -- Found rosidl_generator_cpp: 3.1.8 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[0.640s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.657s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.695s] -- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[0.697s] -- Found rmw_cyclonedds_cpp: 1.3.4 (/opt/ros/humble/share/rmw_cyclonedds_cpp/cmake)
+[0.712s] -- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+[0.752s] -- Found sensor_msgs: 4.9.1 (/opt/ros/humble/share/sensor_msgs/cmake)
+[0.774s] -- Found nav_msgs: 4.9.1 (/opt/ros/humble/share/nav_msgs/cmake)
+[0.785s] -- Found std_srvs: 4.9.1 (/opt/ros/humble/share/std_srvs/cmake)
+[0.792s] -- Found tf2: 0.25.22 (/opt/ros/humble/share/tf2/cmake)
+[0.800s] -- Found tf2_ros: 0.25.22 (/opt/ros/humble/share/tf2_ros/cmake)
+[0.863s] -- Found px4_msgs: 2.0.1 (/home/wei/fire_scout_ws/install/px4_msgs/share/px4_msgs/cmake)
+[1.028s] -- Configuring done
+[1.060s] -- Generating done
+[1.074s] -- Build files have been written to: /home/wei/fire_scout_ws/build/fire_scout_planning_safe
+[1.083s] Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_planning_safe' returned '0': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake /home/wei/fire_scout_ws/src/fire_scout_planning_safe -DCMAKE_INSTALL_PREFIX=/home/wei/fire_scout_ws/install/fire_scout_planning_safe
+[1.085s] Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_planning_safe': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_planning_safe -- -j32 -l32
+[1.138s] [  3%] [32mBuilding CXX object CMakeFiles/radar_free_space_mapper.dir/src/radar_free_space_mapper.cpp.o[0m
+[1.139s] [  7%] [32mBuilding CXX object CMakeFiles/incremental_repair_v19_test.dir/tests/incremental_repair_v19_test.cpp.o[0m
+[1.142s] [ 11%] [32mBuilding CXX object CMakeFiles/safe_airfar_path_follower.dir/src/safe_airfar_path_follower.cpp.o[0m
+[1.142s] [ 15%] [32mBuilding CXX object CMakeFiles/follower_alignment_test.dir/tests/follower_alignment_test.cpp.o[0m
+[1.144s] [ 23%] [32mBuilding CXX object CMakeFiles/ultrasonic_memory_test.dir/tests/ultrasonic_memory_test.cpp.o[0m
+[1.145s] [ 23%] [32mBuilding CXX object CMakeFiles/v2_trajectory_test.dir/tests/v2_trajectory_test.cpp.o[0m
+[1.145s] [ 30%] [32mBuilding CXX object CMakeFiles/multi_uav_map_fusion.dir/src/multi_uav_map_fusion.cpp.o[0m
+[1.145s] [ 30%] [32mBuilding CXX object CMakeFiles/racer_task_allocator.dir/src/racer_task_allocator.cpp.o[0m
+[1.146s] [ 38%] [32mBuilding CXX object CMakeFiles/safe_airfar_like_planner.dir/src/safe_airfar_like_planner.cpp.o[0m
+[1.146s] [ 38%] [32mBuilding CXX object CMakeFiles/coordination_components_test.dir/tests/coordination_components_test.cpp.o[0m
+[1.147s] [ 46%] [32mBuilding CXX object CMakeFiles/passage_coordinator.dir/src/passage_coordinator.cpp.o[0m
+[1.147s] [ 46%] [32mBuilding CXX object CMakeFiles/route_switch_test.dir/tests/route_switch_test.cpp.o[0m
+[1.147s] [ 50%] [32mBuilding CXX object CMakeFiles/v2_coordination_test.dir/tests/v2_coordination_test.cpp.o[0m
+[2.525s] [ 53%] [32m[1mLinking CXX executable ultrasonic_memory_test[0m
+[2.622s] [ 53%] Built target ultrasonic_memory_test
+[2.822s] [ 57%] [32m[1mLinking CXX executable route_switch_test[0m
+[2.916s] [ 57%] Built target route_switch_test
+[3.415s] [ 61%] [32m[1mLinking CXX executable follower_alignment_test[0m
+[3.497s] [ 61%] Built target follower_alignment_test
+[4.660s] [ 65%] [32m[1mLinking CXX executable v2_trajectory_test[0m
+[4.771s] [ 65%] Built target v2_trajectory_test
+[5.068s] [ 69%] [32m[1mLinking CXX executable coordination_components_test[0m
+[5.178s] [ 69%] Built target coordination_components_test
+[6.792s] [ 73%] [32m[1mLinking CXX executable incremental_repair_v19_test[0m
+[6.902s] [ 73%] Built target incremental_repair_v19_test
+[7.148s] [ 76%] [32m[1mLinking CXX executable v2_coordination_test[0m
+[7.254s] [ 76%] Built target v2_coordination_test
+[12.315s] [ 80%] [32m[1mLinking CXX executable passage_coordinator[0m
+[12.479s] [ 80%] Built target passage_coordinator
+[18.164s] [ 84%] [32m[1mLinking CXX executable radar_free_space_mapper[0m
+[18.356s] [ 84%] Built target radar_free_space_mapper
+[19.629s] [ 88%] [32m[1mLinking CXX executable multi_uav_map_fusion[0m
+[19.803s] [ 88%] Built target multi_uav_map_fusion
+[21.107s] [ 92%] [32m[1mLinking CXX executable racer_task_allocator[0m
+[21.305s] [ 92%] Built target racer_task_allocator
+[28.658s] [ 96%] [32m[1mLinking CXX executable safe_airfar_like_planner[0m
+[28.879s] [ 96%] Built target safe_airfar_like_planner
+[40.307s] [100%] [32m[1mLinking CXX executable safe_airfar_path_follower[0m
+[40.597s] [100%] Built target safe_airfar_path_follower
+[40.608s] Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_planning_safe' returned '0': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --build /home/wei/fire_scout_ws/build/fire_scout_planning_safe -- -j32 -l32
+[40.610s] Invoking command in '/home/wei/fire_scout_ws/build/fire_scout_planning_safe': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_planning_safe
+[40.620s] -- Install configuration: "Release"
+[40.621s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/radar_free_space_mapper
+[40.623s] -- Set runtime path of "/home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/radar_free_space_mapper" to ""
+[40.623s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/multi_uav_map_fusion
+[40.624s] -- Set runtime path of "/home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/multi_uav_map_fusion" to ""
+[40.624s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/racer_task_allocator
+[40.625s] -- Set runtime path of "/home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/racer_task_allocator" to ""
+[40.626s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/safe_airfar_like_planner
+[40.627s] -- Set runtime path of "/home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/safe_airfar_like_planner" to ""
+[40.627s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/safe_airfar_path_follower
+[40.629s] -- Set runtime path of "/home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/safe_airfar_path_follower" to ""
+[40.630s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/passage_coordinator
+[40.630s] -- Set runtime path of "/home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/passage_coordinator" to ""
+[40.630s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/fire_scout_light_logger.py
+[40.631s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/collect_fire_scout_logs.sh
+[40.631s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/lib/fire_scout_planning_safe/install_fire_scout_planning_safe.sh
+[40.631s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/launch
+[40.631s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/launch/safe_airfar_planner_only.launch.py
+[40.631s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/launch/multi_racer_navigation.launch.py
+[40.631s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/launch/multi_map_fusion.launch.py
+[40.631s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/launch/multi_safe_airfar_planner_only.launch.py
+[40.632s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/launch/multi_safe_airfar_navigation.launch.py
+[40.632s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/launch/safe_airfar_navigation.launch.py
+[40.632s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/config
+[40.632s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/config/safe_airfar.yaml
+[40.632s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs
+[40.632s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V2_0_GUIDE_ZH.md
+[40.632s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V22_STARTUP_SPREAD_ZH.md
+[40.632s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V2_0_VALIDATION.txt
+[40.632s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V21_PEER_DEADLOCK_AND_SCALED_WORLD_ZH.md
+[40.632s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V19_1_SONAR_MEMORY_FIX_ZH.md
+[40.632s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/LOG_COLLECTION_ZH.md
+[40.632s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V19_INCREMENTAL_ROUTE_REPAIR_ZH.md
+[40.633s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/RACER_TASK_ALLOCATION_ZH.md
+[40.633s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/docs/V20_PEER_SAFETY_AND_ROUTE_CONTINUITY_ZH.md
+[40.633s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/README.md
+[40.633s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include
+[40.633s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout
+[40.633s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/envelope_escape.hpp
+[40.633s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/visibility_memory.hpp
+[40.633s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/route_candidates.hpp
+[40.633s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/gap_policy.hpp
+[40.633s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/racer_task_allocator.hpp
+[40.633s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/autonomous_recovery.hpp
+[40.633s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/tracker.hpp
+[40.633s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/route_repair.hpp
+[40.634s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/input_freshness.hpp
+[40.634s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/observation_gate.hpp
+[40.634s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/glass_risk.hpp
+[40.634s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/route_switch.hpp
+[40.634s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/px4_command_clock.hpp
+[40.634s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/peer_uav_filter.hpp
+[40.634s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/ros_utils.hpp
+[40.634s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/map_pair_buffer.hpp
+[40.634s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/px4_topics.hpp
+[40.634s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/peer_safety.hpp
+[40.635s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/goal_approach.hpp
+[40.635s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/hold_safety.hpp
+[40.635s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/ultrasonic.hpp
+[40.635s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/planner.hpp
+[40.635s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/directional_motion.hpp
+[40.636s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/route_memory.hpp
+[40.636s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/local_recovery.hpp
+[40.636s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/timed_trajectory.hpp
+[40.636s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/snapshot_stamp.hpp
+[40.636s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/vehicle.hpp
+[40.637s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/confidence_fusion.hpp
+[40.637s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/geometry.hpp
+[40.637s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/retreat_route.hpp
+[40.637s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/bspline.hpp
+[40.637s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/grid.hpp
+[40.637s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/passage_scheduler.hpp
+[40.637s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/pose_history.hpp
+[40.637s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/include/fire_scout/navigation_contract.hpp
+[40.637s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/ament_index/resource_index/package_run_dependencies/fire_scout_planning_safe
+[40.637s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/ament_index/resource_index/parent_prefix_path/fire_scout_planning_safe
+[40.638s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/environment/ament_prefix_path.sh
+[40.638s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/environment/ament_prefix_path.dsv
+[40.638s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/environment/path.sh
+[40.638s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/environment/path.dsv
+[40.638s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/local_setup.bash
+[40.638s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/local_setup.sh
+[40.638s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/local_setup.zsh
+[40.638s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/local_setup.dsv
+[40.638s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/package.dsv
+[40.638s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/ament_index/resource_index/packages/fire_scout_planning_safe
+[40.639s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/cmake/fire_scout_planning_safeConfig.cmake
+[40.639s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/cmake/fire_scout_planning_safeConfig-version.cmake
+[40.639s] -- Installing: /home/wei/fire_scout_ws/install/fire_scout_planning_safe/share/fire_scout_planning_safe/package.xml
+[40.639s] Invoked command in '/home/wei/fire_scout_ws/build/fire_scout_planning_safe' returned '0': AMENT_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/wei/fire_scout_ws/install/px4_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/wei/fire_scout_ws/install/px4_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/wei/fire_scout_ws/install/px4_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --install /home/wei/fire_scout_ws/build/fire_scout_planning_safe

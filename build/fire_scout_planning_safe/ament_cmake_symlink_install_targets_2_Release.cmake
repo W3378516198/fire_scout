@@ -1,0 +1,1 @@
+ament_cmake_symlink_install_targets("TARGET_FILES" "/home/wei/fire_scout_ws/build/fire_scout_planning_safe/racer_task_allocator" "TARGETS" "racer_task_allocator" "DESTINATION" "lib/fire_scout_planning_safe")
