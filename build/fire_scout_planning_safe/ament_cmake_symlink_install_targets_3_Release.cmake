@@ -1,1 +1,0 @@
-ament_cmake_symlink_install_targets("TARGET_FILES" "/home/wei/fire_scout_ws/build/fire_scout_planning_safe/passage_coordinator" "TARGETS" "passage_coordinator" "DESTINATION" "lib/fire_scout_planning_safe")

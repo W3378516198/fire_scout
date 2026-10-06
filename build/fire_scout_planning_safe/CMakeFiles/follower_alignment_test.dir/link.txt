@@ -1,1 +1,0 @@
-/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/follower_alignment_test.dir/tests/follower_alignment_test.cpp.o -o follower_alignment_test 

@@ -1,1 +1,0 @@
-/home/wei/fire_scout_ws/src/fire_scout_planning_safe/docs/V21_PEER_DEADLOCK_AND_SCALED_WORLD_ZH.md

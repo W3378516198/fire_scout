@@ -1,1 +1,0 @@
-/home/wei/fire_scout_ws/src/fire_scout_planning_safe/docs/V2_1_1_PROGRESS_FIX_ZH.md

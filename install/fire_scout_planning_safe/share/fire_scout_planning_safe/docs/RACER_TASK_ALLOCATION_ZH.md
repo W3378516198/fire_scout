@@ -1,1 +1,0 @@
-/home/wei/fire_scout_ws/src/fire_scout_planning_safe/docs/RACER_TASK_ALLOCATION_ZH.md

@@ -1,1 +1,0 @@
-/home/wei/fire_scout_ws/src/fire_scout_planning_safe/scripts/install_fire_scout_planning_safe.sh

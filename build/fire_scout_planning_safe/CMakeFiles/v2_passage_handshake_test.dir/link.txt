@@ -1,1 +1,0 @@
-/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/v2_passage_handshake_test.dir/tests/v2_passage_handshake_test.cpp.o -o v2_passage_handshake_test 

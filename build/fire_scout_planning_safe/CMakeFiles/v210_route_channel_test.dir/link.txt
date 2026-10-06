@@ -1,1 +1,0 @@
-/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/v210_route_channel_test.dir/tests/v210_route_channel_test.cpp.o -o v210_route_channel_test 

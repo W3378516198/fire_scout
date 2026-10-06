@@ -1,1 +1,0 @@
-ament_cmake_symlink_install_targets("TARGET_FILES" "/home/wei/fire_scout_ws/build/fire_scout_planning_safe/safe_airfar_like_planner" "TARGETS" "safe_airfar_like_planner" "DESTINATION" "lib/fire_scout_planning_safe")

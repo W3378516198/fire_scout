@@ -1,1 +1,0 @@
-/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/map_input_test.dir/tests/map_input_test.cpp.o -o map_input_test 

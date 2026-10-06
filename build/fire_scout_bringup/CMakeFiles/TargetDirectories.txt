@@ -1,9 +1,0 @@
-/home/wei/fire_scout_ws/build/fire_scout_bringup/CMakeFiles/uninstall.dir
-/home/wei/fire_scout_ws/build/fire_scout_bringup/CMakeFiles/fire_scout_bringup_uninstall.dir
-/home/wei/fire_scout_ws/build/fire_scout_bringup/CMakeFiles/test.dir
-/home/wei/fire_scout_ws/build/fire_scout_bringup/CMakeFiles/edit_cache.dir
-/home/wei/fire_scout_ws/build/fire_scout_bringup/CMakeFiles/rebuild_cache.dir
-/home/wei/fire_scout_ws/build/fire_scout_bringup/CMakeFiles/list_install_components.dir
-/home/wei/fire_scout_ws/build/fire_scout_bringup/CMakeFiles/install.dir
-/home/wei/fire_scout_ws/build/fire_scout_bringup/CMakeFiles/install/local.dir
-/home/wei/fire_scout_ws/build/fire_scout_bringup/CMakeFiles/install/strip.dir

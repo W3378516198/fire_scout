@@ -1,1 +1,0 @@
-ament_cmake_symlink_install_targets("TARGET_FILES" "/home/wei/fire_scout_ws/build/fire_scout_planning_safe/multi_uav_map_fusion" "TARGETS" "multi_uav_map_fusion" "DESTINATION" "lib/fire_scout_planning_safe")

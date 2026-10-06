@@ -1,9 +1,0 @@
-/home/wei/fire_scout_ws/build/fire_scout_gazebo/CMakeFiles/uninstall.dir
-/home/wei/fire_scout_ws/build/fire_scout_gazebo/CMakeFiles/fire_scout_gazebo_uninstall.dir
-/home/wei/fire_scout_ws/build/fire_scout_gazebo/CMakeFiles/test.dir
-/home/wei/fire_scout_ws/build/fire_scout_gazebo/CMakeFiles/edit_cache.dir
-/home/wei/fire_scout_ws/build/fire_scout_gazebo/CMakeFiles/rebuild_cache.dir
-/home/wei/fire_scout_ws/build/fire_scout_gazebo/CMakeFiles/list_install_components.dir
-/home/wei/fire_scout_ws/build/fire_scout_gazebo/CMakeFiles/install.dir
-/home/wei/fire_scout_ws/build/fire_scout_gazebo/CMakeFiles/install/local.dir
-/home/wei/fire_scout_ws/build/fire_scout_gazebo/CMakeFiles/install/strip.dir

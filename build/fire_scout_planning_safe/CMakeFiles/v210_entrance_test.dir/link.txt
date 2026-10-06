@@ -1,1 +1,0 @@
-/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/v210_entrance_test.dir/tests/v210_entrance_test.cpp.o -o v210_entrance_test 

@@ -1,1 +1,0 @@
-/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/map_snapshot_test.dir/tests/map_snapshot_test.cpp.o -o map_snapshot_test 
