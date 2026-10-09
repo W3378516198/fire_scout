@@ -1,4 +1,4 @@
-# V2.1.2：完整压缩地图快照＋本机地图接管；保留原路径几何、跟踪、入口预约与硬包络
+# V2.1.10：快速整体绕行、受影响搜索树续修、安全规划等待和认证新路线接管
 # 通用单位：距离/尺寸/半径=m，速度=m/s，加速度=m/s²，加加速度=m/s³，
 # 时间/超时=s，频率=Hz，名称带 _deg 的角度=度，weight/score/count 为无量纲。
 # wheelbase 是对角两个电机轴之间的距离，不是包含桨叶后的整机宽度。
@@ -10,6 +10,23 @@
 # 当前体素为 18 cm。机体硬包络保持原值；不要缩小它来换取穿门。
 /**:
   ros__parameters:
+    operational_clearance: 0.25 # m；硬包络之外的运行余量，提前修补/平滑检查/实际速度制动共用
+    turn_policy_enabled: true    # 全路径曲率修整与动力学限速；离散急折角停车转向
+    turn_max_curvature: 1.60     # 1/m；优先平滑到此曲率（半径约0.625m）；连续曲线超标时限速并可请求修补，不逐采样点停车
+    turn_min_curve_speed: 0.35   # m/s；几何修整的目标速度；不是最低指令速度，也不单独触发连续弯道停车
+    turn_capture_distance: 0.10  # m；到达转向点附近后进入刹车/原地转向
+    turn_stop_speed: 0.10        # m/s；实际三维速度低于此值才开始旋转
+    turn_yaw_tolerance_deg: 8.0  # 度；实际偏航对准后才释放平移
+    turn_repair_budget_ms: 16.0  # 实际毫秒；几何修整预算，超时保留认证路径；连续弯道动态限速，真实折角停车
+    route_handoff_enabled: true # 规划器与跟随器共同启用连续路径交接
+    # 下列速度剖面参数由跟随器与局部几何修复共同读取，只需在此配置一次。
+    lookahead: 0.65               # m；高速下提前跟踪路径方向，减少追点摆动
+    max_speed_xy: 1.80            # m/s；最大水平速度
+    max_accel_xy: 1.50            # m/s²；最大水平加速度
+    max_jerk_xy: 4.50             # m/s³；最大水平加加速度
+    max_lateral_accel: 1.00       # m/s²；转弯时最大横向加速度
+    max_yaw_rate: 1.20           # rad/s；最大偏航角速度，加快路径方向对准
+    sharp_turn_stop_deg: 80.0    # 度；超过此角度必须停车；较小的离散折角还检查曲率/速度目标
     map_transport: compact      # compact=占据/自由一次原子传输＋无损行程压缩；legacy=旧的两个XYZ话题
     publish_free_clouds: false   # compact模式关闭大尺寸XYZ自由地图显示输出；安全检查仍收到完整自由体素
     voxel_size: 0.18             # m/体素；边长18 cm，建图、融合、规划必须一致
@@ -204,7 +221,7 @@ safe_airfar_like_planner:
 
     # 新地图只做快速路线体检。近处障碍立即修补；远处变化必须由连续匹配地图确认。
     route_immediate_repair_distance: 1.50
-    route_near_invalidation_confirm_time: 0.20 # s；近障也须在成对地图中短时持续，过滤单帧同伴回波
+    route_near_invalidation_confirm_time: 0.20 # s；近障须由不同原子地图帧持续确认，本机近场证据可参与
     route_near_invalidation_confirm_updates: 2 # 次；跟随器在确认期间仍执行即时制动
     route_invalidation_confirm_time: 0.60
     route_invalidation_confirm_updates: 2
@@ -216,7 +233,7 @@ safe_airfar_like_planner:
     local_repair_search_ms: 140.0   # ms；局部修补预算
     local_repair_max_detour_ratio: 2.5 # 倍；局部绕行相对直连的最大长度
 
-    # 仅用于同伴冲突等非地图紧急的整路回退方案。跟随器单独报告卡住不会解锁换路；
+    # 仅用于同伴冲突等非地图紧急的整路回退方案。跟随器普通停滞报告不会解锁换路；剖面低限速仅允许小范围认证平滑；
     # 地图确认旧路线失效时先局部修补，必要时才绕过迟滞进行安全重规划。
     route_switch_hysteresis_enabled: true
     route_switch_lookahead: 0.90       # m；计算旧/新路径稳定切线的前视距离
@@ -233,7 +250,7 @@ safe_airfar_like_planner:
     route_switch_large_gain_ratio: 0.25 # 比例；90°附近至少改善25%
     route_switch_reverse_gain_ratio: 0.40 # 比例；120°以上至少改善40%
     route_switch_confirm_time: 0.75    # s；大角度候选连续胜出后才切换
-    route_switch_cooldown: 2.0         # s；一次切换后的非紧急切换冷却时间
+    route_switch_cooldown: 0.0         # s；移除人为换路冷却，安全/代价/角度认证仍保留
     route_switch_candidate_heading_tolerance_deg: 18.0 # 度；连续候选视为同一方向的容差
     route_switch_candidate_endpoint_tolerance: 0.40 # m；连续候选终点匹配容差
 
@@ -264,26 +281,44 @@ safe_airfar_like_planner:
     altitude_boundary_reserve: 0.15 # m；高度边界软预留距离
     enable_3d_search: true
     multi_altitude_slices: true
-    search_snapshot_max_age: 8.0  # s；搜索快照最大复用时间
+    search_snapshot_max_age: 1.0  # 墙钟秒；检查搜索证据变化，只修复受影响的分支
     allow_goal_approach: true
     goal_approach_clearance: 0.04 # m；目标靠近阶段额外要求的净空
     goal_approach_topic: /scout1/planning/goal_approach
     flat_search_fraction: 0.45    # 比例；总搜索预算中优先分给平面搜索的部分
     vertical_bridge_step: 0.30    # m；垂直桥接步长
     vertical_bridge_max_change: 1.20 # m；一次垂直桥接允许的最大高度变化
-    clearance_weight: 5.0        # 无量纲；靠近障碍的软惩罚，偏大会回避窄入口
+    clearance_review_enabled: true
+    clearance_review_horizon: 6.0 # m；检查前方短段，连续两份地图不足时申请局部修补
+    clearance_review_period: 0.10 # ROS秒；提前复核新地图下的前方余量
+    clearance_repair_retry: 0.30   # ROS秒；失败后快速重试，仍受单次计算预算约束
+    clearance_weight: 7.0        # 无量纲；靠近障碍的软惩罚，偏大会回避窄入口
     search_margin: 10.0          # m；配套2×楼层中起点终点外的初始搜索余量
+    coarse_detour_enabled: true   # 无有效路线/局部修补未完成时，用稀疏格点寻找整体绕行
+    coarse_detour_resolution: 0.54 # m；搜索格点间隔，验碰仍使用原18 cm地图与完整机体
+    coarse_detour_budget_ms: 65.0 # ms；与细搜索共享总预算，窄门失败时继续细网格/3D搜索
+    coarse_detour_min_distance: 6.0 # m；近距离局部修补不启动整体引导
     max_plan_distance: 48.0      # m；配套2×楼层的单次规划最大路径距离
     max_astar_expansions: 150000 # 个节点；A*单轮最大扩展数量
     max_search_ms: 180.0         # ms；普通规划最大计算时间
     max_retry_search_ms: 360.0   # ms；重试规划最大计算时间
     max_search_margin: 30.0      # m；配套2×楼层中重试搜索区域最大余量
     heuristic_weight: 1.5        # 无量纲；A*启发函数权重
-    lock_valid_route: true
+    lock_valid_route: false      # 移除有效路线锁定；有效路线先快速局部收弯，无需每次全局A*
     reverse_weight: 5.0          # 无量纲；规划反向运动的软惩罚
     reverse_distance: 3.0        # m；反向惩罚从起点逐渐衰减的距离
-    replan_period: 0.25          # s；重规划周期
-    path_publish_period: 0.20    # s；路径发布周期
+    # 新地图快速检查、局部收弯和有界搜索续跑，提交仍经过最新地图及机间认证。
+    planner_poll_period: 0.01    # s；异步结果轮询目标100Hz，不代表完整A*运行100Hz
+    replan_period: 0.05          # s（墙钟）；路线检查/局部刷新/有界搜索续跑目标20Hz
+    path_publish_period: 0.05    # s；路径和执行许可心跳目标20Hz
+    route_handoff_min_prefix: 1.0 # m；通常至少保留前方1m；近障时只保留安全部分
+    route_handoff_max_prefix: 2.5 # m；前段承诺的最大长度，避免新目标反应过慢
+    route_handoff_time: 1.2       # s；按实测速度乘此时长确定保留长度，受上述范围约束
+    route_handoff_blend_min: 0.60 # m；从新路线投影点向前寻找连接终点的最小距离
+    route_handoff_blend_max: 2.40 # m；连接终点搜索窗口上限
+    route_handoff_max_deviation: 0.30 # m；接续曲线相对原/新参考路径的最大偏离
+    route_handoff_sample_spacing: 0.05 # m；接续曲线发布采样步长上限
+    route_handoff_budget_ms: 12.0 # ms；每次曲线连接尝试的时间预算（工作线程）
     timestamp_reset_threshold: 0.50 # s；地图/里程计时间回退时丢弃旧路径与旧地图缓存
     replan_improvement_ratio: 0.18 # 比例；新路径相对改善阈值
     replan_improvement_absolute: 0.45 # m/代价尺度；新路径绝对改善阈值
@@ -295,6 +330,8 @@ safe_airfar_like_planner:
     bspline_max_deviation: 0.30       # m；平滑路径偏离原始安全路径的上限
     bspline_sample_spacing: 0.06      # m；平滑路径碰撞检查采样间距
     bspline_attempts: 4               # 次；平滑尝试次数
+    bspline_feasibility_weight: 0.20 # 无量纲；速度/加速度/jerk有限差分可行性代价
+    bspline_nominal_speed: 1.20       # m/s；几何优化的名义时间间隔，实际飞行仍受跟随器约束
     bspline_optimize: true
     bspline_jerk_weight: 3.0          # 无量纲；加加速度平滑权重
     bspline_bending_weight: 1.5       # 无量纲；弯曲程度权重
@@ -316,8 +353,14 @@ safe_airfar_path_follower:
     peer_safety_enabled: true
     peer_hard_separation: 0.0           # m；0=自动取两架硬规划半径之和，当前约0.938m
     peer_vertical_separation: 0.0       # m；0=自动取两架垂直半高之和，当前约0.544m
-    peer_reaction_time: 0.55            # s；DDS、控制和飞控响应总预留
-    peer_brake_accel: 1.00              # m/s²；多机闭合速度制动减速度
+    comfort_speed_cap: 0.20 # m/s；舒适约束无法满足时的限速值；空间允许时可更快，硬碰撞/超声/机间约束仍可停车
+    measured_brake_response_time: 0.80 # s；实际速度响应延迟，另外计入地图年龄
+    measured_brake_deceleration: 0.65  # m/s²；保守可实现制动，不是期望加速度
+    peer_vertical_brake_accel: 0.50    # m/s²；会合高度的制动能力估计
+    peer_vertical_braking_reserve: 0.10 # m；垂直硬包络之外的制动预留
+    peer_braking_reserve: 0.20         # m；机间硬包络外的制动余量
+    peer_reaction_time: 0.80            # s；DDS、控制和飞控响应总预留
+    peer_brake_accel: 0.65              # m/s²；多机闭合速度制动减速度
     peer_prediction_horizon: 2.50       # s；交叉/对向冲突的最近接预测范围
     peer_safety_odom_timeout: 0.80      # s；同伴里程计超过此年龄不用于动态外推
     peer_safety_tf_wait_timeout: 0.0    # s；非阻塞TF查询；TF未就绪只丢当前帧，不阻塞40Hz控制
@@ -402,7 +445,8 @@ safe_airfar_path_follower:
     startup_spread_obstacle_lookahead: 1.00 # m；至少检查此前向距离及完整制动距离
     auto_arm: true
     prestream_seconds: 1.50       # s；切入Offboard前预发送控制心跳时间
-    lookahead: 0.65               # m；高速下提前跟踪路径方向，减少追点摆动
+    planning_wait_grace: 2.0      # ROS/仿真秒；短暂无路线先刹停等待，不立刻沿墙脱困
+    planning_wait_wall_grace: 6.0 # 墙钟秒；近障等待上限，低实时率不会无限延长该缓冲
     planner_execution_timeout: 0.80 # s；执行许可同时按 ROS 时间和墙钟检查，超时停在安全约束下
     passage_scheduler_enabled: false # multi launch 在多机+融合时自动启用；单机保持关闭
     passage_request_topic: /scout1/planning/passage_request
@@ -415,13 +459,9 @@ safe_airfar_path_follower:
     passage_detect_period: 0.25 # s；入口检测周期，单次计算预算 6ms
     passage_wait_timeout: 8.00 # s（墙钟）；排队过久后请求复核，仍保留硬安全和占用权
     passage_wait_retry_period: 4.00 # s（墙钟）；复核请求的最短重复间隔
-    max_speed_xy: 1.80            # m/s；最大水平速度
     max_speed_z: 0.50             # m/s；最大垂直速度
-    max_accel_xy: 1.50            # m/s²；最大水平加速度
     max_accel_z: 0.70             # m/s²；最大垂直加速度
-    max_jerk_xy: 4.50             # m/s³；最大水平加加速度
     max_jerk_z: 3.00              # m/s³；最大垂直加加速度
-    max_lateral_accel: 1.00       # m/s²；转弯时最大横向加速度
     narrow_passage_speed: 0.50    # m/s；窄通道速度上限，只减速不封路
     clearance_slow_distance: 0.40 # m；剩余净空低于此值开始减速
     kp_xy: 1.20                  # 1/s；水平位置比例增益
@@ -434,8 +474,12 @@ safe_airfar_path_follower:
     progress_timeout: 2.0        # s；无有效进展的判定时间
     progress_repeat: 1.0         # s；停滞报告/重试间隔
     max_alignment_time: 8.0      # s；转向对准允许的最长时间
+    progress_profile_speed_threshold: 0.12 # m/s；安全条件正常但曲率限速过低时请求局部几何修复
+    progress_profile_repair_delay: 2.0     # 仿真/ROS秒；低剖面限速或转向受限持续此时长后首次请求
+    progress_profile_repair_repeat: 2.0    # 仿真/ROS秒；剖面/转向局部修复请求重复间隔
+    progress_execution_useful_distance: 0.25 # m；实际净位移达到此值才重置跨转向/慢飞/路径版本的监测
+    progress_profile_recovery_grace: 8.0   # 仿真/ROS秒；指令无响应/一直零速时仍升级为认证恢复
     goal_tolerance: 0.18         # m；跟随器目标到达容差
-    max_yaw_rate: 1.20           # rad/s；最大偏航角速度，加快路径方向对准
     max_yaw_accel: 1.20          # rad/s²；最大偏航角加速度
     yaw_deadband: 0.025          # rad；偏航误差死区，约1.43°
     yaw_preview_time: 0.30       # s；偏航方向预测时间
@@ -453,7 +497,6 @@ safe_airfar_path_follower:
     allow_forward_during_alignment: true # 对准过程中允许小速度前进
     alignment_forward_speed_cap: 0.45 # m/s；偏航未对准时前向替代动作的绝对上限
     forward_motion_half_angle_deg: 35.0 # 度；地图已验证时视为正常前进的方向扇区
-    sharp_turn_stop_deg: 80.0    # 度；仅非常急的路径折角才先停车转向
     path_timeout: 5.0            # s；路径数据有效期
     odom_timeout: 1.20           # s；里程计数据有效期
     status_timeout: 3.0          # s；PX4状态在多机负载下的容许年龄

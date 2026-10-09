@@ -1,0 +1,296 @@
+{
+  "package": "fire_scout_planning_safe",
+  "version": "2.1.10",
+  "validated_at_utc": "2026-10-08T13:21:54.999249+00:00",
+  "input_attachment": "fire_scout_planning_safe.tar(20261008-123753).xz",
+  "input_sha256": "bcebcb21fc65beb0bb7aa5f61d3103bc3106249182a23023e8107a60f080c746",
+  "portable_tests": {
+    "passed": 36,
+    "failed": 0,
+    "cpp": [
+      {
+        "name": "clearance_contract_test",
+        "passed": true,
+        "seconds": 4.195,
+        "returncode": 0
+      },
+      {
+        "name": "continuous_turn_execution_test",
+        "passed": true,
+        "seconds": 1.956,
+        "returncode": 0
+      },
+      {
+        "name": "coordination_components_test",
+        "passed": true,
+        "seconds": 2.411,
+        "returncode": 0
+      },
+      {
+        "name": "drift_and_altitude_regression_test",
+        "passed": true,
+        "seconds": 1.696,
+        "returncode": 0
+      },
+      {
+        "name": "dynamic_refresh_test",
+        "passed": true,
+        "seconds": 2.094,
+        "returncode": 0
+      },
+      {
+        "name": "entry_continuity_test",
+        "passed": true,
+        "seconds": 5.736,
+        "returncode": 0
+      },
+      {
+        "name": "follower_alignment_test",
+        "passed": true,
+        "seconds": 1.739,
+        "returncode": 0
+      },
+      {
+        "name": "global_turn_policy_test",
+        "passed": true,
+        "seconds": 3.015,
+        "returncode": 0
+      },
+      {
+        "name": "incremental_detour_test",
+        "passed": true,
+        "seconds": 4.113,
+        "returncode": 0
+      },
+      {
+        "name": "incremental_repair_v19_test",
+        "passed": true,
+        "seconds": 4.73,
+        "returncode": 0
+      },
+      {
+        "name": "map_input_test",
+        "passed": true,
+        "seconds": 1.802,
+        "returncode": 0
+      },
+      {
+        "name": "map_snapshot_test",
+        "passed": true,
+        "seconds": 2.608,
+        "returncode": 0
+      },
+      {
+        "name": "measured_braking_test",
+        "passed": true,
+        "seconds": 1.07,
+        "returncode": 0
+      },
+      {
+        "name": "near_repair_search_regression_test",
+        "passed": true,
+        "seconds": 4.028,
+        "returncode": 0
+      },
+      {
+        "name": "planning_wait_test",
+        "passed": true,
+        "seconds": 2.222,
+        "returncode": 0
+      },
+      {
+        "name": "profile_progress_test",
+        "passed": true,
+        "seconds": 0.748,
+        "returncode": 0
+      },
+      {
+        "name": "profile_repair_test",
+        "passed": true,
+        "seconds": 3.021,
+        "returncode": 0
+      },
+      {
+        "name": "replan_schedule_test",
+        "passed": true,
+        "seconds": 1.784,
+        "returncode": 0
+      },
+      {
+        "name": "route_handoff_test",
+        "passed": true,
+        "seconds": 3.175,
+        "returncode": 0
+      },
+      {
+        "name": "route_switch_test",
+        "passed": true,
+        "seconds": 0.967,
+        "returncode": 0
+      },
+      {
+        "name": "ultrasonic_memory_test",
+        "passed": true,
+        "seconds": 1.3,
+        "returncode": 0
+      },
+      {
+        "name": "v210_entrance_test",
+        "passed": true,
+        "seconds": 4.604,
+        "returncode": 0
+      },
+      {
+        "name": "v210_header_integration_test",
+        "passed": true,
+        "seconds": 1.209,
+        "returncode": 0
+      },
+      {
+        "name": "v210_route_channel_test",
+        "passed": true,
+        "seconds": 1.476,
+        "returncode": 0
+      },
+      {
+        "name": "v2_passage_handshake_test",
+        "passed": true,
+        "seconds": 1.013,
+        "returncode": 0
+      }
+    ],
+    "python_production_branch_and_launch": [
+      {
+        "name": "light_logger_geometry_test",
+        "passed": true,
+        "seconds": 0.043,
+        "returncode": 0
+      },
+      {
+        "name": "measured_braking_node_test",
+        "passed": true,
+        "seconds": 2.045,
+        "returncode": 0
+      },
+      {
+        "name": "planning_wait_node_test",
+        "passed": true,
+        "seconds": 0.65,
+        "returncode": 0
+      },
+      {
+        "name": "profile_progress_node_test",
+        "passed": true,
+        "seconds": 1.113,
+        "returncode": 0
+      },
+      {
+        "name": "turn_recovery_node_test",
+        "passed": true,
+        "seconds": 1.929,
+        "returncode": 0
+      },
+      {
+        "name": "v210_launch_test",
+        "passed": true,
+        "seconds": 2.372,
+        "returncode": 0
+      },
+      {
+        "name": "v210_node_continuity_test",
+        "passed": true,
+        "seconds": 13.122,
+        "returncode": 0
+      },
+      {
+        "name": "v212_map_pipeline_test",
+        "passed": true,
+        "seconds": 2.505,
+        "returncode": 0
+      },
+      {
+        "name": "v214_fusion_fast_test",
+        "passed": true,
+        "seconds": 3.526,
+        "returncode": 0
+      },
+      {
+        "name": "v214_peer_progress_test",
+        "passed": true,
+        "seconds": 1.559,
+        "returncode": 0
+      },
+      {
+        "name": "v2_node_passage_test",
+        "passed": true,
+        "seconds": 3.0,
+        "returncode": 0
+      }
+    ]
+  },
+  "targeted_results": {
+    "incremental_detour_test": "Long-wall expansions: guided=1425 fine=4318\nincremental_detour_test: PASS retained changed branches, reopened doorway and fine fallback\n",
+    "planning_wait_test": "planning_wait_test: PASS advisory permit, bounded near-wall grace, safe terminal reserve, clearance-first escape\n",
+    "planning_wait_node_test": "planning_wait_node_test: PASS actual NAV wait, recovery handoff service, explicit stall and route resumption\n",
+    "turn_recovery_node_test": "turn_recovery_node_test: PASS actual recovery handoff, no immediate same-route cancellation, measured braking, collision/permit veto, bounded long-route projection\n"
+  },
+  "synthetic_long_wall_work": {
+    "guided_total_expansions": 1425,
+    "fine_total_expansions": 4318,
+    "physical_map_resolution_m": 0.18,
+    "aircraft_hard_radius_m": 0.469063,
+    "measurement": "search work, not live multi-UAV flight time"
+  },
+  "static_checks": {
+    "python_ast": true,
+    "bash_syntax": true,
+    "yaml_json_xml_parse": true,
+    "new_parameter_values_and_version": true
+  },
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "g++": "/usr/bin/g++",
+    "ros2": null,
+    "colcon": null,
+    "cmake": null,
+    "gz": null
+  },
+  "not_run": [
+    "full ROS 2 node build",
+    "DDS/TF integration",
+    "PX4/Gazebo multi-UAV flight",
+    "replay of latest raw occupied/free voxel maps"
+  ],
+  "changed_files": [
+    "CMakeLists.txt",
+    "README.md",
+    "SOURCE_SHA256SUMS.txt",
+    "config/safe_airfar.yaml",
+    "docs/V2_1_10_INCREMENTAL_DETOUR_ZH.md",
+    "docs/v2_1_10_validation.json",
+    "include/fire_scout/autonomous_recovery.hpp",
+    "include/fire_scout/execution_permit.hpp",
+    "include/fire_scout/navigation_contract.hpp",
+    "include/fire_scout/planner.hpp",
+    "include/fire_scout/planning_wait.hpp",
+    "include/fire_scout/route_memory.hpp",
+    "package.xml",
+    "scripts/install_fire_scout_planning_safe.sh",
+    "src/safe_airfar_like_planner.cpp",
+    "src/safe_airfar_path_follower.cpp",
+    "tests/incremental_detour_test.cpp",
+    "tests/planning_wait_node_test.py",
+    "tests/planning_wait_test.cpp",
+    "tests/turn_recovery_node_test.py"
+  ],
+  "preserved": [
+    "complete aircraft hard envelope",
+    "unknown-space policy and body segment checks",
+    "sonar/glass/observed-space certificates",
+    "peer separation and passage rules",
+    "route inheritance and turn/dynamic constraints",
+    "0.05-second target route check period",
+    "fleet startup spreading and compact logging"
+  ]
+}

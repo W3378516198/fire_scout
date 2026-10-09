@@ -18,6 +18,8 @@ struct PeerSafetyConfig {
   double vertical_separation{.55};
   double reaction_time{.45};
   double brake_accel{1.0};
+  double braking_reserve{.20};
+  double vertical_brake_accel{.50},vertical_braking_reserve{.10};
   double prediction_horizon{2.0};
   double passage_width{1.35};
   double passage_lookahead{2.5};
@@ -34,14 +36,14 @@ struct PeerSafetyConfig {
 
   bool valid() const {
     const double values[]{hard_separation, vertical_separation, reaction_time,
-                          brake_accel, prediction_horizon, passage_width,
+                          brake_accel, braking_reserve, vertical_brake_accel,vertical_braking_reserve, prediction_horizon, passage_width,
                           passage_lookahead, passage_reservation_radius,
                           passage_priority_hysteresis,
                           separation_escape_speed, rear_ignore_distance,
                           yield_retreat_speed};
     for (double value : values)
       if (!std::isfinite(value) || value < 0) return false;
-    return hard_separation > 0 && vertical_separation > 0 && brake_accel > 0 &&
+    return hard_separation > 0 && vertical_separation > 0 && brake_accel > 0 && vertical_brake_accel > 0 &&
            prediction_horizon > 0 && passage_width > hard_separation &&
            passage_lookahead >= .5 && passage_reservation_radius >= .5 &&
            separation_escape_speed > 0 && separation_escape_speed <= .30 &&
@@ -95,8 +97,11 @@ struct PeerSafetyDecision {
   size_t blocking_index{std::numeric_limits<size_t>::max()};
   size_t fresh_peers{0};
   size_t rear_yields_ignored{0};
+  size_t predicted_vertical_peers{0};bool vertical_limited{false};
   bool limited{false};
   bool yielding{false};
+  bool measured_braking_risk{false};
+  double required_braking_clearance{0};
 };
 
 struct PeerYieldWatchdogConfig {
@@ -207,7 +212,8 @@ inline PeerSafetyDecision constrainPeerMotion(
     Vec3 current, Vec3 requested, int own_priority,
     const std::vector<PeerKinematicState> &peers,
     const PeerSafetyConfig &config,
-    const PassageReservation &passage = {}) {
+    const PassageReservation &passage = {},
+    const Vec3 *measured_velocity = nullptr) {
   PeerSafetyDecision decision;
   decision.velocity = requested;
   if (!config.enabled || !config.valid() || !finite(current) ||
@@ -242,13 +248,48 @@ inline PeerSafetyDecision constrainPeerMotion(
     if (!peer.fresh || !finite(peer.position) || !finite(peer.velocity)) continue;
     ++decision.fresh_peers;
     const Vec3 offset = peer.position - current;
-    if (std::abs(offset.z) > config.vertical_separation) continue;
+    const Vec3 measured=measured_velocity&&finite(*measured_velocity)?*measured_velocity:requested;
+    const double horizon=config.prediction_horizon;
+    auto verticalNear=[&](Vec3 own){
+      const double rate=peer.velocity.z-own.z;
+      const double t=std::abs(rate)>1e-8?std::clamp(-offset.z/rate,0.,horizon):0.;
+      return std::abs(offset.z+rate*t)<=config.vertical_separation+config.vertical_braking_reserve;
+    };
+    const bool vertical_overlap=std::abs(offset.z)<=config.vertical_separation;
+    if(!vertical_overlap&&!verticalNear(measured)&&!verticalNear(requested))continue;
+    if(!vertical_overlap)++decision.predicted_vertical_peers;
     const double distance_xy = horizontalNorm(offset);
     if (distance_xy < decision.nearest_distance) {
       decision.nearest_distance = distance_xy;
       decision.nearest_clearance = distance_xy - config.hard_separation;
     }
+    // Two vehicles may become co-altitude while their XY envelopes are close.
+    // Preserve vertical separation before entering the overlap slab, not only
+    // after the old instantaneous |dz| filter starts considering the pair.
+    auto closestXY=[&](Vec3 own){
+      const Vec3 rv{own.x-peer.velocity.x,own.y-peer.velocity.y,0};
+      const Vec3 d{offset.x,offset.y,0};const double vv=dot(rv,rv);
+      const double t=vv>1e-8?std::clamp(dot(d,rv)/vv,0.,horizon):0.;
+      return horizontalNorm(d-rv*t);
+    };
+    if(std::min({distance_xy,closestXY(measured),closestXY(requested)})<
+        config.hard_separation+config.braking_reserve&&std::abs(offset.z)>1e-5){
+      const double sign=offset.z>0?1.:-1.;
+      const double room=std::max(0.,std::abs(offset.z)-config.vertical_separation-config.vertical_braking_reserve);
+      const double peer_z=sign*peer.velocity.z;
+      const double closing=std::max(0.,sign*measured.z-peer_z);
+      const double needed=closing*config.reaction_time+closing*closing/(2*config.vertical_brake_accel);
+      double cap=std::max(0.,peerStoppingSpeed(room,config.vertical_brake_accel,config.reaction_time)+peer_z);
+      if(closing>1e-6&&needed>=room)cap=std::min(cap,std::max(0.,peer_z));
+      if(sign*decision.velocity.z>cap){
+        decision.velocity.z=sign*cap;decision.limited=decision.vertical_limited=true;
+        selectPeerReason(decision,PeerSafetyReason::SPEED_LIMIT,peer);
+      }
+    }
     if (distance_xy < 1e-6) {
+      // Do not turn a vertically separated stack into a false XY contact.
+      // Its closing vertical command has just been constrained above.
+      if(!vertical_overlap)continue;
       coincident_contact = true;
       selectPeerReason(decision, PeerSafetyReason::HARD_SEPARATION, peer);
       continue;
@@ -287,8 +328,10 @@ inline PeerSafetyDecision constrainPeerMotion(
     }
 
     const Vec3 direction{offset.x / distance_xy, offset.y / distance_xy, 0};
-    Vec3 relative_velocity{decision.velocity.x - peer.velocity.x,
-                           decision.velocity.y - peer.velocity.y, 0};
+    // Use actual momentum for CPA. A changed command does not instantaneously
+    // remove the old collision course.
+    Vec3 relative_velocity{measured.x - peer.velocity.x,
+                           measured.y - peer.velocity.y, 0};
     const double relative_speed_sq = dot(relative_velocity, relative_velocity);
     if (relative_speed_sq > 1e-8) {
       const double time = std::clamp(
@@ -321,7 +364,7 @@ inline PeerSafetyDecision constrainPeerMotion(
     const double clearance = distance_xy - config.hard_separation;
     const double peer_radial =
         peer.velocity.x * direction.x + peer.velocity.y * direction.y;
-    if (clearance <= 0) {
+    if (clearance <= 0 && vertical_overlap) {
       hard_contacts.push_back({direction, 0, &peer});
       selectPeerReason(decision, PeerSafetyReason::HARD_SEPARATION, peer);
       continue;
@@ -332,7 +375,25 @@ inline PeerSafetyDecision constrainPeerMotion(
     // safely increases it.  Side and separating motion remain available.
     const double allowed_closing = peerStoppingSpeed(
         clearance, config.brake_accel, config.reaction_time);
-    const double allowed_approach = std::max(0.0, allowed_closing + peer_radial);
+    double allowed_approach = std::max(0.0, allowed_closing + peer_radial);
+    if(measured_velocity){
+      // No extrapolation from a newly reduced command: a stopped leader must
+      // still see the follower's actual closing speed and response distance.
+      if(!finite(*measured_velocity)){allowed_approach=0;decision.measured_braking_risk=true;}
+      else {
+        const double closing=std::max(0.,dot(*measured_velocity,direction)-peer_radial);
+        const double needed=config.braking_reserve+closing*config.reaction_time+
+          closing*closing/(2*config.brake_accel);
+        decision.required_braking_clearance=std::max(decision.required_braking_clearance,needed);
+        const double available=std::max(0.,clearance-config.braking_reserve-closing*config.reaction_time);
+        allowed_approach=std::min(allowed_approach,
+          std::max(0.,std::sqrt(2*config.brake_accel*available)+peer_radial));
+        if(closing>.05&&needed>=clearance){
+          decision.measured_braking_risk=true;
+          allowed_approach=std::min(allowed_approach,std::max(0.,peer_radial));
+        }
+      }
+    }
     constraints.push_back({direction, allowed_approach, &peer});
   }
 

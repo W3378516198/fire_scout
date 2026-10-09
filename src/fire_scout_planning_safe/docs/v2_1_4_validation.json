@@ -1,0 +1,226 @@
+{
+  "package": "fire_scout_planning_safe",
+  "version": "2.1.4",
+  "validated_at_utc": "2026-10-07T05:27:07.621566+00:00",
+  "scope": "Portable core and extracted actual node-method regression; transport/ROS services mocked. No full ROS/PX4/Gazebo build or flight available.",
+  "passed": 22,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "coordination_components_test",
+      "passed": true,
+      "seconds": 3.761,
+      "returncode": 0
+    },
+    {
+      "name": "follower_alignment_test",
+      "passed": true,
+      "seconds": 2.078,
+      "returncode": 0
+    },
+    {
+      "name": "incremental_repair_v19_test",
+      "passed": true,
+      "seconds": 4.888,
+      "returncode": 0
+    },
+    {
+      "name": "map_input_test",
+      "passed": true,
+      "seconds": 2.428,
+      "returncode": 0
+    },
+    {
+      "name": "map_snapshot_test",
+      "passed": true,
+      "seconds": 3.21,
+      "returncode": 0
+    },
+    {
+      "name": "profile_progress_test",
+      "passed": true,
+      "seconds": 1.012,
+      "returncode": 0
+    },
+    {
+      "name": "profile_repair_test",
+      "passed": true,
+      "seconds": 3.503,
+      "returncode": 0
+    },
+    {
+      "name": "replan_schedule_test",
+      "passed": true,
+      "seconds": 2.273,
+      "returncode": 0
+    },
+    {
+      "name": "route_handoff_test",
+      "passed": true,
+      "seconds": 3.382,
+      "returncode": 0
+    },
+    {
+      "name": "route_switch_test",
+      "passed": true,
+      "seconds": 1.215,
+      "returncode": 0
+    },
+    {
+      "name": "ultrasonic_memory_test",
+      "passed": true,
+      "seconds": 1.406,
+      "returncode": 0
+    },
+    {
+      "name": "v210_entrance_test",
+      "passed": true,
+      "seconds": 5.065,
+      "returncode": 0
+    },
+    {
+      "name": "v210_header_integration_test",
+      "passed": true,
+      "seconds": 1.613,
+      "returncode": 0
+    },
+    {
+      "name": "v210_route_channel_test",
+      "passed": true,
+      "seconds": 1.875,
+      "returncode": 0
+    },
+    {
+      "name": "v2_passage_handshake_test",
+      "passed": true,
+      "seconds": 1.314,
+      "returncode": 0
+    },
+    {
+      "name": "profile_progress_node_test",
+      "passed": true,
+      "seconds": 1.821,
+      "returncode": 0
+    },
+    {
+      "name": "v210_launch_test",
+      "passed": true,
+      "seconds": 2.922,
+      "returncode": 0
+    },
+    {
+      "name": "v210_node_continuity_test",
+      "passed": true,
+      "seconds": 14.575,
+      "returncode": 0
+    },
+    {
+      "name": "v212_map_pipeline_test",
+      "passed": true,
+      "seconds": 4.303,
+      "returncode": 0
+    },
+    {
+      "name": "v214_fusion_fast_test",
+      "passed": true,
+      "seconds": 4.159,
+      "returncode": 0
+    },
+    {
+      "name": "v214_peer_progress_test",
+      "passed": true,
+      "seconds": 1.675,
+      "returncode": 0
+    },
+    {
+      "name": "v2_node_passage_test",
+      "passed": true,
+      "seconds": 3.568,
+      "returncode": 0
+    }
+  ],
+  "static_validation": {
+    "python_ast": true,
+    "shell_bash_n": true,
+    "yaml_and_package_xml": true,
+    "user_clearance_weight_7_preserved": true
+  },
+  "regressions": {
+    "retained_dense_route_1cm_offset_old_cap_mps": 0.0411138,
+    "fixed_straight_route_cap_mps": 1.8,
+    "route_progress_beyond_8m": true,
+    "nearfield_timestamp_dedup": true,
+    "full_plan_worker_complete_flow": true,
+    "peer_progress_crossings": true
+  },
+  "fusion_benchmark": {
+    "kind": "Synthetic four input maps, each 1000000 cells; core computation excludes ROS/DDS/Gazebo",
+    "baseline_ms": 8604,
+    "optimized_ms": 1044,
+    "speedup": 8.24,
+    "output_bytes_identical": 1582128,
+    "asan_ubsan_passed": true,
+    "leak_sanitizer": "Disabled due execution-container incompatibility"
+  },
+  "source_sha256": {
+    "src/multi_uav_map_fusion.cpp": "bf0f032cd49b63292f0181d710847c48bad6cf183a53a21d6894ded3d922c508",
+    "src/passage_coordinator.cpp": "241b4d8eb8c24332c65578473938194c367a8cfec62218b1674a633585e8f530",
+    "src/racer_task_allocator.cpp": "5269d12be6d316dfd9ac20e3946d99534e2ff47889478d7d5d79413abdf3a622",
+    "src/radar_free_space_mapper.cpp": "a9d0c359ab9d21ba5f9aa88a493b9cb068702c2b6321ef0bfe7a7bc9b4b4fc97",
+    "src/safe_airfar_like_planner.cpp": "f77f06b912757c07a572ffbee69099b6e60791233b059642db7c336a9e6b8ee7",
+    "src/safe_airfar_path_follower.cpp": "b7fc993b610817bf9dc814fb6abf57e93284073011f81567b89ab561db23b510",
+    "include/fire_scout/autonomous_recovery.hpp": "63795e66a91f0918e459308c8490d15b2c24c2a82634d9cef1d10cac6100b8b9",
+    "include/fire_scout/bspline.hpp": "e5d58e1f507106564028fc46e8aecebca6b391b3f558f27660f672fc23e3b49e",
+    "include/fire_scout/confidence_fusion.hpp": "d809b603740471d114dd50efaed674e589aeef4629e9aceca31005c12b3f1f86",
+    "include/fire_scout/directional_motion.hpp": "5cec18cbf921b464789b20bf0b903fd7e71e5872e213ef44938357023edb7b7b",
+    "include/fire_scout/entrance_routes.hpp": "699f9e629cd6f22efc2bce35fd7ad76953940211ed884cc8948ddb6afc7b7826",
+    "include/fire_scout/envelope_escape.hpp": "1575abf5c9d5d49b0df6c61035b721167decc056cbc4ec6fda0bede377266a51",
+    "include/fire_scout/execution_permit.hpp": "9fd7f3c3f72ca550f1bf7268d557678a45f7e32b7381023e75fff243baa950cf",
+    "include/fire_scout/fusion_snapshot.hpp": "7a04c6684c579a14375f0c874152e937cfd1fc99c3b1e74defa67fdb4929c22d",
+    "include/fire_scout/gap_policy.hpp": "06143defabafd2cfe6950e32cd9597a5dc4489c7a83da4ac809d2fbee48d758e",
+    "include/fire_scout/geometry.hpp": "7f59dcf169792623ddf5b3d4e4eb8434750acde131fc7602b290a613c46a2367",
+    "include/fire_scout/glass_risk.hpp": "9eee51afc798dd9e2391ad64b6d803cee6061ccb8683e938cc0e418d5cb64176",
+    "include/fire_scout/goal_approach.hpp": "b5d577fa98ee01f05cf90a8c5af019ee8bf9b9fad2a7d3248f553f80ed23bd1e",
+    "include/fire_scout/grid.hpp": "5bf95328ced70466e37480dfa41a9a3a1c7e645c77ebd95eb29670f88d1706e6",
+    "include/fire_scout/hold_safety.hpp": "8854c660a4158cf3dedd46676b6bd7bbe965b054d603879bdfa4d03d36a501da",
+    "include/fire_scout/input_freshness.hpp": "760479d91e62800313be030a061b3443b7ddfd841ecb1cee9695ebdff6afd95d",
+    "include/fire_scout/local_recovery.hpp": "5e4c7da6cbf733c2a9773d6fd1eda09a2481af373878fb6ae9d88eb46e87d454",
+    "include/fire_scout/map_input.hpp": "e712149ff520d9b570e902ee87f845ce40d21381fdc4ac5f0e07b5cbfacabfeb",
+    "include/fire_scout/map_pair_buffer.hpp": "22f44eb43bf41fa25820debf2f06b576b6913988eb307750ccb998c9b83a86e0",
+    "include/fire_scout/map_snapshot.hpp": "83d8caaf0ab6411e73a8d2c77b1f2e47ac31e87a7afa8116836a2f9f15b71421",
+    "include/fire_scout/navigation_contract.hpp": "d0a55c2be21bc55b39aa010822772f59c64d92c45aca9c24d42dcdf4f675c2fd",
+    "include/fire_scout/observation_gate.hpp": "9b423fe1cd627458d0e038581cbe95ec14f3772e44acc019349d5593ea8ebe71",
+    "include/fire_scout/passage_scheduler.hpp": "60f35f5b329bf58940a80d2253d957ce066fe5a43b1070a9b11f7ee89289505d",
+    "include/fire_scout/peer_safety.hpp": "e084c8eea11784b98503acbe31e47890adc6358d455a374512397b38d4d8cf1b",
+    "include/fire_scout/peer_uav_filter.hpp": "739edda0578801c8ff2467128fdba56f9930a54549e74e3a75190ccec971e9fe",
+    "include/fire_scout/planner.hpp": "b6892c325c4808568f9629d15786cf5da4ec431dc48d0d6c933954acb7d30cbe",
+    "include/fire_scout/pose_history.hpp": "0ef9ea57f9231bcb9d7cb77dd87842dfb8126f8f0f4163ea940f74aa440e6e1d",
+    "include/fire_scout/profile_progress.hpp": "59aa2b62e1440ba835c781f269fc88b6d3e4478abab3bdf9a33e0db308bbe0f9",
+    "include/fire_scout/profile_repair.hpp": "e339f3632f77ecdfa82e8b5e143cc18121b2b7e64bbe7aa9d8d826b4eba1bf63",
+    "include/fire_scout/px4_command_clock.hpp": "c6328ced5ef86d2d555ba00b1007891b8f4431cf7877e7d3308be433ca6cefbe",
+    "include/fire_scout/px4_topics.hpp": "5473f55a7cac61be91bd08ce3bd256a749650e7c2e77732dcf8d5f19357bc212",
+    "include/fire_scout/racer_task_allocator.hpp": "2414d4abd7a761e14397e4d6d3a8baab10f3a1c01b900014868ce0616e288717",
+    "include/fire_scout/replan_schedule.hpp": "0f8166f7a5a6366f66ba8c8cec31ae4531033f61f57588495559d0e43c39e0d0",
+    "include/fire_scout/retreat_route.hpp": "cc9cd33c1caf8598e541909b044870952fec9bafd538713b4bf1004e8593d313",
+    "include/fire_scout/ros_utils.hpp": "8651d4fad5e76f34b33d126322dfa3e1976a199b4e5a35f6248fa7de513d3a3e",
+    "include/fire_scout/route_handoff.hpp": "28ab812a1643cf0dbd10746a49fa59cf9e6e3334531f3e5910e68f5fca8e6b76",
+    "include/fire_scout/route_memory.hpp": "afe383d560a672f1c699b6bc1d25f9814d19453108c5eeb119fb7efdcc3c8efe",
+    "include/fire_scout/route_repair.hpp": "eeaf520f5495e36793662806878457c3a71314ee3d452b68ec2006df813e3c67",
+    "include/fire_scout/route_switch.hpp": "1a6df186de12cedc8ac34961d414de9131756d46c89ce451c9ade86d8d2fd636",
+    "include/fire_scout/route_topology.hpp": "332f8717c445860dab7454709eb99cd456a2678ea8cd9eea00f7efc2b51ef2d8",
+    "include/fire_scout/snapshot_stamp.hpp": "28dc983174c32bc688581145f63f1a0b4a03dd8616791830b8c90586afd117d8",
+    "include/fire_scout/tracker.hpp": "06ab78d998b821aa2bdbfd906845a1d575dafe551cd1bcb4347b112cfe4cb161",
+    "include/fire_scout/ultrasonic.hpp": "f4d5c5afb12118ea5a8b0b9b9d3d0758cbf66cda97ecebf11a6913adb489db0d",
+    "include/fire_scout/vehicle.hpp": "fb4edd59443c648835c16d10f0acdc2e4fe1f94e0ad70c222338015bf9a9bc7a",
+    "config/safe_airfar.yaml": "87b289d0ff6af2201c1f717b3e3d96c40d0cfb01f4e7d8e890f94d2049966050",
+    "launch/multi_map_fusion.launch.py": "b69cd222c0c407c4101997ea56b503136c5a3975f2163135e1377d516497695a",
+    "launch/multi_racer_navigation.launch.py": "100daa15163906529f14e6593ae58bdab7ec84932277e4181fdb3005d4b488ca",
+    "launch/multi_safe_airfar_navigation.launch.py": "c0142ec959b1b547fab0a334e02dfbf947a6398a7fd86eb62a334699e2e964ac",
+    "launch/multi_safe_airfar_planner_only.launch.py": "7a9b80b7654ecf35c9df414e1e8a8e0cd3b6344b40f22d0e909ec2c722ea8c57",
+    "launch/safe_airfar_navigation.launch.py": "35efa82903d7c4c73d46171cd46545946616edc1ea60a842fc97bf0565da639f",
+    "launch/safe_airfar_planner_only.launch.py": "40e5b9b29e13f6d8187f4b4f39fa81a725da038dd7f362f967eba8d7694959ab",
+    "scripts/collect_fire_scout_logs.sh": "d0e854718ba623fb122867a5d772b155a6c2fbc238fa857058f4aa965a89e726",
+    "scripts/fire_scout_light_logger.py": "21dd0af6d00f6e5fffe5bc887b0a71cf3e8c89efbf1bedfe18bd3500bbf016bb",
+    "scripts/install_fire_scout_planning_safe.sh": "6171dfda6bed6d675d55e1de85e1880e6004bfbd190c9303658d258730a8fd1d"
+  }
+}

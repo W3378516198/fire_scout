@@ -167,6 +167,16 @@ public:
     return nearby(lo,hi,[&](Key k){return !hits(a,b,k,cfg.inflation_xy);});
   }
   bool insideAltitude(Vec3 p)const {return finite(p)&&p.z>=cfg.z_min&&p.z<=cfg.z_max;}
+  // An additional operational clearance query, never a smaller body envelope.
+  // Continuous cylinder/voxel sweeps avoid missing a wall between samples.
+  bool segmentWithMargin(Vec3 a,Vec3 b,double margin,bool unknown=true)const {
+    if(!std::isfinite(margin)||margin<0||!insideAltitude(a)||!insideAltitude(b))return false;
+    if(!unknown&&!trace(a,b,cfg.resolution,[&](Key k){return known(k);}))return false;
+    const double radius=cfg.inflation_xy+margin;
+    return nearby({std::min(a.x,b.x)-radius,std::min(a.y,b.y)-radius,std::min(a.z,b.z)-cfg.inflation_z},
+      {std::max(a.x,b.x)+radius,std::max(a.y,b.y)+radius,std::max(a.z,b.z)+cfg.inflation_z},
+      [&](Key k){return !hits(a,b,k,radius);});
+  }
   // Shared continuous primitive for the explicit, bounded separation witness.
   // The radius overload is used only by the slow, monotonic envelope-escape
   // proof.  Ordinary planning and tracking continue to use inflation_xy.

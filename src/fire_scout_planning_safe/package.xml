@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>fire_scout_planning_safe</name>
-  <version>2.1.2</version>
+  <version>2.1.10</version>
   <description>
     Simulation-oriented ROS2 planning for Fire Scout:
     free/occupied/unknown mapping, RACER-compatible task allocation,

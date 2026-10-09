@@ -40,7 +40,7 @@ public:
       rclcpp::QoS(1).reliable());
     timer_=create_wall_timer(std::chrono::milliseconds(100),[this]{tick();});
     config_lock_=lockParameters(*this);
-    RCLCPP_INFO(get_logger(),"V2 passage coordinator: scouts=%zu FIFO leases, lost-owner quarantine",names.size());
+    RCLCPP_INFO(get_logger(),"V2.1.8 passage coordinator: scouts=%zu FIFO leases, measured-owner migration",names.size());
   }
 private:
   void receive(size_t i,const nav_msgs::msg::Path&m){
@@ -66,9 +66,8 @@ private:
     const int64_t epoch=stampNs(m.poses[0].header.stamp);
     if(!std::isfinite(radius)||radius<.2||radius>6||epoch<=0)return;
     requests_[i]=m;
-    auto old=scheduler_.bids.find(int(i));
-    if(old!=scheduler_.bids.end()&&distance(old->second.anchor,p[0])>scheduler_.merge_radius)
-      scheduler_.release(int(i),p[1]);
+    // The scheduler reconciles the old physical lease on EVERY fresh owner
+    // position, including heartbeats after an initially rejected migration.
     scheduler_.request({int(i),p[0],p[1],now_s,now_s,distance(p[0],p[1])<.65,radius,epoch});
   }
   void tick(){
@@ -97,11 +96,14 @@ private:
       grants_[i]->publish(grant);
     }
     if(t-last_status_>.5){last_status_=t;
-      std::ostringstream s;s<<"runtime=2.1.2 requests="<<scheduler_.bids.size()
-        <<" resources="<<scheduler_.leases.size()<<" completed="<<scheduler_.completed.size();
+      std::ostringstream s;s<<"runtime=2.1.8 requests="<<scheduler_.bids.size()
+        <<" resources="<<scheduler_.leases.size()<<" completed="<<scheduler_.completed.size()
+        <<" migrations_completed="<<scheduler_.migrations_completed;
       for(size_t i=0;i<scheduler_.leases.size();++i){auto &l=scheduler_.leases[i];
         s<<" portal"<<i<<"="<<l.owner<<":"<<(l.quarantined?"QUARANTINED":"LEASE")
-          <<" entry_seen"<<i<<"="<<l.entered<<" exit_radius"<<i<<"="<<l.release_radius;}
+          <<" entry_seen"<<i<<"="<<l.entered<<" exit_radius"<<i<<"="<<l.release_radius
+          <<" owner_anchor"<<i<<"="<<l.owner_anchor.x<<","<<l.owner_anchor.y<<","<<l.owner_anchor.z
+          <<" epoch"<<i<<"="<<l.epoch;}
       status_->publish(textMessage(s.str()));
     }
   }

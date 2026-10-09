@@ -171,6 +171,31 @@ int main(){
   auto messages=rerouted.passage_request_pub_->messages.size();
   rerouted.ros+=2;rerouted.last_portal_request_=-10;rerouted.sendPassageRequest();
   assert(rerouted.passage_request_pub_->messages.size()==messages);
+
+  // The logged failure: the first migration arrives INSIDE the old lease.
+  // Later fresh position belongs to the NEW request and must still release
+  // the old physical opening, atomically preserving that new request.
+  Coordinator migrated;
+  auto bid=[&](size_t robot,Vec3 a,Vec3 p,int64_t epoch){
+    auto message=makePath({a,p,a+Vec3{2.2,0,0}},"world",migrated.now());
+    message.poses[0].header.stamp=rclcpp::Time(epoch);
+    migrated.receive(robot,message);return message;
+  };
+  bid(0,{0,0,3},{0,0,3},10);migrated.tick();assert(migrated.scheduler_.admitted(0));
+  migrated.ros+=.1;bid(1,{0,0,3},{-3,0,3},11);
+  auto first_new=bid(0,{5,0,3},{1,0,3},20);migrated.tick();
+  assert(!migrated.scheduler_.admitted(0)&&!migrated.scheduler_.admitted(1));
+  assert(migrated.scheduler_.leases[0].owner==0&&migrated.scheduler_.leases[0].quarantined);
+  migrated.ros+=2;migrated.tick(); // Lost heartbeat cannot clear ownership.
+  assert(migrated.scheduler_.leases[0].owner==0);
+  bid(1,{0,0,3},{-3,0,3},11);bid(0,{5,0,3},{2.6,0,3},20);migrated.tick();
+  assert(migrated.scheduler_.admitted(0)&&migrated.scheduler_.admitted(1));
+  assert(migrated.scheduler_.migrations_completed==1);
+  assert(migrated.grants_[0]->messages.back().poses.size()==1);
+  assert(stampNs(migrated.grants_[0]->messages.back().poses[0].header.stamp)==20);
+  // Reordered request / stale odometry cannot migrate back to the old portal.
+  migrated.receive(0,first_new);migrated.tick();
+  assert(migrated.scheduler_.bids.at(0).position.x==2.6&&migrated.scheduler_.admitted(0));
   std::cout<<"v2_node_passage_test: PASS actual follower/coordinator methods, both logged exits, local release, dropped completion, old reply, wrong frame/id, inside rejection, rewind\n";
 }
 '''

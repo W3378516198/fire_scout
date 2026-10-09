@@ -28,6 +28,11 @@ struct PlannerConfig {
   double flat_search_fraction{.45};
   double vertical_bridge_step{.30}, vertical_bridge_max_change{1.20};
   double altitude_boundary_weight{8.0}, altitude_boundary_reserve{.15};
+  bool coarse_detour_enabled{true};
+  double coarse_detour_resolution{.54},coarse_detour_ms{65};
+  double coarse_detour_min_distance{6.0};
+  // Internal lattice spacing. Collision queries always use the original map.
+  double lattice_resolution{0};
 };
 struct PlanResult {
   std::vector<Vec3> points;
@@ -36,11 +41,17 @@ struct PlanResult {
   int flat_expansions{0}, spatial_expansions{0};
   double elapsed_ms{0};
   bool reused{false};
-  bool locally_patched{false};
+  bool locally_patched{false},patch_search_resumed{false};
+  size_t retained_search_nodes{0};
+  int patch_expansions{0};
+  bool clearance_near_repair{false};double clearance_deficit_before{0},clearance_deficit_after{0};
   size_t patch_begin{0}, patch_end{0};
   std::string search_mode;
   double flat_altitude{0},flat_search_margin{0};
   bool flat_exhausted{false};
+  int guide_expansions{0};
+  size_t search_repair_events{0},search_repair_removed{0},search_repair_preserved{0};
+  bool search_repair_pending{false};
 };
 class Planner {
 public:
@@ -55,22 +66,23 @@ public:
     active_progress_ = 0;
     active_goal_ = {1e50, 1e50, 1e50};
   }
-  // Age alone is not evidence that a frozen search is wrong. Free-ray updates
-  // in optimistic mode change cost, not connectivity. Preserve that work;
-  // restart only the affected altitude/frontier when its collision geometry
-  // changes (or observed-space reachability changes in known-only mode).
+  // Repair a changed obstacle's affected tree within the next search budget;
+  // preserve the other explored branches and their frontier.
   size_t refreshChangedSearches(const Grid &live){
     size_t changed=0;
     for(auto &saved:searches_)if(saved){
-      const auto &s=*saved;
-      if(!sameSearchEvidence(live,s)){
-        saved.reset();++changed;
+      if(!saved->repair && !saved->refresh_requested && !sameSearchEvidence(live,*saved)){
+        saved->refresh_requested=true;++changed;
       }
     }
+    if(local_patcher_)changed+=local_patcher_->refreshChangedSearches(live);
+    if(coarse_planner_)changed+=coarse_planner_->refreshChangedSearches(live);
     return changed;
   }
   size_t retainedSearchNodes()const{
-    size_t count=0;for(const auto &s:searches_)if(s)count+=s->score.size();return count;
+    size_t count=0;for(const auto &s:searches_)if(s)count+=s->score.size();
+    if(coarse_planner_)count+=coarse_planner_->retainedSearchNodes();
+    return count;
   }
   const std::vector<Vec3> &active() const { return active_; }
   // Feed the exact published geometry back after a successful replacement. A
@@ -133,6 +145,8 @@ public:
     repair_requested_=false;
     auto done = [&](std::string reason) {
       result.reason = std::move(reason);
+      result.retained_search_nodes=retainedSearchNodes()+(local_patcher_?local_patcher_->retainedSearchNodes():0);
+      appendSearchRepairStats(result);
       result.elapsed_ms =
           std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - begin)
               .count();
@@ -207,13 +221,14 @@ public:
     // tail.  It no longer keeps an arbitrary 1.5 m prefix and replans everything
     // after it, which was the main source of visually dramatic route changes.
     if (cfg.local_repair_enabled && !complete && inspection.projection_valid) {
-      const auto window = localRepairWindow(
+      const auto window = firstLocalRepairWindow(
           inspection, cfg.repair_pre_margin, cfg.repair_post_margin,
           cfg.repair_max_span);
       if (window.valid && !outOfTime(begin)) {
         PlannerConfig patch_cfg = cfg;
         patch_cfg.lock_valid_route = false;
         patch_cfg.local_repair_enabled = false;
+        patch_cfg.coarse_detour_enabled = false;
         patch_cfg.search_margin = std::min(cfg.max_search_margin,
                                            cfg.repair_search_margin);
         patch_cfg.max_search_margin = patch_cfg.search_margin;
@@ -222,22 +237,45 @@ public:
         patch_cfg.max_search_ms = std::min(cfg.max_retry_search_ms,
                                            cfg.repair_search_ms);
         patch_cfg.max_retry_search_ms = patch_cfg.max_search_ms;
-        Planner patcher(patch_cfg);
+        // An unfinished small patch must leave time for a room-scale detour.
+        if(cfg.coarse_detour_enabled&&failures_>=2)
+          patch_cfg.max_retry_search_ms=patch_cfg.max_search_ms=
+            std::min(40.,patch_cfg.max_search_ms);
+        // Keep this bounded frontier across calls. Previously a fresh patcher
+        // discarded every unfinished local search, consuming its budget again.
+        if(!local_patcher_||distance(local_anchor_,window.prefix.back())>.15||
+           distance(local_rejoin_,window.tail.front())>.15){
+          local_patcher_=std::make_unique<Planner>(patch_cfg);
+          local_anchor_=window.prefix.back();local_rejoin_=window.tail.front();
+        }else result.patch_search_resumed=local_patcher_->retainedSearchNodes()>0;
+        local_patcher_->cfg=patch_cfg;local_patcher_->setCancellation(cancelled_);
+        local_patcher_->route_penalty_=route_penalty_;
         Vec3 tangent{};
         if (window.prefix.size() >= 2)
           tangent = window.prefix.back() -
                     window.prefix[window.prefix.size() - 2];
         else if (inspection.suffix.size() >= 2)
           tangent = inspection.suffix[1] - inspection.suffix[0];
-        auto patch_result = patcher.plan(g, window.prefix.back(),
-                                         window.tail.front(), tangent);
+        // Anchors stay fixed while the vehicle advances on its safe prefix.
+        // Live-map validation below prevents using a newly blocked anchor.
+        auto patch_result = local_patcher_->plan(g, local_anchor_,local_rejoin_,tangent);
+        result.expansions+=patch_result.expansions;
+        result.flat_expansions+=patch_result.flat_expansions;
+        result.spatial_expansions+=patch_result.spatial_expansions;
+        result.patch_expansions+=patch_result.expansions;
         if (!patch_result.points.empty()) {
           const double direct = distance(window.prefix.back(),
                                          window.tail.front());
           const double detour = pathLength(patch_result.points);
+          if(distance(patch_result.points.front(),window.prefix.back())>1e-7)
+            patch_result.points.insert(patch_result.points.begin(),window.prefix.back());
+          if(distance(patch_result.points.back(),window.tail.front())>1e-7)
+            patch_result.points.push_back(window.tail.front());
           size_t patch_begin = 0, patch_end = 0;
           auto patched = spliceLocalRepair(window, patch_result.points,
                                            &patch_begin, &patch_end);
+          if(!patched.empty()&&!routeGeometryValid(g,patched,cfg.allow_unknown))
+            patched=certifiedRepairPrefix(g,patched,patch_end,cfg.allow_unknown);
           if (!patched.empty() &&
               detour <= cfg.repair_max_detour_ratio *
                             std::max(.25, direct) + .25 &&
@@ -247,11 +285,36 @@ public:
             result.locally_patched = true;
             result.patch_begin = patch_begin;
             result.patch_end = patch_end;
-            result.expansions += patch_result.expansions;
-            result.flat_expansions += patch_result.flat_expansions;
-            result.spatial_expansions += patch_result.spatial_expansions;
             result.search_mode = "LOCAL_REJOIN";
           }
+        }
+      }
+    }
+    if(candidate.empty() && !outOfTime(begin) && cfg.coarse_detour_enabled &&
+       distance(start,goal)>=cfg.coarse_detour_min_distance &&
+       !g.segment(start,goal,cfg.allow_unknown)) {
+      auto guide_cfg=cfg;
+      guide_cfg.coarse_detour_enabled=false;guide_cfg.local_repair_enabled=false;
+      guide_cfg.lock_valid_route=false;guide_cfg.enable_3d_search=false;
+      guide_cfg.multi_altitude_slices=false;
+      guide_cfg.lattice_resolution=std::max(g.cfg.resolution,cfg.coarse_detour_resolution);
+      const double elapsed=std::chrono::duration<double,std::milli>(
+        std::chrono::steady_clock::now()-begin).count();
+      guide_cfg.max_search_ms=guide_cfg.max_retry_search_ms=
+        std::min(cfg.coarse_detour_ms,std::max(0.,budget_ms_-elapsed)*.40);
+      guide_cfg.max_expansions=std::max(1,int((cfg.max_expansions-result.expansions)*.35));
+      if(guide_cfg.max_search_ms>=2.) {
+        if(!coarse_planner_)coarse_planner_=std::make_unique<Planner>(guide_cfg);
+        coarse_planner_->cfg=guide_cfg;coarse_planner_->setCancellation(cancelled_);
+        coarse_planner_->route_penalty_=route_penalty_;
+        auto guided=coarse_planner_->plan(g,start,goal,route_direction_);
+        result.guide_expansions=guided.expansions;
+        result.expansions+=guided.expansions;result.flat_expansions+=guided.flat_expansions;
+        // Sparse lattice, fine physical collision map: no obstacle resampling
+        // or smaller aircraft envelope. Narrow doors keep the fine fallback.
+        if(!guided.points.empty()&&routeGeometryValid(g,guided.points,cfg.allow_unknown)) {
+          candidate=std::move(guided.points);result.search_mode="COARSE_DETOUR";
+          result.flat_altitude=guided.flat_altitude;
         }
       }
     }
@@ -298,6 +361,8 @@ private:
   int failures_{0};
   bool repair_requested_{false},have_search_goal_{false};
   Vec3 search_goal_{};
+  std::unique_ptr<Planner> local_patcher_,coarse_planner_;Vec3 local_anchor_{},local_rejoin_{};
+  size_t repair_events_{0},repair_removed_{0},repair_preserved_{0};
   Vec3 active_goal_{1e50, 1e50, 1e50}, route_direction_{};
   std::function<bool()> cancelled_;
   bool cancelled() const { return cancelled_ && cancelled_(); }
@@ -322,8 +387,102 @@ private:
     std::unordered_map<Key,Vec3,KeyHash> navigation_points;
     std::unordered_map<Key,bool,KeyHash> point_clear;
     std::unordered_map<Key,double,KeyHash> point_cost;
+    std::unordered_map<Key,std::vector<Key>,KeyHash> children;
+    int stride{1};
+    bool refresh_requested{false};
+    struct Repair {
+      Grid next,changes;
+      std::vector<Key> keys,invalid;
+      KeySet reopen;
+      size_t cursor{0},prune_cursor{0},removed{0};
+      bool scanned{false},installed{false};
+      Repair(Grid n,Grid d):next(std::move(n)),changes(std::move(d)){}
+    };
+    std::unique_ptr<Repair> repair;
     explicit SearchState(Grid g):map(std::move(g)){}
   };
+  Vec3 savedPoint(const SearchState&s,Key k)const {
+    if(k==s.sk)return s.start;
+    if(k==s.target)return s.goal;
+    const auto it=s.navigation_points.find(k);
+    if(it!=s.navigation_points.end())return it->second;
+    Vec3 p=s.map.point(k);if(s.flat)p.z=s.start.z;return p;
+  }
+  bool beginSearchRepair(SearchState&s,const Grid&live) {
+    if(sameSearchEvidence(live,s)){s.evidence_revision=live.evidenceRevision();return false;}
+    auto next=searchSnapshot(live,s.start,s.goal,s.flat,s.margin);
+    KeySet changed;
+    for(Key k:next.occupied)if(!s.map.occupied.count(k))changed.insert(k);
+    for(Key k:s.map.occupied)if(!next.occupied.count(k))changed.insert(k);
+    if(!cfg.allow_unknown){
+      for(Key k:next.free)if(!s.map.free.count(k))changed.insert(k);
+      for(Key k:s.map.free)if(!next.free.count(k))changed.insert(k);
+    }
+    auto delta_cfg=live.cfg;
+    delta_cfg.inflation_z+=live.cfg.resolution;
+    Grid delta(delta_cfg);delta.update(std::move(changed),{});
+    s.repair=std::make_unique<SearchState::Repair>(std::move(next),std::move(delta));
+    auto &r=*s.repair;r.keys.reserve(s.navigation_points.size()+2);
+    for(const auto&entry:s.navigation_points)r.keys.push_back(entry.first);
+    r.keys.push_back(s.sk);if(s.target!=s.sk)r.keys.push_back(s.target);
+    ++repair_events_;return true;
+  }
+  bool continueSearchRepair(SearchState&s,PlanResult&result,
+      std::chrono::steady_clock::time_point begin,double deadline,int expansion_limit) {
+    if(!s.repair)return true;
+    auto &r=*s.repair;
+    auto expired=[&]{return cancelled()||result.expansions>=expansion_limit||
+      std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-begin).count()>=deadline;};
+    const double reach=s.map.cfg.preferred_clearance+2*s.map.cfg.resolution*s.stride;
+    while(!r.scanned&&r.cursor<r.keys.size()){
+      if(expired())return false;
+      const Key k=r.keys[r.cursor++];++result.expansions;
+      const Vec3 p=savedPoint(s,k);
+      if(r.changes.segmentWithMargin(p,p,reach,true))continue;
+      s.point_clear.erase(k);s.point_cost.erase(k);
+      if(!s.score.count(k))continue;
+      auto parent=s.parent.find(k);
+      const bool valid=r.next.segment(p,p,cfg.allow_unknown)&&
+        (parent==s.parent.end()||r.next.segment(savedPoint(s,parent->second),p,cfg.allow_unknown));
+      if(!valid)r.invalid.push_back(k);else r.reopen.insert(k);
+    }
+    r.scanned=true;
+    while(r.prune_cursor<r.invalid.size()){
+      if(expired())return false;
+      const Key k=r.invalid[r.prune_cursor++];++result.expansions;
+      if(!s.score.count(k))continue;
+      auto children=s.children.find(k);
+      if(children!=s.children.end())for(Key child:children->second){
+        auto p=s.parent.find(child);if(p!=s.parent.end()&&p->second==k)r.invalid.push_back(child);
+      }
+      auto parent=s.parent.find(k);if(parent!=s.parent.end())r.reopen.insert(parent->second);
+      for(int dx=-1;dx<=1;++dx)for(int dy=-1;dy<=1;++dy)
+        for(int dz=s.flat?0:-1;dz<=(s.flat?0:1);++dz){
+          Key near{k.x+dx*s.stride,k.y+dy*s.stride,k.z+dz};
+          if(s.score.count(near))r.reopen.insert(near);
+        }
+      s.score.erase(k);s.parent.erase(k);s.children.erase(k);
+      s.navigation_points.erase(k);s.point_clear.erase(k);s.point_cost.erase(k);++r.removed;
+    }
+    if(!r.installed){
+      s.map=std::move(r.next);s.evidence_revision=s.map.evidenceRevision();
+      s.exhausted=false;s.best=s.sk;s.best_score=std::numeric_limits<double>::infinity();
+      r.installed=true;
+    }
+    // Deleted-node heap entries are ignored below. Retained priorities are
+    // hints after a soft-cost change; new edges use the new map and publication
+    // reevaluates complete geometry/cost. This is not an optimality claim.
+    while(!r.reopen.empty()){
+      if(expired())return false;
+      const Key k=*r.reopen.begin();r.reopen.erase(k);++result.expansions;
+      auto it=s.score.find(k);if(it==s.score.end())continue;
+      const Vec3 p=savedPoint(s,k);
+      s.open.push({k,it->second+cfg.heuristic_weight*(distance(p,s.goal)+
+        cfg.vertical_weight*std::abs(p.z-s.goal.z)),it->second});
+    }
+    repair_removed_+=r.removed;repair_preserved_=std::max(repair_preserved_,s.score.size());
+    s.repair.reset();return true;
+  }
   bool sameSearchEvidence(const Grid &live,const SearchState&s)const{
     const double r=live.cfg.resolution;
     const double pad=live.cfg.inflation_xy+std::max(0.,live.cfg.preferred_clearance)+r;
@@ -365,7 +524,23 @@ private:
   }
   std::array<std::unique_ptr<SearchState>,12> searches_;
   std::array<unsigned,2> flat_turn_{};
-  void clearSearches(){for(auto &s:searches_)s.reset();flat_turn_={};route_direction_={};have_search_goal_=false;}
+  void appendSearchRepairStats(PlanResult &result)const{
+    result.search_repair_events+=repair_events_;result.search_repair_removed+=repair_removed_;
+    result.search_repair_preserved=std::max(result.search_repair_preserved,repair_preserved_);
+    for(const auto&s:searches_)if(s&&(s->repair||s->refresh_requested))result.search_repair_pending=true;
+    if(local_patcher_)local_patcher_->appendSearchRepairStats(result);
+    if(coarse_planner_)coarse_planner_->appendSearchRepairStats(result);
+  }
+  void clearSearches(){
+    // Keep cumulative diagnostics even after a successful child search ends.
+    PlanResult child;
+    if(local_patcher_)local_patcher_->appendSearchRepairStats(child);
+    if(coarse_planner_)coarse_planner_->appendSearchRepairStats(child);
+    repair_events_+=child.search_repair_events;repair_removed_+=child.search_repair_removed;
+    repair_preserved_=std::max(repair_preserved_,child.search_repair_preserved);
+    local_patcher_.reset();coarse_planner_.reset();for(auto &s:searches_)s.reset();
+    flat_turn_={};route_direction_={};have_search_goal_=false;
+  }
 
   bool outOfTime(std::chrono::steady_clock::time_point t) const {
     return cancelled() || std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t)
@@ -416,8 +591,9 @@ private:
       join_s=active_progress_;join=atArc(p,s,join_s);
       if(!g.segment(start,join,cfg.allow_unknown))return {};
     }
-    std::vector<Vec3> out{start};
-    if(distance(start,join)>.02)out.push_back(join);
+    // The join was a safety check only. Keep the checked original geometry;
+    // cross-track tracking handles the displacement without a new front edge.
+    std::vector<Vec3> out=routeSlice(p,std::max(0.,active_progress_-.25),join_s);
     for(size_t i=1;i<p.size();++i)if(s[i]>join_s+1e-6) {
       if(g.segment(out.back(),p[i],cfg.allow_unknown))out.push_back(p[i]);
       else {
@@ -505,7 +681,11 @@ private:
         candidate=search(g,flat_start,flat_goal,true,direction,flat_slot,result,begin,
                          deadline,result.expansions+quota);
       }
-      if(!candidate.empty() && distance(candidate.front(),start)>1e-5)candidate.insert(candidate.begin(),start);
+      // Preserve a deliberate vertical connector on a fresh aligned slice.
+      // A resumed search's displaced XY root is handled by cross-track
+      // steering, never by prepending another short lateral polyline edge.
+      if(!candidate.empty()&&std::hypot(candidate.front().x-start.x,candidate.front().y-start.y)<1e-6&&
+         std::abs(candidate.front().z-start.z)>1e-5)candidate.insert(candidate.begin(),start);
       if(!candidate.empty() && distance(candidate.back(),flat_goal)<1e-6 && distance(flat_goal,goal)>1e-6 &&
          g.segment(flat_goal,goal,cfg.allow_unknown))
         candidate.push_back(goal);
@@ -549,10 +729,12 @@ private:
     auto &saved=searches_[slot];
     if(saved && (distance(saved->goal,goal)>.05 || distance(saved->start,start)>.8 ||
                  !live.segment(start,saved->start,cfg.allow_unknown)))saved.reset();
-    if(saved&&saved->exhausted&&saved->evidence_revision!=live.evidenceRevision()){
-      if(!sameSearchEvidence(live,*saved))saved.reset();
-      else saved->evidence_revision=live.evidenceRevision();
+    if(saved&&saved->refresh_requested&&!saved->repair){
+      saved->refresh_requested=false;beginSearchRepair(*saved,live);
     }
+    if(saved&&saved->exhausted&&!saved->repair&&saved->evidence_revision!=live.evidenceRevision())
+      beginSearchRepair(*saved,live);
+    if(saved&&saved->repair&&!continueSearchRepair(*saved,result,begin,deadline_ms,expansion_limit))return {};
     if(saved&&saved->exhausted&&saved->margin+1e-8<margin_)saved.reset();
     if(saved&&saved->exhausted){
       if(flat){result.flat_exhausted=true;result.flat_search_margin=saved->margin;}
@@ -561,7 +743,13 @@ private:
     if(!saved) {
       saved=std::make_unique<SearchState>(searchSnapshot(live,start,goal,flat,margin_));
       auto &s=*saved;s.start=start;s.goal=goal;s.direction=limitNorm(direction,1.);s.evidence_revision=live.evidenceRevision();
-      s.sk=live.toKey(start);s.target=live.toKey(goal);s.best=s.sk;s.flat=flat;s.margin=margin_;
+      s.stride=std::max(1,int(std::ceil(cfg.lattice_resolution/live.cfg.resolution-1e-8)));
+      s.sk=live.toKey(start);s.target=live.toKey(goal);
+      if(s.stride>1){
+        s.target.x=s.sk.x+s.stride*int(std::round(double(s.target.x-s.sk.x)/s.stride));
+        s.target.y=s.sk.y+s.stride*int(std::round(double(s.target.y-s.sk.y)/s.stride));
+      }
+      s.best=s.sk;s.flat=flat;s.margin=margin_;
       if((flat && s.sk.z!=s.target.z) || !live.segment(start,start,cfg.allow_unknown)){saved.reset();return {};}
       s.score[s.sk]=0;s.open.push({s.sk,distance(start,goal),0});
     }
@@ -599,7 +787,8 @@ private:
       if((result.expansions%16)==0 && (cancelled() ||
           std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-begin).count()>=deadline_ms))return {};
       Item a=s.open.top();s.open.pop();
-      if(a.g>s.score[a.k]+1e-8)continue;
+      const auto score=s.score.find(a.k);
+      if(score==s.score.end()||a.g>score->second+1e-8)continue;
       ++result.expansions;
       if(flat)++result.flat_expansions;else ++result.spatial_expansions;
       if(a.k==s.target){s.best=a.k;found=true;break;}
@@ -610,7 +799,7 @@ private:
       for(int dx=-1;dx<=1;++dx)for(int dy=-1;dy<=1;++dy)
         for(int dz=flat?0:-1;dz<=(flat?0:1);++dz) {
           if(dx==0 && dy==0 && dz==0)continue;
-          Key k{a.k.x+dx,a.k.y+dy,a.k.z+dz};Vec3 p=point(k);
+          Key k{a.k.x+dx*s.stride,a.k.y+dy*s.stride,a.k.z+dz};Vec3 p=point(k);
           // A flat search flies at cruise_altitude, NOT at the voxel center.
           // At .10 m resolution 1.50 m was tested at 1.55 m by walkable(),
           // closing valid passages near a sill/overhang and wasting the whole
@@ -629,7 +818,11 @@ private:
           double fade=std::max(0.,1.-distance(from,s.start)/std::max(.01,cfg.reverse_distance));
           step+=std::max(0.,cfg.reverse_weight)*fade*std::max(0.,-dot(p-from,s.direction));
           double ng=a.g+step;auto it=s.score.find(k);
-          if(it==s.score.end() || ng<it->second-1e-8){s.score[k]=ng;s.parent[k]=a.k;s.open.push({k,ng+cfg.heuristic_weight*h(k),ng});}
+          if(it==s.score.end() || ng<it->second-1e-8){
+            auto old_parent=s.parent.find(k);
+            if(old_parent==s.parent.end()||old_parent->second!=a.k)s.children[a.k].push_back(k);
+            s.score[k]=ng;s.parent[k]=a.k;s.open.push({k,ng+cfg.heuristic_weight*h(k),ng});
+          }
         }
     }
     if(!found && !s.open.empty())return {}; // resume this exact frontier next tick
@@ -654,12 +847,14 @@ private:
       auto arc=arcLengths(p);auto pr=project(p,arc,start,0,std::min(2.,arc.back()));
       double join_s=std::min(arc.back(),pr.s+.15);Vec3 join=atArc(p,arc,join_s);
       if(!live.segment(start,join,cfg.allow_unknown)){saved.reset();return {};}
-      std::vector<Vec3> joined{start};if(distance(start,join)>1e-7)joined.push_back(join);
-      for(size_t i=1;i<p.size();++i)if(arc[i]>join_s+1e-8)joined.push_back(p[i]);
-      p=std::move(joined);
-    } else p.front()=start;
+      p=routeSlice(p,std::max(0.,pr.s-.25),arc.back());
+    }
     // Nothing from the frozen snapshot may bypass current collision evidence.
-    for(size_t i=1;i<p.size();++i)if(!live.segment(p[i-1],p[i],cfg.allow_unknown)){saved.reset();return {};}
+    for(size_t i=1;i<p.size();++i)if(!live.segment(p[i-1],p[i],cfg.allow_unknown)){
+      // A stale candidate repairs only the affected tree, retaining alternate
+      // doors already explored. Nothing is published before recertification.
+      beginSearchRepair(s,live);return {};
+    }
     result.search_mode=flat?"FLAT":"SPATIAL";
     saved.reset();return p;
   }

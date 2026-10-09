@@ -111,13 +111,28 @@ inline std::vector<Vec3> routeSuffixAt(const std::vector<Vec3> &route,
   return suffix;
 }
 
+inline std::vector<Vec3> routeSlice(const std::vector<Vec3>&route,double begin,double end);
+
+// Stored/executed geometry is an exact slice of the incumbent. A live
+// current-to-route chord belongs to collision checking, not to this polyline.
+// The overlap is bounded so a self-crossing tail cannot change the local arc.
+inline std::vector<Vec3> geometricRouteSuffixAt(const std::vector<Vec3>&route,
+    Vec3 current,double progress_hint=0,double overlap=.25){
+  if(route.size()<2||!finite(current)||!std::isfinite(progress_hint))return {};
+  const auto arc=arcLengths(route);
+  const auto pr=project(route,arc,current,std::max(0.,progress_hint-.10),
+    std::min(arc.back(),std::max(progress_hint+2.,2.)));
+  if(!std::isfinite(pr.error)||pr.error>1.2)return {};
+  return routeSlice(route,std::max(0.,std::max(progress_hint,pr.s)-overlap),arc.back());
+}
+
 inline RouteInspection inspectRoute(const Grid &grid,
                                     const std::vector<Vec3> &route,
                                     Vec3 current, bool allow_unknown = true,
                                     double progress_hint = 0) {
   RouteInspection result;
   result.has_route = !route.empty();
-  result.suffix = routeSuffixAt(route, current, progress_hint);
+  result.suffix = geometricRouteSuffixAt(route, current, progress_hint,0);
   result.projection_valid = result.suffix.size() >= 2;
   if (!result.projection_valid) {
     result.first_invalid_distance = 0;
@@ -126,6 +141,13 @@ inline RouteInspection inspectRoute(const Grid &grid,
   }
   const auto arc = arcLengths(result.suffix);
   result.length = arc.back();
+  // Independently certify a bounded forward rejoin. A remote repair must
+  // retain the original near curve rather than inherit this steering chord.
+  const double join=forwardRouteJoinArc(result.suffix,arc,current,0);
+  if(!std::isfinite(join)||!grid.segmentFrom(current,atArc(result.suffix,arc,join),allow_unknown)){
+    result.first_invalid_distance=0;result.first_invalid_point=current;
+    result.projection_valid=false;return result;
+  }
   result.edge_valid.reserve(result.suffix.size() - 1);
   for (size_t i = 1; i < result.suffix.size(); ++i) {
     const Vec3 a = result.suffix[i - 1], b = result.suffix[i];
@@ -203,6 +225,41 @@ inline LocalRepairWindow localRepairWindow(const RouteInspection &inspection,
   window.valid = !window.prefix.empty() && window.tail.size() >= 2 &&
                  distance(window.prefix.back(), window.tail.front()) > .20;
   return window;
+}
+
+// Select the first contiguous invalid interval. A second remote obstruction
+// must not expand a nearby repair into a whole-mission search.
+inline LocalRepairWindow firstLocalRepairWindow(const RouteInspection& inspection,
+    double pre,double post,double span) {
+  if(inspection.valid||inspection.suffix.size()<2)return {};
+  auto local=inspection;const auto arc=arcLengths(local.suffix);bool found=false;
+  for(size_t i=0;i<local.edge_valid.size();++i){
+    if(!local.edge_valid[i]){found=true;local.last_invalid_distance=arc[i+1];}
+    else if(found&&arc[i+1]-local.last_invalid_distance>=post+.20)break;
+  }
+  return localRepairWindow(local,pre,post,span);
+}
+
+// Retain the certified tail up to the next independent obstruction. This is a
+// temporary route with the original mission still active, not a new goal.
+inline std::vector<Vec3> certifiedRepairPrefix(const Grid& g,const std::vector<Vec3>& route,
+    size_t patch_end,bool unknown) {
+  if(route.size()<2||patch_end>=route.size())return {};
+  std::vector<Vec3> out{route.front()};
+  for(size_t i=1;i<route.size();++i){
+    const auto a=out.back(),b=route[i];
+    if(g.segmentFrom(a,b,unknown)){out.push_back(b);continue;}
+    if(i<=patch_end)return {};
+    double lo=0,hi=1;for(int n=0;n<14;++n){const double m=(lo+hi)/2;
+      if(g.segmentFrom(a,a+(b-a)*m,unknown))lo=m;else hi=m;}
+    const double length=distance(a,b),keep=std::max(0.,lo*length-.10);
+    if(keep>.03)out.push_back(a+(b-a)*(keep/length));
+    break;
+  }
+  if(out.size()<=patch_end+1||pathLength(out)<1.0)return {};
+  const auto arc=arcLengths(out);
+  if(arc.back()-arc[patch_end]<.20)return {};
+  return out;
 }
 
 inline std::vector<Vec3> spliceLocalRepair(

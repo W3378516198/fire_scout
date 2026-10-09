@@ -28,6 +28,34 @@ def stamp_seconds(stamp):
     return float(stamp.sec) + float(stamp.nanosec) * 1e-9
 
 
+def near_path_geometry(points, position, limit=64):
+    """Preserve local bends precisely, without recording a full dense path."""
+    if not points:
+        return {"near_index": 0, "near_stride": 1, "near_geometry": []}
+    if position is None:
+        index = 0
+    else:
+        index = min(range(len(points)), key=lambda i: sum(
+            (points[i][j] - position[j]) ** 2 for j in range(3)))
+    begin = index
+    walked = 0.0
+    while begin > 0 and walked < 0.35:
+        walked += math.dist(points[begin], points[begin - 1])
+        begin -= 1
+    end = index
+    walked = 0.0
+    while end + 1 < len(points) and walked < 1.5:
+        walked += math.dist(points[end], points[end + 1])
+        end += 1
+    local = points[begin:end + 1]
+    stride = max(1, math.ceil((len(local) - 1) / max(1, limit - 1)))
+    sampled = local[::stride]
+    if sampled[-1] != local[-1]:
+        sampled.append(local[-1])
+    return {"near_index": index, "near_begin": begin, "near_stride": stride,
+            "near_geometry": [[round(v, 5) for v in p] for p in sampled]}
+
+
 def finite(value):
     return math.isfinite(float(value))
 
@@ -77,6 +105,7 @@ class FireScoutLightLogger(Node):
         self.last_logged = {}
         self.last_value = {}
         self.last_map_state = {}
+        self.latest_odom = {}
         self._subscriptions_keepalive = []
         self.qos = QoSProfile(
             history=HistoryPolicy.KEEP_LAST,
@@ -90,6 +119,7 @@ class FireScoutLightLogger(Node):
             self.add_string(f"{root}/planning/status", "planner_status", 0.0, 5.0)
             self.add_string(f"{root}/planning/follower_state", "follower_state", 0.0, 5.0)
             self.add_string(f"{root}/planning/control_diagnostics", "control", 1.0, 5.0)
+            self.add_string(f"{root}/planning/map_conflict_snapshot", "map_conflict", 0.0, 5.0)
             self.add_path(f"{root}/planning/global_path")
             self.add_string(f"{root}/planning/execution_state", "execution_permit", 1.0, 3.0)
             self.add_path(f"{root}/planning/passage_request")
@@ -186,6 +216,7 @@ class FireScoutLightLogger(Node):
             if not self.due(topic, 0.5):
                 return
             p, q, v = msg.pose.pose.position, msg.pose.pose.orientation, msg.twist.twist
+            self.latest_odom[topic.rsplit("/", 1)[0]] = (float(p.x), float(p.y), float(p.z))
             record = self.base("odom", topic, source)
             record.update({
                 "frame": msg.header.frame_id,
@@ -205,11 +236,18 @@ class FireScoutLightLogger(Node):
             source = stamp_seconds(msg.header.stamp)
             self.seen(topic, source)
             raw = []
+            precise = []
             for pose in msg.poses:
                 p = pose.pose.position
+                precise.append((float(p.x), float(p.y), float(p.z)))
                 raw.append((round(p.x, 3), round(p.y, 3), round(p.z, 3)))
             digest = hashlib.blake2b(repr(raw).encode("utf-8"), digest_size=8).hexdigest()
             changed = digest != self.last_value.get(topic)
+            global_path = topic.endswith("/global_path")
+            if global_path:
+                changed = changed or source != self.last_value.get(topic + "#revision")
+                if changed and not self.due(topic, 0.25):
+                    return
             if not changed and not self.due(topic, 5.0):
                 return
             self.last_logged[topic] = time.monotonic()
@@ -223,8 +261,12 @@ class FireScoutLightLogger(Node):
                 "hash": digest, "points": len(raw), "stride": stride,
                 "geometry": sampled,
             })
+            if global_path:
+                record.update(near_path_geometry(precise,
+                    self.latest_odom.get(topic.split("/planning/", 1)[0])))
             self.writer.write(record)
             self.last_value[topic] = digest
+            self.last_value[topic + "#revision"] = source
 
         self._subscriptions_keepalive.append(self.create_subscription(PathMessage, topic, callback, self.qos))
 

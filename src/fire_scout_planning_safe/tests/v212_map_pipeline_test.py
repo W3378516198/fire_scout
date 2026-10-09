@@ -39,6 +39,7 @@ code = r'''
 #include "fire_scout/map_snapshot.hpp"
 #include "fire_scout/map_pair_buffer.hpp"
 #include "fire_scout/route_memory.hpp"
+#include "fire_scout/route_repair.hpp"
 #include "fire_scout/snapshot_stamp.hpp"
 #include <cassert>
 #include <iostream>
@@ -86,7 +87,9 @@ struct PlannerFixture {
   rclcpp::Time now()const{return rclcpp::Time(int64_t(ros*1e9));}
   std::shared_ptr<Clock>get_clock()const{return std::make_shared<Clock>();}
   bool compact_maps_{true},local_fallback_enabled_{true},have_map_{false},have_goal_{true},have_odom_{true};
-  std::shared_ptr<Grid>grid_{std::make_shared<Grid>()},primary_grid_;
+  std::shared_ptr<Grid>grid_{std::make_shared<Grid>()},primary_grid_,local_overlay_grid_;
+  LocalOccupiedOverlay local_overlay_;
+  int64_t local_overlay_stamp_ns_{-1},last_compact_confirmation_stamp_ns_{-1};
   std::shared_ptr<Grid>occupied_guard_;int64_t occupied_guard_stamp_{-1};
   MapInputSource map_source_{MapInputSource::None};
   int64_t primary_stamp_ns_{-1},local_committed_stamp_ns_{-1};
@@ -94,10 +97,16 @@ struct PlannerFixture {
   size_t primary_received_{0},local_received_{0},map_commits_{0},map_rejected_{0},primary_bytes_{0},local_bytes_{0},generation_{0};
   Cloud::SharedPtr primary_pending_,local_pending_;
   rclcpp::Time map_stamp_,odom_stamp_{136000000000LL};double map_timeout_{5},odom_timeout_{1.2};
-  Vec3 current_{0,0,1.5};std::vector<Vec3>owned_path_;RouteMemory route_;
+  Vec3 current_{0,0,1.5};std::vector<Vec3>owned_path_;RouteMemory route_,owned_route_;
+  struct {bool allow_unknown{true};}planner_config_;
+  size_t confirmations{0};bool last_matched{false};std::string last_source;
   void observeInputStamp(int64_t stamp,const char*,int64_t &latest){latest=std::max(latest,stamp);}
-  void observeInvalidation(int,bool,const char*){}
-  int inspectOwnedRoute()const{return 0;}
+  void observeInvalidation(const RouteInspection&,bool matched,const char* source){
+    confirmations+=matched;last_matched=matched;last_source=source;
+  }
+  RouteInspection inspectOwnedRoute()const{
+    return inspectRoute(*grid_,owned_path_,current_,true,owned_route_.progress());
+  }
   PlannerFixture(){grid_->cfg.resolution=.18;}
   void receivePrimary(Cloud::SharedPtr m)
 '''
@@ -191,6 +200,50 @@ int main(){
   assert(p.map_source_==MapInputSource::Primary&&p.inputState()=="READY"&&p.route_.progress()==progress);
   auto bad=packet(p.ros+.1);bad->data.pop_back();p.receivePrimary(bad);p.refreshCompactMap();
   assert(p.map_rejected_==1&&p.primary_stamp_ns_==stampNs(p.map_stamp_));
+  // Actual planner map methods: local evidence can confirm a near obstacle
+  // while fusion remains fresh but slower. Geometry reuse is separate from
+  // source-event counting, and overlaying never refreshes the primary stamp.
+  PlannerFixture near;
+  for(int i=0;i<=20;++i)near.owned_path_.push_back({i*.20,0,1.5});
+  near.owned_route_.set(near.owned_path_);
+  const Key obstacle{10,0,8},distant{70,0,8};
+  near.receivePrimary(packet(135,{},{{10,0,8}}));
+  near.receiveLocal(packet(135.8,{obstacle,distant}));near.refreshCompactMap();
+  assert(near.map_source_==MapInputSource::Primary&&near.map_stamp_.nanoseconds()==135000000000LL);
+  assert(near.grid_->occupied.count(obstacle)&&!near.grid_->occupied.count(distant));
+  assert(!near.primary_grid_->occupied.count(obstacle)&&near.primary_grid_->free.count(obstacle));
+  assert(near.confirmations==1&&near.last_source=="LOCAL_NEARFIELD_MAP");
+  auto kept_grid=near.grid_;const auto commits=near.map_commits_;
+  near.receiveLocal(packet(135.9,{obstacle,distant}));near.refreshCompactMap();
+  assert(near.confirmations==2&&near.grid_==kept_grid&&near.map_commits_==commits);
+  for(int i=0;i<100;++i)near.refreshCompactMap();
+  assert(near.confirmations==2&&near.map_commits_==commits);
+  // Fusion catching up with the exact local source time is not a new frame.
+  near.receivePrimary(packet(135.9,{obstacle}));near.refreshCompactMap();
+  assert(near.confirmations==2&&near.grid_==near.primary_grid_);
+  // A persistent local FREE cell has no per-cell age: it cannot clear a
+  // PRIMARY obstacle just because its containing packet is newer.
+  near.receiveLocal(packet(135.95,{},{{10,0,8}}));near.refreshCompactMap();
+  assert(near.grid_->occupied.count(obstacle)&&near.confirmations==2);
+  // New local frames unrelated to an old primary blockage do not count as
+  // repeated observations of that blockage.
+  PlannerFixture unrelated;unrelated.owned_path_=near.owned_path_;
+  unrelated.owned_route_.set(unrelated.owned_path_);
+  unrelated.receivePrimary(packet(135,{obstacle}));unrelated.refreshCompactMap();
+  assert(unrelated.confirmations==1);
+  for(int i=1;i<=3;++i){
+    unrelated.receiveLocal(packet(135+.2*i,{distant}));unrelated.refreshCompactMap();
+    assert(unrelated.confirmations==1);
+  }
+  // Bad newer data does not erase an already accepted local occupied guard.
+  PlannerFixture malformed;malformed.owned_path_=near.owned_path_;
+  malformed.owned_route_.set(malformed.owned_path_);
+  malformed.receivePrimary(packet(135));malformed.receiveLocal(packet(135.8,{obstacle}));
+  malformed.refreshCompactMap();auto safe_guard=malformed.grid_;
+  auto bad_local=packet(135.9);bad_local->data.pop_back();malformed.receiveLocal(bad_local);
+  malformed.refreshCompactMap();
+  assert(malformed.map_rejected_==1&&malformed.grid_==safe_guard);
+  assert(malformed.grid_->occupied.count(obstacle)&&malformed.confirmations==1);
   auto envelope=packet(136);envelope->is_bigendian=true;
   bool rejected=false;try{parseMapSnapshot(*envelope,.18);}catch(const std::runtime_error&){rejected=true;}assert(rejected);
   envelope=packet(136);envelope->fields[1].name="invalid";rejected=false;

@@ -5,6 +5,7 @@ from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from ament_index_python.packages import get_package_share_directory
 import os
+import yaml
 
 
 def _nodes(context):
@@ -18,17 +19,27 @@ def _nodes(context):
         value = LaunchConfiguration(name).perform(context)
         if value:
             shared[name] = float(value)
+    with open(params, encoding="utf-8") as stream:
+        settings = yaml.safe_load(stream) or {}
+    profile = dict(settings.get("/**", {}).get("ros__parameters", {}))
+    profile.update(settings.get("safe_airfar_path_follower", {}).get("ros__parameters", {}))
     result = []
     for executable in ['radar_free_space_mapper', 'safe_airfar_like_planner', 'safe_airfar_path_follower']:
         if executable == "radar_free_space_mapper" and start_mapper in ("false", "0"):
             continue
         overrides = dict(shared)
-        if executable == "safe_airfar_path_follower":
-            overrides["passage_scheduler_enabled"] = False
-            overrides["auto_arm"] = ParameterValue(LaunchConfiguration("auto_arm"), value_type=bool)
+        if executable == "safe_airfar_like_planner":
+            for key in ("lookahead", "max_speed_xy", "max_accel_xy", "max_jerk_xy",
+                        "max_lateral_accel", "max_yaw_rate", "sharp_turn_stop_deg"):
+                if key in profile:
+                    overrides[key] = profile[key]
+        if executable in ("safe_airfar_path_follower", "safe_airfar_like_planner"):
             speed = LaunchConfiguration("max_speed_xy").perform(context)
             if speed:
                 overrides["max_speed_xy"] = float(speed)
+        if executable == "safe_airfar_path_follower":
+            overrides["passage_scheduler_enabled"] = False
+            overrides["auto_arm"] = ParameterValue(LaunchConfiguration("auto_arm"), value_type=bool)
         result.append(Node(package="fire_scout_planning_safe", executable=executable,
                            name=executable, output="screen", parameters=[params, overrides]))
     return result

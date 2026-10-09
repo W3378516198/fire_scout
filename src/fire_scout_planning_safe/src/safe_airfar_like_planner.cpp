@@ -5,6 +5,11 @@
 #include "fire_scout/bspline.hpp"
 #include "fire_scout/route_memory.hpp"
 #include "fire_scout/route_switch.hpp"
+#include "fire_scout/route_handoff.hpp"
+#include "fire_scout/replan_schedule.hpp"
+#include "fire_scout/profile_repair.hpp"
+#include "fire_scout/turn_geometry.hpp"
+#include "fire_scout/clearance_contract.hpp"
 #include "fire_scout/map_pair_buffer.hpp"
 #include "fire_scout/racer_task_allocator.hpp"
 #include "fire_scout/ros_utils.hpp"
@@ -31,9 +36,16 @@ double stableRouteCost(const Grid &grid, const std::vector<Vec3> &route) {
 
 SplineResult smoothPlannedRoute(
     const Grid &grid, const PlanResult &route, const SplineConfig &config,
-    bool allow_unknown, const std::function<bool()> &cancelled) {
+    bool allow_unknown, const std::function<bool()> &cancelled,
+    const RouteHandoffConfig &handoff = {}, double protected_prefix = 0) {
   if (!route.locally_patched) {
-    return smoothPath(grid, route.points, config, allow_unknown, cancelled);
+    auto result=smoothPath(grid, route.points, config, allow_unknown, cancelled);
+    const double reserve=routeMargin(grid,route.points,config.clearance_reserve,allow_unknown);
+    if(!result.points.empty()&&reserve>.01&&
+       !routeHasMargin(grid,result.points,std::max(0.,reserve-.005),allow_unknown)){
+      result.points=route.points;result.mode="CLEARANCE_RAW_FALLBACK";
+    }
+    return result;
   }
   SplineResult result;
   if (route.points.size() < 2 || route.patch_begin >= route.points.size() ||
@@ -55,7 +67,16 @@ SplineResult smoothPlannedRoute(
   for (size_t i = route.patch_end + 1; i < route.points.size(); ++i)
     if (combined.empty() || distance(combined.back(), route.points[i]) > 1e-6)
       combined.push_back(route.points[i]);
-  if (!routeGeometryValid(grid, combined, allow_unknown)) {
+  // Fitting the patch alone does not constrain its tangent to the old route.
+  // Round BOTH seams inside bounded, collision-certified windows while keeping
+  // the live commitment and the remainder of the old tail unchanged.
+  combined=smoothRepairSeam(grid,combined,route.points[route.patch_begin],
+    protected_prefix,handoff,allow_unknown,cancelled);
+  combined=smoothRepairSeam(grid,combined,route.points[route.patch_end],
+    protected_prefix,handoff,allow_unknown,cancelled);
+  const double retained_margin=routeMargin(grid,route.points,config.clearance_reserve,allow_unknown);
+  if (!routeGeometryValid(grid, combined, allow_unknown) ||
+      (retained_margin>.01&&!routeHasMargin(grid,combined,std::max(0.,retained_margin-.005),allow_unknown))) {
     if (!routeGeometryValid(grid, route.points, allow_unknown)) return result;
     result.points = route.points;
     result.mode = "LOCAL_PATCH_RAW";
@@ -74,19 +95,26 @@ class SafeAirFarLikePlanner : public rclcpp::Node {
 public:
   SafeAirFarLikePlanner()
       : Node("safe_airfar_like_planner"), tf_(get_clock()), listener_(tf_) {
-    declare_parameter<std::string>("runtime_version","2.1.2-straight-route-cooperative");
+    declare_parameter<std::string>("runtime_version","2.1.10-incremental-detour");
     frame_ = declare_parameter<std::string>("frame_id", "scout1/odom");
     grid_ = std::make_shared<Grid>(gridParameters(*this));
     approach_config_.enabled=declare_parameter("allow_goal_approach",true);
     approach_config_.max_offset=declare_parameter("goal_approach_max_offset",.35);
     approach_config_.clearance=declare_parameter("goal_approach_clearance",.04);
     if(!approach_config_.valid())throw std::runtime_error("Invalid goal approach limits");
-    search_snapshot_max_age_=declare_parameter("search_snapshot_max_age",8.0);
-    if(!std::isfinite(search_snapshot_max_age_)||search_snapshot_max_age_<3||search_snapshot_max_age_>30)
-      throw std::runtime_error("search_snapshot_max_age must be 3..30 seconds");
+    search_snapshot_max_age_=declare_parameter("search_snapshot_max_age",1.0);
+    if(!std::isfinite(search_snapshot_max_age_)||search_snapshot_max_age_<.25||search_snapshot_max_age_>30)
+      throw std::runtime_error("search_snapshot_max_age must be .25..30 seconds");
+    clearance_contract_.enabled=declare_parameter("clearance_review_enabled",true);
+    clearance_contract_.reserve=declare_parameter("operational_clearance",.25);
+    clearance_contract_.horizon=declare_parameter("clearance_review_horizon",6.0);
+    clearance_contract_.review_period=declare_parameter("clearance_review_period",.30);
+    clearance_contract_.retry_period=declare_parameter("clearance_repair_retry",2.0);
+    if(!clearance_contract_.valid())throw std::runtime_error("Invalid clearance review limits");
     PlannerConfig c;
     c.allow_unknown = declare_parameter("allow_unknown", true);
     c.clearance_weight = declare_parameter("clearance_weight", 4.0);
+    spline_.clearance_reserve=clearance_contract_.reserve;
     spline_.enabled = declare_parameter("use_bspline", true);
     spline_.control_spacing = declare_parameter("bspline_control_spacing", .40);
     spline_.sample_spacing = declare_parameter("bspline_sample_spacing", .06);
@@ -100,6 +128,8 @@ public:
     spline_.max_control_offset=declare_parameter("bspline_max_control_offset",.20);
     spline_.optimization_budget_ms=declare_parameter("bspline_optimization_budget_ms",8.0);
     spline_.optimization_iterations=declare_parameter("bspline_optimization_iterations",96);
+    spline_.feasibility_weight=declare_parameter("bspline_feasibility_weight",.20);
+    spline_.nominal_speed=declare_parameter("bspline_nominal_speed",1.2);
     spline_.gap=gapParameters(*this);
     spline_.obstacle_weight=declare_parameter("bspline_obstacle_weight",12.0);
     if(!std::isfinite(spline_.obstacle_weight)||spline_.obstacle_weight<0||spline_.obstacle_weight>100)
@@ -141,6 +171,15 @@ public:
     c.max_retry_search_ms=declare_parameter("max_retry_search_ms",360.0);
     c.max_search_margin=declare_parameter("max_search_margin",15.0);
     c.heuristic_weight=declare_parameter("heuristic_weight",1.5);
+    c.coarse_detour_enabled=declare_parameter("coarse_detour_enabled",true);
+    c.coarse_detour_resolution=declare_parameter("coarse_detour_resolution",.54);
+    c.coarse_detour_ms=declare_parameter("coarse_detour_budget_ms",65.0);
+    c.coarse_detour_min_distance=declare_parameter("coarse_detour_min_distance",6.0);
+    if(!std::isfinite(c.coarse_detour_resolution)||c.coarse_detour_resolution<grid_->cfg.resolution||
+       c.coarse_detour_resolution>1.0||!std::isfinite(c.coarse_detour_ms)||
+       c.coarse_detour_ms<5||c.coarse_detour_ms>150||!std::isfinite(c.coarse_detour_min_distance)||
+       c.coarse_detour_min_distance<2||c.coarse_detour_min_distance>20)
+      throw std::runtime_error("Invalid coarse detour guide configuration");
     c.lock_valid_route=declare_parameter("lock_valid_route",true);
     if(!std::isfinite(c.max_retry_search_ms)||c.max_retry_search_ms<c.max_search_ms||
        !std::isfinite(c.max_search_margin)||c.max_search_margin<c.search_margin||
@@ -275,10 +314,47 @@ public:
     map_timeout_ = declare_parameter("map_timeout", 5.0);
     odom_timeout_ = declare_parameter("odom_timeout", 1.2);
     timestamp_reset_threshold_=declare_parameter("timestamp_reset_threshold",.50);
-    replan_period_ = declare_parameter("replan_period", .25);
+    handoff_config_.enabled=declare_parameter("route_handoff_enabled",true);
+    handoff_config_.min_prefix=declare_parameter("route_handoff_min_prefix",1.0);
+    handoff_config_.max_prefix=declare_parameter("route_handoff_max_prefix",2.5);
+    handoff_config_.time=declare_parameter("route_handoff_time",1.2);
+    handoff_config_.blend_min=declare_parameter("route_handoff_blend_min",.60);
+    handoff_config_.blend_max=declare_parameter("route_handoff_blend_max",2.40);
+    handoff_config_.max_deviation=declare_parameter("route_handoff_max_deviation",.30);
+    handoff_config_.sample_spacing=declare_parameter("route_handoff_sample_spacing",.05);
+    handoff_config_.budget_ms=declare_parameter("route_handoff_budget_ms",12.0);
+    if(!handoff_config_.valid())throw std::runtime_error("Invalid route handoff limits");
+    profile_tracker_.lookahead=declare_parameter("lookahead",.65);
+    profile_tracker_.max_speed_xy=declare_parameter("max_speed_xy",1.8);
+    profile_tracker_.max_accel_xy=declare_parameter("max_accel_xy",1.5);
+    profile_tracker_.max_jerk_xy=declare_parameter("max_jerk_xy",4.5);
+    profile_tracker_.lateral_accel=declare_parameter("max_lateral_accel",1.0);
+    profile_tracker_.yaw_rate=declare_parameter("max_yaw_rate",1.2);
+    spline_.max_velocity=profile_tracker_.max_speed_xy;
+    spline_.max_acceleration=profile_tracker_.max_accel_xy;
+    spline_.max_jerk=profile_tracker_.max_jerk_xy;
+    if(!std::isfinite(spline_.feasibility_weight)||spline_.feasibility_weight<0||spline_.feasibility_weight>10||
+       !std::isfinite(spline_.nominal_speed)||spline_.nominal_speed<=0||spline_.nominal_speed>spline_.max_velocity)
+      throw std::runtime_error("Invalid B-spline feasibility parameters");
+    profile_tracker_.sharp_turn=declare_parameter("sharp_turn_stop_deg",80.0)*pi/180.;
+    profile_tracker_.turn.enabled=declare_parameter("turn_policy_enabled",true);
+    profile_tracker_.turn.max_curvature=declare_parameter("turn_max_curvature",1.6);
+    profile_tracker_.turn.min_curve_speed=declare_parameter("turn_min_curve_speed",.35);
+    profile_tracker_.turn.capture_distance=declare_parameter("turn_capture_distance",.10);
+    profile_tracker_.turn.stop_speed=declare_parameter("turn_stop_speed",.10);
+    profile_tracker_.turn.yaw_tolerance=declare_parameter("turn_yaw_tolerance_deg",8.0)*pi/180.;
+    profile_tracker_.turn.repair_budget_ms=declare_parameter("turn_repair_budget_ms",16.0);
+    if(!profile_tracker_.turn.valid())throw std::runtime_error("Invalid global turn policy");
+    for(double v:{profile_tracker_.lookahead,profile_tracker_.max_speed_xy,
+        profile_tracker_.max_accel_xy,profile_tracker_.max_jerk_xy,
+        profile_tracker_.lateral_accel,profile_tracker_.yaw_rate,profile_tracker_.sharp_turn})
+      if(!std::isfinite(v)||v<=0)throw std::runtime_error("Invalid shared speed-profile limits");
+    replan_period_ = declare_parameter("replan_period", .10);
     double replan = replan_period_;
-    double heartbeat = declare_parameter("path_publish_period", .2);
-    if (replan <= 0 || heartbeat <= 0 || map_timeout_ <= 0 || odom_timeout_ <= 0 ||
+    double heartbeat = declare_parameter("path_publish_period", .10);
+    double poll = declare_parameter("planner_poll_period", .01);
+    if (!std::isfinite(replan)||!std::isfinite(heartbeat)||!std::isfinite(poll)||
+        replan < .02 || heartbeat < .02 || poll < .005 || poll > .10 || map_timeout_ <= 0 || odom_timeout_ <= 0 ||
         !std::isfinite(timestamp_reset_threshold_)||timestamp_reset_threshold_<.10)
       throw std::runtime_error("Invalid planner timing");
     compact_maps_=compactMapTransport(*this);
@@ -354,6 +430,8 @@ public:
           const auto stamp=stampNs(m->header.stamp);
           observeInputStamp(stamp,"ODOMETRY_STAMP_REWIND",last_odom_input_stamp_ns_);
           current_ = p;
+          const auto &v=m->twist.twist.linear;
+          measured_speed_=finite({v.x,v.y,v.z})?std::min(10.,norm({v.x,v.y,v.z})):0.;
           if(planner_)planner_->advanceCommittedProgress(p);
           if(!owned_path_.empty())owned_route_.updateProgress(p);
           // The execution certificate must follow the same continuous
@@ -377,16 +455,22 @@ public:
       }
       const double goal_delta = have_goal_ ? distance(goal_, p) : 0.0;
       if (!have_goal_ || goal_delta > .05) {
+        // A new goal cancels old search ownership, but a short currently safe
+        // forward prefix can continue under a permit bearing the NEW goal.
+        auto prefix=ready()?retainedForwardPrefix(*grid_,path_,current_,route_.progress(),
+          measured_speed_,handoff_config_,planner_config_.allow_unknown):std::vector<Vec3>{};
+        if(occupied_guard_&&!prefix.empty()&&!routeGeometryValid(*occupied_guard_,prefix,true))prefix.clear();
         goal_ = p;approach_={};last_search_refresh_=std::chrono::steady_clock::now();last_refresh_generation_=generation_;
         have_goal_ = true;
         ++(*goal_epoch_);
         if(planner_)planner_->reset();
-        path_.clear(); route_.clear();owned_path_.clear();owned_route_.clear();
+        path_=std::move(prefix); route_.set(path_);owned_path_.clear();owned_route_.clear();
         clearInvalidation(false);
         last_invalidation_source_="NONE";last_invalidation_point_={};
         last_invalidation_distance_=std::numeric_limits<double>::infinity();
         temporary_=retry_=recovery_route_=false;
         replan_trigger_.clear();clearPendingSwitch();last_route_switch_={};
+        entrance_review_.clear();partial_retry_.clear();profile_repair_requested_=false;clearance_review_.clear();
         reason_="GOAL_ACCEPTED";detail_.clear();
         force_ = true;
         publish();
@@ -449,20 +533,25 @@ public:
           // This is a request to re-check geometry, not permission to replace a
           // map-valid route. plan() only repairs after the current map agrees.
           follower_block_reported_=true;force_=true;
+        }else if(m->data=="TURN_EXECUTION_REPAIR"){
+          profile_repair_requested_=true;replan_trigger_="TURN_EXECUTION_REPAIR";force_=true;
+        }else if(m->data=="PROFILE_LIMITED_PROGRESS"){
+          profile_repair_requested_=true;force_=true;
         }else if(m->data=="STALLED_PROGRESS"){
           follower_stall_reports_++;
           reason_="FOLLOWER_STALL_ROUTE_RETAINED";
           detail_="planner geometry unchanged; follower recovery remains responsible";
         }else if(m->data=="WAITING_FOR_EXECUTABLE_PATH" || m->data=="PASSAGE_WAIT_TIMEOUT"){
           // Wake a bounded retry/review without erasing the route or A* frontier.
-          force_=true;last_topology_review_={};
+          force_=true;last_topology_review_={};entrance_review_.clear();
         }else if(m->data=="LOCAL_RECOVERY_FINISHED"){
           reason_="RECOVERY_FINISHED_ROUTE_RETAINED";
         }
       });
     // The executor keeps accepting goals/odometry while bounded search runs on a
     // private snapshot. Poll completion promptly instead of blocking subscriptions.
-    timer_ = create_wall_timer(std::chrono::milliseconds(20), [this] { plan(); });
+    timer_ = create_wall_timer(std::chrono::duration_cast<std::chrono::nanoseconds>(
+      std::chrono::duration<double>(poll)), [this] { plan(); });
     heartbeat_ =
         create_wall_timer(std::chrono::milliseconds(int(1000 * heartbeat)), [this] { publish(); });
     reset_ = create_service<std_srvs::srv::Trigger>(
@@ -471,6 +560,7 @@ public:
           ++(*goal_epoch_);
           if(planner_)planner_->reset();
           path_.clear(); route_.clear();owned_path_.clear();owned_route_.clear();
+          entrance_review_.clear();partial_retry_.clear();profile_repair_requested_=false;clearance_review_.clear();
           clearInvalidation(false);
           last_invalidation_source_="NONE";last_invalidation_point_={};
           last_invalidation_distance_=std::numeric_limits<double>::infinity();
@@ -483,7 +573,7 @@ public:
         });
     config_lock_=lockParameters(*this);
     RCLCPP_INFO(get_logger(),
-                "V2.1.2 straight-route planner: tangent-continuous retained route, paired-map invalidation, "
+                "V2.1.6 near-clearance planner: safe forward commitment, bounded spline handoff, paired-map invalidation, "
                 "priority_peers=%zu switch_hysteresis=%s unknown=%s",
                 peer_topics.size(),
                 route_switch_.enabled ? "true" : "false",
@@ -496,11 +586,14 @@ private:
     ++(*goal_epoch_);if(planner_)planner_->reset();
     path_.clear();route_.clear();owned_path_.clear();owned_route_.clear();
     clearInvalidation(false);clearPendingSwitch();last_route_switch_={};
+    entrance_review_.clear();partial_retry_.clear();profile_repair_requested_=false;clearance_review_.clear();
     last_invalidation_source_="NONE";last_invalidation_point_={};
     last_invalidation_distance_=std::numeric_limits<double>::infinity();
     temporary_=retry_=recovery_route_=repair_authorized_=false;replan_trigger_.clear();
     map_pairs_.clear();occupied_guard_.reset();occupied_guard_stamp_=-1;
     primary_pending_.reset();local_pending_.reset();primary_grid_.reset();
+    local_overlay_grid_.reset();local_overlay_.clear();
+    local_overlay_stamp_ns_=last_compact_confirmation_stamp_ns_=-1;
     primary_stamp_ns_=local_committed_stamp_ns_=-1;
     last_primary_input_stamp_ns_=last_local_input_stamp_ns_=0;
     map_source_=MapInputSource::None;
@@ -519,10 +612,63 @@ private:
   }
   struct PeerRoute {
     std::vector<Vec3> points;
+    std::vector<double> arc;
     int64_t stamp_ns{0};
     Vec3 position{};
     int64_t odom_ns{0};
-    bool have_position{false};
+    double progress{0};
+    bool have_position{false},have_progress{false},progress_valid{false};
+
+    void updateProgress() {
+      progress_valid=false;
+      if(!have_position || points.size()<2 || arc.empty())return;
+      auto projection=project(points,arc,position,
+        have_progress?std::max(0.,progress-.10):0.,
+        std::min(arc.back(),have_progress?progress+2.:2.));
+      if(!have_progress && projection.error>1.2){
+        // Late subscribers can first observe a peer far along a full route.
+        // Initialize globally only when no other distant branch is similarly
+        // close. Once initialized, odometry can NEVER jump across a crossing.
+        projection=project(points,arc,position);
+        if(!std::isfinite(projection.error)||projection.error>1.2)return;
+        for(size_t i=1;i<points.size();++i){
+          const Vec3 segment=points[i]-points[i-1];
+          const double length=arc[i]-arc[i-1];
+          if(length<1e-8)continue;
+          const double u=std::clamp(dot(position-points[i-1],segment)/(length*length),0.,1.);
+          const double s=arc[i-1]+u*length;
+          if(std::abs(s-projection.s)>2. &&
+             distance(position,points[i-1]+segment*u)<=projection.error+.15)return;
+        }
+      }
+      if(!std::isfinite(projection.error)||projection.error>1.2)return;
+      progress=have_progress?std::max(progress,projection.s):projection.s;
+      have_progress=progress_valid=true;
+    }
+    void setPoints(std::vector<Vec3> next) {
+      bool identical=points.size()==next.size();
+      if(identical)for(size_t i=0;i<points.size();++i)
+        if(distance(points[i],next[i])>1e-6){identical=false;break;}
+      if(identical){updateProgress();return;}
+      auto next_arc=arcLengths(next);
+      bool same_prefix=have_progress && !arc.empty() && !next_arc.empty() &&
+        next_arc.back()>=progress && distance(points.front(),next.front())<1e-6;
+      const double through=std::min(arc.empty()?0.:arc.back(),progress+.10);
+      if(same_prefix){
+        // Exact retained prefixes keep their arclength origin even when the
+        // future tail changes. Check vertices from both polylines so a new
+        // shortcut cannot masquerade as the old route at sparse samples.
+        for(size_t i=0;i<points.size() && arc[i]<=through;++i)
+          if(distance(points[i],atArc(next,next_arc,arc[i]))>1e-5){same_prefix=false;break;}
+        for(size_t i=0;same_prefix && i<next.size() && next_arc[i]<=through;++i)
+          if(distance(next[i],atArc(points,arc,next_arc[i]))>1e-5){same_prefix=false;break;}
+        if(same_prefix && distance(atArc(points,arc,progress),atArc(next,next_arc,progress))>1e-5)
+          same_prefix=false;
+      }
+      points=std::move(next);arc=std::move(next_arc);
+      if(!same_prefix){progress=0;have_progress=false;}
+      updateProgress();
+    }
   };
   static tf2::Transform toTransform(
       const geometry_msgs::msg::TransformStamped &msg) {
@@ -580,7 +726,7 @@ private:
     }
     auto &peer = peer_routes_[index];
     const bool changed = peerRouteChanged(peer.points, transformed);
-    peer.points = std::move(transformed);
+    peer.setPoints(std::move(transformed));
     peer.stamp_ns = now().nanoseconds();
     if (changed) ++peer_generation_;
   }
@@ -603,6 +749,7 @@ private:
       peer.position = {point.x(), point.y(), point.z()};
       peer.odom_ns = now().nanoseconds();
       peer.have_position = finite(peer.position);
+      peer.updateProgress();
     } catch (const tf2::TransformException &error) {
       RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 3000,
                            "Waiting for peer odometry TF %s <- %s: %s",
@@ -616,9 +763,9 @@ private:
     for (const auto &peer : peer_routes_)
       if (!peer.points.empty() && peer.stamp_ns > 0 && now_ns >= peer.stamp_ns &&
           double(now_ns - peer.stamp_ns) * 1e-9 <= peer_path_timeout_ &&
-          peer.have_position && peer.odom_ns > 0 && now_ns >= peer.odom_ns &&
+          peer.have_position && peer.progress_valid && peer.odom_ns > 0 && now_ns >= peer.odom_ns &&
           double(now_ns - peer.odom_ns) * 1e-9 <= peer_odom_timeout_) {
-        auto suffix = routeSuffixAt(peer.points, peer.position);
+        auto suffix = routeSuffixAt(peer.points, peer.position, peer.progress);
         if (suffix.size() >= 2) {
           const auto arc = arcLengths(suffix);
           routes.push_back(routeSlice(
@@ -630,7 +777,7 @@ private:
   bool conflictsWithPeers(const std::vector<Vec3> &route,
                           const std::vector<std::vector<Vec3>> &peers) const {
     if (route.size() < 2 || peers.empty()) return false;
-    auto own = routeSuffixAt(route, current_, route_.progress());
+    auto own = routeSuffixAt(route, current_, owned_route_.progress());
     if (own.size() < 2) return false;
     const auto arc = arcLengths(own);
     own = routeSlice(own, 0, std::min(arc.back(), peer_conflict_horizon_));
@@ -668,18 +815,32 @@ private:
   }
   void restoreOwnedRoute() {
     if (owned_path_.empty()) return;
-    auto suffix = routeSuffixAt(owned_path_, current_, owned_route_.progress());
-    if (suffix.size() < 2) return;
-    path_ = std::move(suffix);
-    route_.set(path_);
-    temporary_ = distance(path_.back(), approach_.valid ? approach_.effective
-                                                        : goal_) > .15;
+    // Rejection is not a route change. Preserve the live arc origin, geometry
+    // and follower profile while the complete owned tail is already executing.
+    if(!path_.empty() && distance(path_.back(),owned_path_.back())<1e-6 &&
+       route_.valid(*grid_,current_,planner_config_.allow_unknown) && guardValid(route_)) {
+      temporary_=distance(path_.back(),approach_.valid?approach_.effective:goal_)>.15;
+      return;
+    }
+    if(!owned_route_.updateProgress(current_))return;
+    // Only an actually clipped/lost tail needs reinstating. Never prepend the
+    // measured position: cross-track control handles that bounded displacement.
+    auto suffix=routeSlice(owned_path_,std::max(0.,owned_route_.progress()-.25),
+                           pathLength(owned_path_));
+    if(suffix.size()<2)return;
+    path_=std::move(suffix);route_.set(path_);route_.updateProgress(current_);
+    temporary_=distance(path_.back(),approach_.valid?approach_.effective:goal_)>.15;
   }
   void clearInvalidation(bool restore) {
     const bool was_authorized = invalidation_.authorized;
     invalidation_ = InvalidationGate{};
     repair_authorized_ = false;
-    if (restore && was_authorized && !owned_path_.empty()) restoreOwnedRoute();
+    // Execution can now trim a distant unsafe tail BEFORE the multi-frame
+    // repair gate authorizes a search. Restore it if that transient evidence
+    // disappears; otherwise the drone would stop at an obsolete prefix end.
+    if (restore && !owned_path_.empty() &&
+        (was_authorized || path_.empty() || distance(path_.back(),owned_path_.back())>.03))
+      restoreOwnedRoute();
   }
   void observeInvalidation(const RouteInspection &inspection, bool matched,
                            const std::string &source) {
@@ -772,11 +933,12 @@ private:
       "PLANNER_MAP_SOURCE source=%s primary_age=%.3f local_stamp=%lld",
       mapInputName(source),primary_stamp_ns_>0?double(now().nanoseconds()-primary_stamp_ns_)*1e-9:-1.,
       static_cast<long long>(local_committed_stamp_ns_));
-    if(!owned_path_.empty())observeInvalidation(inspectOwnedRoute(),true,
-      source==MapInputSource::LocalFallback?"LOCAL_FALLBACK_MAP":"ATOMIC_MAP");
+    // Confirmation belongs to an original, complete source packet, not to a
+    // recomposed grid. refreshCompactMap() counts that packet at most once.
   }
   void refreshCompactMap(){
     if(!compact_maps_)return;
+    bool primary_advanced=false,local_advanced=false,map_changed=false;
     if(primary_pending_){
       auto m=std::move(primary_pending_);const auto stamp=stampNs(m->header.stamp);
       if(stamp>primary_stamp_ns_){
@@ -785,17 +947,66 @@ private:
           auto next=std::make_shared<Grid>(grid_->cfg);
           next->update(std::move(decoded.occupied),std::move(decoded.free));
           primary_grid_=std::move(next);primary_stamp_ns_=stamp;primary_bytes_=m->data.size();
+          primary_advanced=true;
         }catch(const std::runtime_error &e){
           ++map_rejected_;RCLCPP_ERROR(get_logger(),"Primary snapshot: %s",e.what());
         }
       }
     }
     const auto local_stamp=local_pending_?stampNs(local_pending_->header.stamp):-1;
-    const auto selected=selectMapInput(primary_stamp_ns_,local_stamp,now().nanoseconds(),
+    const auto current_stamp=now().nanoseconds();
+    const auto selected=selectMapInput(primary_stamp_ns_,local_stamp,current_stamp,
       map_timeout_,local_fallback_enabled_);
     if(selected==MapInputSource::Primary){
-      if(map_source_!=selected || map_stamp_.nanoseconds()!=primary_stamp_ns_)
-        installSnapshotGrid(primary_grid_,primary_stamp_ns_,selected);
+      // The compact decoder validates the complete packet, but only hashes a
+      // bounded near-field region. Do not decode a million historical free
+      // voxels just to confirm an obstacle in front of the vehicle.
+      if(have_odom_ && local_fallback_enabled_ && local_stamp>local_overlay_stamp_ns_ &&
+         localOverlayEligible(primary_stamp_ns_,local_stamp,current_stamp,map_timeout_)){
+        try{
+          auto decoded=parseMapSnapshot(*local_pending_,grid_->cfg.resolution,
+            map_snapshot::default_max_cells,localOverlayRegion(grid_->cfg,current_,6.0));
+          auto next=std::make_shared<Grid>(grid_->cfg);
+          next->update(std::move(decoded.occupied),{});
+          local_overlay_grid_=std::move(next);local_overlay_stamp_ns_=local_stamp;
+          local_bytes_=local_pending_->data.size();local_advanced=true;
+        }catch(const std::runtime_error &e){
+          ++map_rejected_;local_pending_.reset();
+          RCLCPP_ERROR(get_logger(),"Local near-field snapshot: %s",e.what());
+        }
+      }
+      const bool supplement=local_overlay_grid_ && local_fallback_enabled_ &&
+        localOverlayEligible(primary_stamp_ns_,local_overlay_stamp_ns_,current_stamp,map_timeout_);
+      auto next=supplement?local_overlay_.apply(primary_grid_,local_overlay_grid_->occupied):primary_grid_;
+      if(!supplement)local_overlay_.clear();
+      if(grid_!=next || map_source_!=selected || map_stamp_.nanoseconds()!=primary_stamp_ns_){
+        // A fresh local supplement must NOT refresh the global map timestamp.
+        installSnapshotGrid(std::move(next),primary_stamp_ns_,selected);map_changed=true;
+      }
+      if(!owned_path_.empty() && (map_changed||primary_advanced||local_advanced)){
+        const auto inspection=inspectOwnedRoute();
+        bool matched=false;int64_t confirmed_stamp=-1;const char *source="ATOMIC_MAP_CHECK";
+        const auto confirms=[&](const Grid &evidence){
+          const auto local=inspectRoute(evidence,owned_path_,current_,true,owned_route_.progress());
+          return !local.valid && distance(local.first_invalid_point,inspection.first_invalid_point)<=.60;
+        };
+        // A local packet counts only if its own occupied evidence explains
+        // the invalid point. Repeating an old PRIMARY obstacle alongside an
+        // unrelated fresh local packet is not a second observation.
+        if(!inspection.valid && supplement && local_advanced &&
+           local_overlay_stamp_ns_>last_compact_confirmation_stamp_ns_ && confirms(*local_overlay_grid_)){
+          matched=true;confirmed_stamp=local_overlay_stamp_ns_;source="LOCAL_NEARFIELD_MAP";
+        }else if(!inspection.valid && primary_advanced &&
+                 primary_stamp_ns_>last_compact_confirmation_stamp_ns_){
+          const auto primary=inspectRoute(*primary_grid_,owned_path_,current_,
+            planner_config_.allow_unknown,owned_route_.progress());
+          if(!primary.valid && distance(primary.first_invalid_point,inspection.first_invalid_point)<=.60){
+            matched=true;confirmed_stamp=primary_stamp_ns_;source="ATOMIC_MAP";
+          }
+        }
+        if(matched)last_compact_confirmation_stamp_ns_=confirmed_stamp;
+        observeInvalidation(inspection,matched,source);
+      }
     }else if(selected==MapInputSource::LocalFallback &&
              (map_source_!=selected || local_stamp>local_committed_stamp_ns_)){
       try{
@@ -803,9 +1014,15 @@ private:
         auto next=localFallbackGrid(grid_->cfg,std::move(decoded.occupied),
           std::move(decoded.free),primary_grid_.get());
         local_committed_stamp_ns_=local_stamp;local_bytes_=local_pending_->data.size();
+        local_overlay_.clear();
         // Retain route ownership and arc progress. A new LOCAL map, with its
         // original source time, must certify geometry before any motion.
         installSnapshotGrid(std::move(next),local_stamp,selected);
+        if(!owned_path_.empty()){
+          const bool matched=local_stamp>last_compact_confirmation_stamp_ns_;
+          if(matched)last_compact_confirmation_stamp_ns_=local_stamp;
+          observeInvalidation(inspectOwnedRoute(),matched,"LOCAL_FALLBACK_MAP");
+        }
       }catch(const std::runtime_error &e){
         ++map_rejected_;local_pending_.reset();
         RCLCPP_ERROR(get_logger(),"Local fallback snapshot: %s",e.what());
@@ -870,6 +1087,7 @@ private:
     clearPendingSwitch();decision="SWITCH_BETTER_CONFIRMED";return true;
   }
   struct WorkResult {
+    TurnGeometryResult turn;
     std::unique_ptr<Planner> planner;
     PlanResult route;
     SplineResult smooth;
@@ -880,15 +1098,25 @@ private:
     std::vector<RoutePassage> reserved_gates;
     size_t candidate_count{1},shared_gates{0},peer_epoch{0};
     double candidate_ms{0};
+    RouteHandoffResult handoff;
+    ProfileRepairResult profile;
+    std::vector<Vec3> switch_points;
   };
   void keepSafePrefix(){
-    RouteMemory retained=owned_route_;
-    auto prefix=retained.safePrefix(*grid_,current_,planner_config_.allow_unknown);
+    RouteMemory retained=owned_path_.empty()?route_:owned_route_;
+    auto prefix=retained.safePrefix(*grid_,current_,planner_config_.allow_unknown,clearance_contract_.reserve);
     if(occupied_guard_ && !prefix.empty()){
       RouteMemory guard_prefix;guard_prefix.set(std::move(prefix));
-      prefix=guard_prefix.safePrefix(*occupied_guard_,current_,true);
+      prefix=guard_prefix.safePrefix(*occupied_guard_,current_,true,clearance_contract_.reserve);
     }
-    path_=std::move(prefix);route_.set(path_);temporary_=true;
+    // Repeated evidence for the same blocked tail must not shift the prefix
+    // start every callback. Keep its revision/profile while its endpoint holds.
+    RouteMemory checked=route_;
+    if(!path_.empty()&&!prefix.empty()&&distance(path_.back(),prefix.back())<1e-5&&
+       checked.valid(*grid_,current_,planner_config_.allow_unknown)&&guardValid(checked)){
+      route_=std::move(checked);temporary_=true;return;
+    }
+    path_=std::move(prefix);route_.set(path_);route_.updateProgress(current_);temporary_=true;
   }
   void complete(){
     if(!work_.valid() || work_.wait_for(std::chrono::seconds(0))!=std::future_status::ready)return;
@@ -897,7 +1125,7 @@ private:
     catch(const std::exception&e){
       planner_=std::make_unique<Planner>(planner_config_);
       if(!owned_path_.empty())
-        planner_->setCommittedRoute(routeSuffixAt(
+        planner_->setCommittedRoute(geometricRouteSuffixAt(
           owned_path_,current_,owned_route_.progress()));
       reason_="WORKER_ERROR_RETRY";detail_=e.what();force_=retry_=true;return;
     }
@@ -910,11 +1138,19 @@ private:
       // The worker may have adopted its proposal internally. Input loss must
       // not install that uncommitted tail behind the retained published route.
       if(!owned_path_.empty())planner_->setCommittedRoute(
-        routeSuffixAt(owned_path_,current_,owned_route_.progress()));
+        geometricRouteSuffixAt(owned_path_,current_,owned_route_.progress()));
       force_=true;reason_=inputState();return;
     }
     // Snapshot search may outlive a map update. Certify both the proposed
     // geometry and the owned route from the current position on the latest map.
+    if(r.smooth.mode!="RETAINED_STRAIGHT_ROUTE"&&!r.smooth.points.empty()){
+      r.turn=prepareTurnGeometry(*grid_,r.smooth.points,profile_tracker_.turn,handoff_config_,
+        profile_tracker_.lateral_accel,profile_tracker_.yaw_rate,profile_tracker_.sharp_turn,
+        r.handoff.applied?r.handoff.prefix_length:0.,clearance_contract_.reserve,
+        planner_config_.allow_unknown);
+      if(r.turn.smoothed||r.turn.polygonized){r.smooth.points=r.turn.points;
+        r.smooth.mode+="_GLOBAL_TURN_POLICY";}
+    }
     RouteMemory candidate;
     if(r.smooth.mode=="RETAINED_STRAIGHT_ROUTE"){
       // This worker returned the exact incumbent geometry. Its arc origin
@@ -922,8 +1158,17 @@ private:
       // has already flown beyond the initial 2 m projection window.
       candidate=owned_route_;
     }else candidate.set(r.smooth.points);
-    const bool candidate_valid=!r.smooth.points.empty() &&
+    bool candidate_valid=!r.smooth.points.empty() &&
       candidate.valid(*grid_,current_,planner_config_.allow_unknown) && guardValid(candidate);
+    bool candidate_margin_valid=true;
+    if(candidate_valid && r.smooth.mode!="RETAINED_STRAIGHT_ROUTE" && !r.route.points.empty()){
+      const auto reference=routeSlice(routeSuffixFrom(r.route.points,current_),0,clearance_contract_.horizon);
+      const auto actual=routeSlice(routeSuffixFrom(r.smooth.points,current_),0,clearance_contract_.horizon);
+      const double reserve=routeMargin(*grid_,reference,clearance_contract_.reserve,planner_config_.allow_unknown);
+      candidate_margin_valid=reserve<=.01||routeHasMargin(*grid_,actual,
+        std::max(0.,reserve-.005),planner_config_.allow_unknown);
+      candidate_valid=candidate_margin_valid;
+    }
     const auto current_inspection=inspectOwnedRoute();
     const bool incumbent_valid=!owned_path_.empty() && current_inspection.valid;
     const bool recovered_during_search=r.safety_repair && incumbent_valid;
@@ -937,12 +1182,55 @@ private:
       switch_decision="KEEP_ROUTE_MAP_RECOVERED";
     }else if(candidate_valid){
       const auto incumbent_suffix=routeSuffixAt(owned_path_,current_,owned_route_.progress());
-      const auto challenger_suffix=routeSuffixFrom(r.smooth.points,current_);
+      const auto &proposal=r.switch_points.empty()?r.smooth.points:r.switch_points;
+      const auto challenger_suffix=routeSuffixFrom(proposal,current_);
+      const double challenger_cost=std::max(stableRouteCost(*grid_,challenger_suffix),
+        stableRouteCost(*grid_,routeSuffixFrom(r.smooth.points,current_)));
       const bool entrance_improved=entrance_.topology.enabled && r.peer_epoch==peer_generation_ &&
         sharedPassageCount(incumbent_suffix,r.reserved_gates)>
           sharedPassageCount(challenger_suffix,r.reserved_gates);
       if(!incumbent_valid){
         clearPendingSwitch();switch_decision=owned_path_.empty()?"INITIAL_ROUTE":"REPAIR_INVALID_ROUTE";
+      }else if(r.trigger=="CLEARANCE_DEGRADED"){
+        const auto transition=routeTransition(incumbent_suffix,challenger_suffix,current_,route_switch_);
+        const Vec3 direction=horizontalRouteDirection(incumbent_suffix,current_,route_switch_.lookahead);
+        const double old_back=routeBacktrackDistance(incumbent_suffix,current_,direction,route_switch_.backtrack_horizon);
+        const double old_cost=stableRouteCost(*grid_,incumbent_suffix);
+        const double old_margin=routeMargin(*grid_,routeSlice(incumbent_suffix,0,clearance_contract_.horizon),clearance_contract_.reserve);
+        const double new_margin=std::min(
+          routeMargin(*grid_,routeSlice(challenger_suffix,0,clearance_contract_.horizon),clearance_contract_.reserve),
+          routeMargin(*grid_,routeSlice(routeSuffixFrom(r.smooth.points,current_),0,clearance_contract_.horizon),clearance_contract_.reserve));
+        const double old_deficit=clearanceDeficit(*grid_,incumbent_suffix,clearance_contract_.horizon,clearance_contract_.reserve);
+        const double new_deficit=clearanceDeficit(*grid_,routeSuffixFrom(r.smooth.points,current_),clearance_contract_.horizon,clearance_contract_.reserve);
+        const bool margin_improved=r.route.clearance_near_repair?
+          new_deficit<old_deficit-std::max(.002,.10*old_deficit):new_margin>old_margin+.015;
+        switch_allowed=r.peer_epoch==peer_generation_ && transition.valid &&
+          transition.angle<=route_switch_.soft_angle && transition.backtrack<=old_back+.02 &&
+          margin_improved && challenger_cost<=old_cost+std::max(.75,.15*old_cost) &&
+          sharedPassageCount(challenger_suffix,r.reserved_gates)<=sharedPassageCount(incumbent_suffix,r.reserved_gates);
+        clearPendingSwitch();switch_decision=switch_allowed?"COMMIT_CLEARANCE_LOCAL_REPAIR":"KEEP_ROUTE_CLEARANCE_POLICY";
+      }else if(r.trigger=="ROUTE_LOCAL_REFRESH"){
+        // A certified local shortcut is reviewed immediately. Long global-route
+        // cooldown/gain hysteresis must not freeze a no-longer-needed detour.
+        const auto actual_suffix=routeSuffixFrom(r.smooth.points,current_);
+        const auto transition=routeTransition(incumbent_suffix,actual_suffix,current_,route_switch_);
+        const Vec3 direction=horizontalRouteDirection(incumbent_suffix,current_,route_switch_.lookahead);
+        const double old_back=routeBacktrackDistance(incumbent_suffix,current_,direction,route_switch_.backtrack_horizon);
+        switch_allowed=r.peer_epoch==peer_generation_ && transition.valid &&
+          transition.angle<=route_switch_.soft_angle && transition.backtrack<=old_back+.02 &&
+          challenger_cost<stableRouteCost(*grid_,incumbent_suffix)-.02 &&
+          pathLength(actual_suffix)<pathLength(incumbent_suffix)-.10 &&
+          sharedPassageCount(actual_suffix,r.reserved_gates)<=sharedPassageCount(incumbent_suffix,r.reserved_gates);
+        clearPendingSwitch();switch_decision=switch_allowed?"COMMIT_LOCAL_REFRESH":"KEEP_ROUTE_LOCAL_REFRESH_POLICY";
+      }else if(r.profile.applied){
+        const auto transition=routeTransition(incumbent_suffix,challenger_suffix,current_,route_switch_);
+        const Vec3 direction=horizontalRouteDirection(incumbent_suffix,current_,route_switch_.lookahead);
+        const double old_back=routeBacktrackDistance(incumbent_suffix,current_,direction,route_switch_.backtrack_horizon);
+        switch_allowed=r.peer_epoch==peer_generation_ && transition.valid &&
+          transition.angle<=route_switch_.soft_angle && transition.backtrack<=old_back+.02 &&
+          challenger_cost<=stableRouteCost(*grid_,incumbent_suffix)+.10 &&
+          sharedPassageCount(challenger_suffix,r.reserved_gates)<=sharedPassageCount(incumbent_suffix,r.reserved_gates);
+        clearPendingSwitch();switch_decision=switch_allowed?"COMMIT_PROFILE_LOCAL_REPAIR":"KEEP_ROUTE_PROFILE_POLICY";
       }else if(r.switch_bypass){
         clearPendingSwitch();switch_decision="COMMIT_AUTHORIZED_REPAIR";
       }else if(entrance_improved){
@@ -950,7 +1238,7 @@ private:
         // hysteresis would reject every useful separation. Confirm its heading
         // and geometry over successive reviews before replacing the route.
         switch_assessment=assessRouteSwitch(incumbent_suffix,challenger_suffix,current_,
-          stableRouteCost(*grid_,incumbent_suffix),stableRouteCost(*grid_,challenger_suffix),route_switch_);
+          stableRouteCost(*grid_,incumbent_suffix),challenger_cost,route_switch_);
         have_switch_assessment=true;switch_assessment.needs_confirmation=true;
         switch_allowed=switchConfirmationReady(switch_assessment,"DISTINCT_PASSAGE_ROUTE",wall,switch_decision);
         if(switch_allowed)switch_decision="COMMIT_DISTINCT_PASSAGE";
@@ -966,9 +1254,9 @@ private:
         clearPendingSwitch();switch_decision="SWITCH_HYSTERESIS_DISABLED";
       }else{
         const auto incumbent=routeSuffixAt(owned_path_,current_,owned_route_.progress());
-        const auto challenger=routeSuffixFrom(r.smooth.points,current_);
+        const auto challenger=routeSuffixFrom(proposal,current_);
         const double old_total=stableRouteCost(*grid_,incumbent);
-        const double new_total=stableRouteCost(*grid_,challenger);
+        const double new_total=challenger_cost;
         switch_assessment=assessRouteSwitch(
           incumbent,challenger,current_,old_total,new_total,route_switch_);
         have_switch_assessment=true;
@@ -981,16 +1269,30 @@ private:
         }
       }
     }
+    // Do not hide a large route change behind an identical near prefix: all
+    // original switching/entrance decisions above use the unblended proposal.
+    if(switch_allowed && incumbent_valid && !r.handoff.applied &&
+       !r.switch_points.empty()){
+      switch_allowed=false;switch_decision="KEEP_ROUTE_NO_SAFE_HANDOFF";
+    }
+    if(switch_allowed && incumbent_valid && (r.handoff.reason=="PREFIX_BEZIER_JOIN" || r.handoff.reason=="CLEARANCE_LOCAL_JOIN" || r.handoff.reason=="NEAR_CLEARANCE_JOIN" || r.handoff.reason=="LOCAL_REFRESH_JOIN" || r.profile.applied) &&
+       measured_speed_>.10 && candidate.progress()+.20>=r.handoff.prefix_length){
+      switch_allowed=false;switch_decision="KEEP_ROUTE_HANDOFF_OVERRUN";
+    }
     const bool committed=candidate_valid && switch_allowed;
     if(committed){
+      partial_retry_.clear();
       const bool replaced=incumbent_valid && !owned_path_.empty();
-      path_=std::move(r.smooth.points);route_=std::move(candidate);
-      owned_path_=path_;owned_route_=route_;
+      if(r.smooth.mode=="RETAINED_STRAIGHT_ROUTE")restoreOwnedRoute();
+      else {
+        path_=std::move(r.smooth.points);route_=std::move(candidate);
+        owned_path_=path_;owned_route_=route_;
+      }
       temporary_=distance(path_.back(),approach_.valid?approach_.effective:goal_)>.15;
       retry_=false;
       recovery_route_=r.route.reason=="RECOVERY_MARGIN_ESCAPE";
       planner_->setCommittedRoute(r.smooth.mode=="RETAINED_STRAIGHT_ROUTE"
-        ?routeSuffixAt(path_,current_,route_.progress()):path_);
+        ?geometricRouteSuffixAt(path_,current_,route_.progress()):path_);
       clearInvalidation(false);
       follower_block_reported_=false;
       if(replaced)last_route_switch_=wall;
@@ -1000,7 +1302,7 @@ private:
       // A rejected/obsolete result must never truncate the still-valid owned
       // route. The worker may have adopted it internally, so restore ownership.
       restoreOwnedRoute();
-      planner_->setCommittedRoute(path_);
+      planner_->setCommittedRoute(geometricRouteSuffixAt(owned_path_,current_,owned_route_.progress()));
       retry_=false;force_=false;
       if(recovered_during_search)clearInvalidation(false);
       if(switch_decision.empty()){
@@ -1008,6 +1310,11 @@ private:
       }
       reason_=switch_decision;
       r.smooth.mode="RETAINED_INCUMBENT";
+      const double wall_s=std::chrono::duration<double>(wall.time_since_epoch()).count();
+      if(r.trigger=="ENTRANCE_REVIEW"&&!pending_switch_.active)
+        entrance_review_.noImprovement(wall_s,entrance_.topology.refresh_period);
+      if(r.trigger=="PARTIAL_ROUTE_FINISHED")
+        partial_retry_.rejected(wall_s,owned_path_.back(),approach_.effective,owned_route_.remaining());
     }else{
       clearPendingSwitch();keepSafePrefix();retry_=true;force_=true;
       reason_=r.smooth.points.empty()?r.route.reason:"RESULT_INVALIDATED_RETRY";
@@ -1017,22 +1324,37 @@ private:
     raw_path_pub_->publish(makePath(candidate_valid?r.route.points:std::vector<Vec3>{},frame_,now()));
     std::ostringstream os;
     os<<"goal_epoch="<<r.epoch<<" reused="<<r.route.reused<<" ms="<<r.route.elapsed_ms
-      <<" smoothing="<<r.smooth.mode<<" spline_spans="<<r.smooth.spans
+      <<" search_result="<<r.route.reason<<" smoothing="<<r.smooth.mode<<" spline_spans="<<r.smooth.spans
       <<" spline_control_spacing="<<r.smooth.control_spacing<<" spline_deviation="<<r.smooth.deviation
-      <<" spline_candidate_valid="<<candidate_valid<<" route_committed="<<committed
+      <<" spline_candidate_valid="<<candidate_valid<<" candidate_margin_valid="<<candidate_margin_valid
+      <<" route_committed="<<committed
       <<" spline_optimized="<<(candidate_valid&&r.smooth.optimized)
       <<" spline_opt_iterations="<<r.smooth.optimization_iterations
       <<" spline_opt_cost_before="<<r.smooth.optimization_cost_before
       <<" spline_opt_cost_after="<<r.smooth.optimization_cost_after
       <<" radius="<<grid_->cfg.inflation_xy<<" expanded="<<r.route.expansions
       <<" flat_expanded="<<r.route.flat_expansions<<" spatial_expanded="<<r.route.spatial_expansions
+      <<" clearance_near_repair="<<r.route.clearance_near_repair
+      <<" clearance_deficit_before="<<r.route.clearance_deficit_before<<" clearance_deficit_after="<<r.route.clearance_deficit_after
+      <<" patch_search_resumed="<<r.route.patch_search_resumed
+      <<" patch_expansions="<<r.route.patch_expansions<<" retained_search_nodes="<<r.route.retained_search_nodes
       <<" search_mode="<<r.route.search_mode<<" flat_altitude="<<r.route.flat_altitude
       <<" length="<<pathLength(path_)<<" target="<<goal_.x<<","<<goal_.y<<","<<goal_.z
       <<" candidates="<<r.candidate_count<<" candidate_ms="<<r.candidate_ms
       <<" shared_entrances="<<sharedPassageCount(path_,r.reserved_gates)
       <<" local_patch="<<r.route.locally_patched
       <<" patch_begin="<<r.route.patch_begin<<" patch_end="<<r.route.patch_end
-      <<" switch_trigger="<<r.trigger<<" switch_decision="<<switch_decision;
+      <<" switch_trigger="<<r.trigger<<" switch_decision="<<switch_decision
+      <<" profile_repair="<<r.profile.reason<<" profile_before="<<r.profile.before_limit
+      <<" profile_after="<<r.profile.after_limit;
+    os<<" spline_time_scale="<<r.smooth.optimization_time_scale
+      <<" spline_optimizer_interval="<<r.smooth.optimization_interval;
+    os<<" turn_smoothed="<<r.turn.smoothed<<" turn_polygonized="<<r.turn.polygonized
+      <<" turn_repair_samples="<<r.turn.remaining_repair_samples
+      <<" turn_stop_vertices="<<r.turn.remaining_stops<<" turn_max_curvature="<<r.turn.max_curvature
+      <<" turn_budget_exhausted="<<r.turn.budget_exhausted;
+    os<<" handoff="<<r.handoff.reason<<" handoff_applied="<<r.handoff.applied
+      <<" handoff_prefix="<<r.handoff.prefix_length<<" handoff_blend="<<r.handoff.blend_length;
     if(have_switch_assessment){
       os<<" switch_angle_deg="<<switch_assessment.transition.angle*180./pi
         <<" switch_backtrack="<<switch_assessment.transition.backtrack
@@ -1062,6 +1384,11 @@ private:
       <<","<<last_invalidation_point_.z
       <<" follower_stall_reports="<<follower_stall_reports_
       <<" retained_search_nodes="<<planner_->retainedSearchNodes()<<" autonomous_search_refreshes="<<search_refreshes_<<" goal_adjusted="<<approach_.adjusted<<" goal_offset="<<distance(goal_,approach_.effective)
+      <<" guide_expansions="<<r.route.guide_expansions
+      <<" search_repair_events="<<r.route.search_repair_events
+      <<" search_repair_removed="<<r.route.search_repair_removed
+      <<" search_repair_preserved="<<r.route.search_repair_preserved
+      <<" search_repair_pending="<<r.route.search_repair_pending
       <<" effective_target="<<approach_.effective.x<<","<<approach_.effective.y<<","<<approach_.effective.z;
     detail_=os.str();
     RCLCPP_INFO_THROTTLE(get_logger(),*get_clock(),1500,"%s %s",reason_.c_str(),detail_.c_str());
@@ -1106,7 +1433,10 @@ private:
       const auto inspection=inspectOwnedRoute();
       if(owned_path_.empty() || !inspection.valid){
         if(planner_)planner_->reset();
-        path_.clear();route_.clear();owned_path_.clear();owned_route_.clear();
+        // A safe transient prefix belongs to execution, even though a new
+        // goal no longer owns the previous full route.
+        if(!owned_path_.empty()){path_.clear();route_.clear();}
+        owned_path_.clear();owned_route_.clear();
         clearPendingSwitch();temporary_=false;
         last_search_refresh_=wall;last_refresh_generation_=generation_;
       }else{
@@ -1118,13 +1448,17 @@ private:
     approach_=selection;
     const auto peer_routes = freshPeerRoutes();
     const auto full_peer_routes = freshPeerRoutes(true);
+    const double wall_s=std::chrono::duration<double>(wall.time_since_epoch()).count();
     const bool topology_review=entrance_.topology.enabled && !full_peer_routes.empty() &&
-      (pending_switch_.active || last_topology_review_.time_since_epoch().count()==0 ||
-       std::chrono::duration<double>(wall-last_topology_review_).count()>=entrance_.topology.refresh_period);
+      (pending_switch_.active || entrance_review_.shouldReview(*grid_,owned_path_,
+       owned_route_.progress(),current_,full_peer_routes,entrance_.topology,wall_s,peer_generation_));
     // An unfinished search uses a frozen snapshot. A persistent mission must
     // not need a new goal message to refresh it. Refresh after a bounded age,
-    // only when no route exists AND new map evidence has arrived.
-    if(owned_path_.empty()&&planner_&&generation_!=last_refresh_generation_&&
+    // when the owned route is invalid (including a retained safe prefix) and
+    // new evidence arrived. A prefix must not freeze an obsolete search forever.
+    auto inspection=inspectOwnedRoute();
+    const bool old_valid=!owned_path_.empty()&&inspection.valid;
+    if(!old_valid&&planner_&&generation_!=last_refresh_generation_&&
        std::chrono::duration<double>(wall-last_search_refresh_).count()>search_snapshot_max_age_){
       if(planner_->refreshChangedSearches(*grid_)>0) {
         ++search_refreshes_;
@@ -1132,10 +1466,11 @@ private:
       last_search_refresh_=wall;
       last_refresh_generation_=generation_;
     }
-    auto inspection=inspectOwnedRoute();
-    const bool old_valid=!owned_path_.empty()&&inspection.valid;
     if(!old_valid && !owned_path_.empty())observeInvalidation(inspection,false,"PLAN_CHECK");
-    if(follower_block_reported_ && old_valid){
+    const bool clearance_repair=old_valid && !repair_authorized_ &&
+      clearance_review_.due(*grid_,owned_path_,owned_route_.progress(),now().seconds(),
+        generation_,clearance_contract_,planner_config_.allow_unknown);
+    if(follower_block_reported_ && old_valid && !clearance_repair){
       follower_block_reported_=false;retry_=force_=false;
       reason_="FOLLOWER_BLOCK_NOT_MAP_CONFIRMED";
       detail_="committed route is clear on the latest matched map; route retained";
@@ -1153,7 +1488,14 @@ private:
     const bool finished_partial=temporary_&&!owned_path_.empty()&&
       (recovery_route_ ? owned_route_.remaining()<.30
                        : owned_route_.remaining()<2.0);
-    if(old_valid && !finished_partial && !peer_conflict &&
+    if(finished_partial && old_valid && !repair_authorized_ && !peer_conflict &&
+       !pending_switch_.active && !profile_repair_requested_ && !clearance_repair &&
+       !partial_retry_.ready(wall_s,owned_path_.back(),approach_.effective,owned_route_.remaining())){
+      reason_="KEEP_PARTIAL_ROUTE_RETRY_DELAY";force_=retry_=false;last_plan_=wall;return;
+    }
+    const bool profile_repair=profile_repair_requested_ && old_valid && !finished_partial &&
+      !repair_authorized_ && !peer_conflict && !pending_switch_.active && !clearance_repair;
+    if(old_valid && !finished_partial && !peer_conflict && !profile_repair && !clearance_repair &&
        !pending_switch_.active && !topology_review && planner_config_.lock_valid_route){
       reason_=temporary_?"KEEP_RECOVERY_ROUTE":"KEEP_VALID_SPLINE";
       std::ostringstream kept;
@@ -1163,18 +1505,21 @@ private:
       retry_=force_=false;last_plan_=wall;return;
     }
     std::string plan_trigger;
-    if(!replan_trigger_.empty())plan_trigger=replan_trigger_;
+    if(clearance_repair)plan_trigger="CLEARANCE_DEGRADED";
+    else if(profile_repair)plan_trigger=replan_trigger_=="TURN_EXECUTION_REPAIR"?
+      "TURN_EXECUTION_REPAIR":"PROFILE_LIMITED_PROGRESS";
+    else if(!replan_trigger_.empty())plan_trigger=replan_trigger_;
     else if(pending_switch_.active)plan_trigger=pending_switch_.trigger;
     else if(topology_review)plan_trigger="ENTRANCE_REVIEW";
     else if(peer_conflict)plan_trigger="PEER_ROUTE_CONFLICT";
     else if(finished_partial)plan_trigger="PARTIAL_ROUTE_FINISHED";
     else if(repair_authorized_)plan_trigger=replan_trigger_.empty()?"CONFIRMED_ROUTE_INVALID":replan_trigger_;
     else if(retry_)plan_trigger="ROUTE_RETRY";
-    else plan_trigger="ROUTE_REFRESH";
+    else plan_trigger=old_valid?"ROUTE_LOCAL_REFRESH":"ROUTE_REFRESH";
     const bool safety_repair=repair_authorized_;
     const bool switch_bypass=owned_path_.empty() || safety_repair || finished_partial;
     if((safety_repair || finished_partial) && planner_)planner_->requestRepair();
-    replan_trigger_.clear();force_=false;last_plan_=wall;
+    replan_trigger_.clear();profile_repair_requested_=false;force_=false;last_plan_=wall;
     if(!planner_)planner_=std::make_unique<Planner>(planner_config_);
     const auto epoch=goal_epoch_->load();
     auto token=goal_epoch_;
@@ -1187,14 +1532,102 @@ private:
     if(topology_review)last_topology_review_=wall;
     const auto entrance_config=entrance_;const auto pc=planner_config_;
     const auto committed_geometry=owned_path_;const auto peer_epoch=peer_generation_;
+    const auto handoff_config=handoff_config_;
+    const auto profile_tracker=profile_tracker_;const auto switch_config=route_switch_;
+    const auto clearance_contract=clearance_contract_;
+    const double committed_progress=owned_route_.progress(),speed=measured_speed_;
+    auto handoff_prefix=retainedForwardPrefix(*snapshot,
+      owned_path_.empty()?path_:owned_path_,start,
+      owned_path_.empty()?route_.progress():owned_route_.progress(),
+      measured_speed_,handoff_config,unknown);
+    if(finished_partial && !handoff_prefix.empty()){
+      const double keep=std::max(.30,owned_route_.remaining()-handoff_config.blend_min);
+      if(pathLength(handoff_prefix)>keep)handoff_prefix=routeSlice(handoff_prefix,0,keep);
+    }
     reason_="PLANNING";
     work_=std::async(std::launch::async,
       [this,p=std::move(p),snapshot=std::move(snapshot),start,goal,cfg,unknown,
        token,epoch,peer_routes,full_peer_routes,incumbent,switch_bypass,safety_repair,
-       plan_trigger,entrance_config,pc,committed_geometry,peer_epoch]()mutable{
+       plan_trigger,entrance_config,pc,committed_geometry,peer_epoch,handoff_config,handoff_prefix,
+       profile_tracker,switch_config,committed_progress,speed,clearance_contract]()mutable{
         const Grid &g=*snapshot;
         WorkResult out;out.epoch=epoch;out.switch_bypass=switch_bypass;
-        out.safety_repair=safety_repair;out.trigger=plan_trigger;
+        out.safety_repair=safety_repair;out.trigger=plan_trigger;out.peer_epoch=peer_epoch;
+        if(plan_trigger=="CLEARANCE_DEGRADED"){
+          const auto cancelled=[token,epoch]{return token->load()!=epoch;};
+          out.peer_epoch=peer_epoch;
+          out.route=repairRouteClearance(g,committed_geometry,committed_progress,
+            speed<=.15?std::min(.30,pathLength(handoff_prefix)):pathLength(handoff_prefix),
+            clearance_contract,pc,cancelled);
+          if(!out.route.points.empty()){
+            if(out.route.clearance_near_repair){
+              out.smooth.points=out.route.points;out.smooth.mode="NEAR_CLEARANCE_OFFSET";
+            }else out.smooth=smoothPlannedRoute(g,out.route,cfg,unknown,cancelled,
+              handoff_config,pathLength(handoff_prefix));
+            const auto raw_arc=arcLengths(out.route.points);
+            const double prefix=raw_arc[out.route.patch_begin];
+            const double tail=raw_arc.back()-raw_arc[out.route.patch_end];
+            auto patch=routeSlice(out.smooth.points,prefix,pathLength(out.smooth.points)-tail);
+            if(!out.route.clearance_near_repair&&!routeHasMargin(g,patch,clearance_contract.reserve-.005,unknown)){
+              out.smooth.points=out.route.points;out.smooth.mode="CLEARANCE_CERTIFIED_RAW";
+            }
+            out.switch_points=out.route.points;
+            out.handoff.applied=true;out.handoff.reason=out.route.clearance_near_repair?
+              "NEAR_CLEARANCE_JOIN":"CLEARANCE_LOCAL_JOIN";
+            out.handoff.prefix_length=prefix;
+            out.reserved_gates=reservablePassages(peerPassages(g,full_peer_routes,
+              entrance_config.topology,cancelled),start,committed_geometry.back(),entrance_config.topology);
+          }
+          out.planner=std::move(p);return out;
+        }
+        if(plan_trigger=="PROFILE_LIMITED_PROGRESS"||plan_trigger=="TURN_EXECUTION_REPAIR"){
+          const auto cancelled=[token,epoch]{return token->load()!=epoch;};
+          const auto arc=arcLengths(committed_geometry);
+          const Vec3 tangent=forwardRouteTangent(committed_geometry,arc,committed_progress);
+          // Compare geometric feasibility at aligned yaw. A turn-repair
+          // request may originate during alignment; live yaw/safety gates
+          // still decide when its candidate can actually be flown.
+          if(plan_trigger=="TURN_EXECUTION_REPAIR")
+            out.profile=repairTurnExecutionRoute(g,committed_geometry,start,committed_progress,
+              speed,profile_tracker,handoff_config,unknown,cancelled);
+          else out.profile=repairProfileLimitedRoute(g,committed_geometry,start,committed_progress,
+              tangent*speed,std::atan2(tangent.y,tangent.x),profile_tracker,switch_config,
+              handoff_config,unknown,cancelled);
+          out.peer_epoch=peer_epoch;out.route.reason=out.profile.reason;
+          if(out.profile.applied){
+            const auto reference=routeSlice(committed_geometry,std::max(0.,committed_progress-.25),pathLength(committed_geometry));
+            const double reserve=routeMargin(g,reference,clearance_contract.reserve,unknown);
+            if(reserve>.01&&!routeHasMargin(g,out.profile.points,std::max(0.,reserve-.005),unknown)){
+              out.profile.applied=false;out.profile.reason="PROFILE_CLEARANCE_REJECTED";
+              out.route.reason=out.profile.reason;out.planner=std::move(p);return out;
+            }
+            out.smooth.points=out.profile.points;out.route.points=out.profile.points;
+            out.smooth.mode=out.profile.reason;out.switch_points=out.profile.points;
+            out.handoff.applied=true;out.handoff.reason=out.profile.reason;
+            out.handoff.prefix_length=out.profile.protected_length;
+            out.reserved_gates=reservablePassages(peerPassages(g,full_peer_routes,
+              entrance_config.topology,cancelled),start,committed_geometry.back(),entrance_config.topology);
+          }
+          out.planner=std::move(p);return out;
+        }
+        if(plan_trigger=="ROUTE_LOCAL_REFRESH"){
+          const auto cancelled=[token,epoch]{return token->load()!=epoch;};
+          auto shortcut=refreshLocalShortcut(g,committed_geometry,start,committed_progress,
+            std::clamp(speed*handoff_config.time,handoff_config.min_prefix,handoff_config.max_prefix),
+            clearance_contract.reserve,unknown,cancelled);
+          if(shortcut.empty()){
+            out.route.points=committed_geometry;out.route.reused=true;out.route.reason="LOCAL_REFRESH_NO_GAIN";
+            out.smooth.points=committed_geometry;out.smooth.mode="RETAINED_STRAIGHT_ROUTE";
+          }else {
+            out.route.points=std::move(shortcut);out.route.reason="LOCAL_REFRESH_SHORTCUT";
+            out.smooth=smoothPlannedRoute(g,out.route,cfg,unknown,cancelled,handoff_config,pathLength(handoff_prefix));
+            out.handoff.prefix_length=pathLength(handoff_prefix);out.handoff.applied=true;
+            out.handoff.reason="LOCAL_REFRESH_JOIN";out.switch_points=out.smooth.points;
+            out.reserved_gates=reservablePassages(peerPassages(g,full_peer_routes,
+              entrance_config.topology,cancelled),start,committed_geometry.back(),entrance_config.topology);
+          }
+          out.planner=std::move(p);return out;
+        }
         p->clearRoutePenalties();
         p->addRoutePenalty(g,peer_routes,peer_route_separation_,
                            peer_route_penalty_weight_,peer_time_step_);
@@ -1213,12 +1646,36 @@ private:
             // another curve to an identical, freshly trimmed route every tick.
             out.smooth.points=committed_geometry;out.smooth.mode="RETAINED_STRAIGHT_ROUTE";
           }else{
-            out.smooth=smoothPlannedRoute(g,out.route,cfg,unknown,cancelled);
+            out.smooth=smoothPlannedRoute(g,out.route,cfg,unknown,cancelled,
+              handoff_config,pathLength(handoff_prefix));
             if(selection.changed && sharedPassageCount(out.smooth.points,out.reserved_gates)>out.shared_gates){
               // Physical-map smoothing must not shortcut back through the
               // excluded door. Its checked raw route is the conservative fallback.
               out.smooth.points=out.route.points;out.smooth.mode="DISTINCT_PASSAGE_RAW";
             }
+            if(!handoff_prefix.empty()&&!out.smooth.points.empty()&&
+               out.route.reason!="RECOVERY_MARGIN_ESCAPE"&&!cancelled()){
+              out.switch_points=out.smooth.points;
+              out.handoff=connectRetainedPrefix(g,handoff_prefix,out.smooth.points,
+                handoff_config,unknown,cancelled);
+              if(out.handoff.applied && sharedPassageCount(out.handoff.points,out.reserved_gates)>
+                  sharedPassageCount(out.smooth.points,out.reserved_gates)){
+                out.handoff.applied=false;out.handoff.reason="HANDOFF_ENTRANCE_CONFLICT";
+              }
+              if(out.handoff.applied){
+                out.smooth.points=out.handoff.points;
+                out.smooth.mode+="_"+out.handoff.reason;
+              }
+            }
+          }
+        }
+        if(!out.route.reused && !out.smooth.points.empty() && !out.route.points.empty()){
+          const double reserve=routeMargin(g,out.route.points,clearance_contract.reserve,unknown);
+          if(reserve>.01 && !routeHasMargin(g,out.smooth.points,std::max(0.,reserve-.005),unknown)){
+            // Reject a lossy splice when moving; keep the incumbent until a
+            // certified connection exists. An initial route can use its raw seed.
+            if(!handoff_prefix.empty()){out.smooth.points.clear();out.smooth.mode="HANDOFF_CLEARANCE_REJECTED";}
+            else {out.smooth.points=out.route.points;out.smooth.mode="CLEARANCE_RAW_FALLBACK";}
           }
         }
         out.planner=std::move(p);return out;
@@ -1226,8 +1683,17 @@ private:
   }
   void publish() {
     const auto input=inputState();
+    // A distant invalid tail must not revoke an otherwise usable forward
+    // corridor. Trim once, then keep that geometry and its braking endpoint
+    // stable while the worker repairs the owned route. Close hazards, stale
+    // inputs and the follower's own guards still stop motion immediately.
+    RouteMemory checked=route_;
+    if(input=="READY" && !path_.empty() &&
+       (!checked.valid(*grid_,current_,planner_config_.allow_unknown)||!guardValid(checked)))
+      keepSafePrefix();
     if(have_goal_ && approach_pub_){
       std::vector<Vec3> points{goal_};if(approach_.valid)points.push_back(approach_.effective);
+      else if(reason_!="GOAL_BLOCKED")points.push_back(goal_);
       approach_pub_->publish(makePath(points,frame_,now()));
     }
     bool changed=path_.size()!=published_geometry_.size();
@@ -1250,11 +1716,14 @@ private:
     const auto execution_reason=input!="READY"?input:
       path_.empty()?"NO_ROUTE":certified?"READY":"ROUTE_NOT_CERTIFIED";
     execution_pub_->publish(textMessage(RoutePermit{now().nanoseconds(),route_stamp_ns_,
-      certified,execution_reason,goal_,execution_instance_}.encode()));
+      certified,execution_reason,goal_,execution_instance_,
+      input=="READY"&&(work_.valid()||retry_||repair_authorized_)}.encode()));
     std::ostringstream state;
     state<<reason_<<" input_state="<<input<<" route_revision="<<route_stamp_ns_
       <<" executable="<<certified<<" map_age="<<(have_map_?(now()-map_stamp_).seconds():-1.)
       <<" odom_age="<<(have_odom_?(now()-odom_stamp_).seconds():-1.)
+      <<" local_overlay_occ="<<local_overlay_.addedOccupied()
+      <<" local_overlay_stamp="<<local_overlay_stamp_ns_
       <<" map_source="<<mapInputName(map_source_)
       <<" primary_map_age="<<(primary_stamp_ns_>0?double(now().nanoseconds()-primary_stamp_ns_)*1e-9:-1.)
       <<" local_map_age="<<(local_pending_?double(now().nanoseconds()-stampNs(local_pending_->header.stamp))*1e-9:-1.)
@@ -1267,6 +1736,13 @@ private:
   std::string frame_, path_topic_, reason_{"WAIT_INPUT"}, detail_;
   std::shared_ptr<Grid> grid_;
   PlannerConfig planner_config_;
+  RouteHandoffConfig handoff_config_;
+  TrackerConfig profile_tracker_;
+  bool profile_repair_requested_{false};
+  ClearanceContract clearance_contract_;ClearanceReview clearance_review_;
+  SharedEntranceReview entrance_review_;
+  PartialRouteRetryGate partial_retry_;
+  double measured_speed_{0};
   RouteSwitchConfig route_switch_;
   EntranceConfig entrance_;
   std::chrono::steady_clock::time_point last_topology_review_{};
@@ -1286,7 +1762,7 @@ private:
   std::shared_ptr<std::atomic<uint64_t>> goal_epoch_{std::make_shared<std::atomic<uint64_t>>(0)};
   std::future<WorkResult> work_;
   std::chrono::steady_clock::time_point last_plan_{},last_peer_replan_{},last_route_switch_{};
-  double replan_period_{.25},search_snapshot_max_age_{8.0};
+  double replan_period_{.10},search_snapshot_max_age_{1.0};
   std::chrono::steady_clock::time_point last_search_refresh_{};size_t last_refresh_generation_{0},search_refreshes_{0};
   SplineConfig spline_;
   RouteMemory route_,owned_route_;
@@ -1317,7 +1793,9 @@ private:
   int64_t last_primary_input_stamp_ns_{0},last_local_input_stamp_ns_{0};
   size_t primary_received_{0},local_received_{0},map_commits_{0},map_rejected_{0};
   size_t primary_bytes_{0},local_bytes_{0};
-  std::shared_ptr<Grid> primary_grid_;
+  std::shared_ptr<Grid> primary_grid_,local_overlay_grid_;
+  LocalOccupiedOverlay local_overlay_;
+  int64_t local_overlay_stamp_ns_{-1},last_compact_confirmation_stamp_ns_{-1};
   sensor_msgs::msg::PointCloud2::SharedPtr primary_pending_,local_pending_;
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr snapshot_sub_,local_snapshot_sub_;
   std::shared_ptr<Grid> occupied_guard_;

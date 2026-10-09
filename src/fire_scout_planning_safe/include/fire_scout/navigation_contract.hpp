@@ -22,12 +22,14 @@ class ObservationFallback {
 // a useful observed forward prefix from the ACTUAL pose; never certify the
 // unrecorded remainder just because the planner published a line.
 template<class Certificate>
-bool certifiedRouteHandoff(const std::vector<Vec3>&path,Vec3 current,Certificate certified,Vec3&join){
-  if(path.size()<2||!finite(current))return false;
+bool certifiedRouteHandoff(const std::vector<Vec3>&path,Vec3 current,Certificate certified,Vec3&join,
+    double progress=0,double maximum_error=.25){
+  if(path.size()<2||!finite(current)||!std::isfinite(progress)||!std::isfinite(maximum_error)||
+     maximum_error<.05||maximum_error>1.0)return false;
   for(auto p:path)if(!finite(p))return false;
   const auto arc=arcLengths(path);
-  const auto pr=project(path,arc,current,0,std::min(2.,arc.back()));
-  if(!std::isfinite(pr.error)||pr.error>.25||arc.back()-pr.s<.40)return false;
+  const auto pr=project(path,arc,current,std::max(0.,progress-.75),std::min(progress+2.,arc.back()));
+  if(!std::isfinite(pr.error)||pr.error>maximum_error||arc.back()-pr.s<.40)return false;
   const double first=std::min(arc.back(),pr.s+.12),last=std::min(arc.back(),pr.s+.60);
   Vec3 previous=current;join=atArc(path,arc,last);
   Vec3 p=atArc(path,arc,first);if(!certified(previous,p))return false;previous=p;
@@ -40,10 +42,11 @@ bool certifiedRouteHandoff(const std::vector<Vec3>&path,Vec3 current,Certificate
 class StableRouteHandoff {
  public:
   void clear(){since_=-1;}
-  bool update(bool certified,double now,Vec3 join){
-    if(!certified||!std::isfinite(now)||!finite(join)){clear();return false;}
+  bool update(bool certified,double now,Vec3 join,double settle_time=.30){
+    if(!certified||!std::isfinite(now)||!finite(join)||!std::isfinite(settle_time)||
+       settle_time<.10||settle_time>1.0){clear();return false;}
     if(since_<0||now<since_||distance(join,join_)>.25){since_=now;join_=join;return false;}
-    return now-since_>=.30;
+    return now-since_>=settle_time;
   }
  private:
   double since_{-1};Vec3 join_{};

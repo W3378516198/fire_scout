@@ -1,0 +1,272 @@
+{
+  "package": "fire_scout_planning_safe",
+  "version": "2.1.9",
+  "validated_utc": "2026-10-08T05:24:47.382475+00:00",
+  "tests": {
+    "total": 33,
+    "passed": 33,
+    "cpp_core": [
+      {
+        "name": "clearance_contract_test",
+        "passed": true,
+        "seconds": 3.398,
+        "returncode": 0
+      },
+      {
+        "name": "continuous_turn_execution_test",
+        "passed": true,
+        "seconds": 1.866,
+        "returncode": 0
+      },
+      {
+        "name": "coordination_components_test",
+        "passed": true,
+        "seconds": 2.422,
+        "returncode": 0
+      },
+      {
+        "name": "drift_and_altitude_regression_test",
+        "passed": true,
+        "seconds": 1.44,
+        "returncode": 0
+      },
+      {
+        "name": "dynamic_refresh_test",
+        "passed": true,
+        "seconds": 1.689,
+        "returncode": 0
+      },
+      {
+        "name": "entry_continuity_test",
+        "passed": true,
+        "seconds": 4.608,
+        "returncode": 0
+      },
+      {
+        "name": "follower_alignment_test",
+        "passed": true,
+        "seconds": 1.566,
+        "returncode": 0
+      },
+      {
+        "name": "global_turn_policy_test",
+        "passed": true,
+        "seconds": 2.502,
+        "returncode": 0
+      },
+      {
+        "name": "incremental_repair_v19_test",
+        "passed": true,
+        "seconds": 3.426,
+        "returncode": 0
+      },
+      {
+        "name": "map_input_test",
+        "passed": true,
+        "seconds": 1.683,
+        "returncode": 0
+      },
+      {
+        "name": "map_snapshot_test",
+        "passed": true,
+        "seconds": 1.983,
+        "returncode": 0
+      },
+      {
+        "name": "measured_braking_test",
+        "passed": true,
+        "seconds": 0.81,
+        "returncode": 0
+      },
+      {
+        "name": "near_repair_search_regression_test",
+        "passed": true,
+        "seconds": 3.265,
+        "returncode": 0
+      },
+      {
+        "name": "profile_progress_test",
+        "passed": true,
+        "seconds": 0.694,
+        "returncode": 0
+      },
+      {
+        "name": "profile_repair_test",
+        "passed": true,
+        "seconds": 2.987,
+        "returncode": 0
+      },
+      {
+        "name": "replan_schedule_test",
+        "passed": true,
+        "seconds": 1.589,
+        "returncode": 0
+      },
+      {
+        "name": "route_handoff_test",
+        "passed": true,
+        "seconds": 2.745,
+        "returncode": 0
+      },
+      {
+        "name": "route_switch_test",
+        "passed": true,
+        "seconds": 0.995,
+        "returncode": 0
+      },
+      {
+        "name": "ultrasonic_memory_test",
+        "passed": true,
+        "seconds": 1.126,
+        "returncode": 0
+      },
+      {
+        "name": "v210_entrance_test",
+        "passed": true,
+        "seconds": 3.779,
+        "returncode": 0
+      },
+      {
+        "name": "v210_header_integration_test",
+        "passed": true,
+        "seconds": 0.96,
+        "returncode": 0
+      },
+      {
+        "name": "v210_route_channel_test",
+        "passed": true,
+        "seconds": 1.252,
+        "returncode": 0
+      },
+      {
+        "name": "v2_passage_handshake_test",
+        "passed": true,
+        "seconds": 0.874,
+        "returncode": 0
+      }
+    ],
+    "python_and_production_fragments": [
+      {
+        "name": "light_logger_geometry_test",
+        "passed": true,
+        "seconds": 0.044,
+        "returncode": 0
+      },
+      {
+        "name": "measured_braking_node_test",
+        "passed": true,
+        "seconds": 1.703,
+        "returncode": 0
+      },
+      {
+        "name": "profile_progress_node_test",
+        "passed": true,
+        "seconds": 1.008,
+        "returncode": 0
+      },
+      {
+        "name": "turn_recovery_node_test",
+        "passed": true,
+        "seconds": 1.581,
+        "returncode": 0
+      },
+      {
+        "name": "v210_launch_test",
+        "passed": true,
+        "seconds": 2.011,
+        "returncode": 0
+      },
+      {
+        "name": "v210_node_continuity_test",
+        "passed": true,
+        "seconds": 10.906,
+        "returncode": 0
+      },
+      {
+        "name": "v212_map_pipeline_test",
+        "passed": true,
+        "seconds": 2.311,
+        "returncode": 0
+      },
+      {
+        "name": "v214_fusion_fast_test",
+        "passed": true,
+        "seconds": 2.964,
+        "returncode": 0
+      },
+      {
+        "name": "v214_peer_progress_test",
+        "passed": true,
+        "seconds": 1.236,
+        "returncode": 0
+      },
+      {
+        "name": "v2_node_passage_test",
+        "passed": true,
+        "seconds": 2.332,
+        "returncode": 0
+      }
+    ]
+  },
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "cpp_flags": [
+    "-std=c++17",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-UNDEBUG",
+    "-pthread"
+  ],
+  "syntax_checks": {
+    "python_and_shell": [
+      "launch/multi_map_fusion.launch.py",
+      "launch/multi_racer_navigation.launch.py",
+      "launch/multi_safe_airfar_navigation.launch.py",
+      "launch/multi_safe_airfar_planner_only.launch.py",
+      "launch/safe_airfar_navigation.launch.py",
+      "launch/safe_airfar_planner_only.launch.py",
+      "scripts/fire_scout_light_logger.py",
+      "tests/light_logger_geometry_test.py",
+      "tests/measured_braking_node_test.py",
+      "tests/profile_progress_node_test.py",
+      "tests/turn_recovery_node_test.py",
+      "tests/v210_launch_test.py",
+      "tests/v210_node_continuity_test.py",
+      "tests/v212_map_pipeline_test.py",
+      "tests/v214_fusion_fast_test.py",
+      "tests/v214_peer_progress_test.py",
+      "tests/v2_node_passage_test.py",
+      "scripts/collect_fire_scout_logs.sh",
+      "scripts/install_fire_scout_planning_safe.sh"
+    ],
+    "yaml": "config/safe_airfar.yaml",
+    "xml": "package.xml",
+    "result": "passed"
+  },
+  "targeted_cases": [
+    "exact retained prefix excludes leading live-position hook",
+    "remote obstacle repair preserves nearby original curve",
+    "resumed search after root motion retains checked geometric curve",
+    "short backward entry joins forward with inertia and yaw response",
+    "blocked rejoin remains stopped",
+    "micro S-bend repair preserves untouched tail",
+    "moving vehicle and occupied body veto stopped-entry repair",
+    "net-progress monitoring survives oscillation and pauses for safety",
+    "bounded high-precision near-path logging and map conflict snapshot"
+  ],
+  "build_tools_available": {
+    "g++": "/usr/bin/g++",
+    "cmake": null,
+    "colcon": null,
+    "ros2": null,
+    "px4": null,
+    "gz": null
+  },
+  "limits": [
+    "No complete ROS 2 node build was run.",
+    "Production-method tests use real method bodies with transport/environment stubs.",
+    "No DDS/TF integration or PX4/Gazebo multivehicle flight test was run.",
+    "Passing portable regression cases does not certify live flight behavior."
+  ]
+}

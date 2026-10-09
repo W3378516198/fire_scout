@@ -71,6 +71,8 @@ public:
   void request(PassageBid bid){
     if(!finite(bid.anchor)||!finite(bid.position)||!std::isfinite(bid.received)||
        !std::isfinite(bid.release_radius)||bid.release_radius<0||bid.release_radius>6||bid.epoch<0)return;
+    auto previous=bids.find(bid.robot);
+    if(previous!=bids.end()&&(bid.received<previous->second.received||bid.epoch<previous->second.epoch))return;
     auto done=completed.find(bid.robot);
     if(done!=completed.end()){
       if(done->second.epoch==bid.epoch&&distance(done->second.anchor,bid.anchor)<=merge_radius&&
@@ -115,9 +117,22 @@ public:
     for(auto &l:leases){
       if(l.owner<0)continue;
       auto b=bids.find(l.owner);
+      // Fresh owner position is evidence independently of WHICH opening the
+      // owner now requests. In particular, a rejected migration while still
+      // inside must be re-evaluated on every later heartbeat. Do not erase the
+      // new bid when completing the old lease; timeout alone never frees it.
+      const bool fresh=b!=bids.end()&&time>=b->second.received&&
+        time-b->second.received<=request_timeout;
+      const bool migrating=fresh&&(distance(b->second.anchor,l.owner_anchor)>merge_radius||
+        distance(b->second.anchor,l.anchor)>merge_radius);
+      if(migrating&&passageOutside(b->second.position,l.owner_anchor,l.release_radius)){
+        completed[l.owner]={l.owner_anchor,b->second.position,l.release_radius,l.epoch};
+        l.owner=-1;l.quarantined=false;l.entered=false;++migrations_completed;
+        continue;
+      }
       if(b!=bids.end()&&time>=b->second.received&&
          time-b->second.received<=request_timeout&&
-         distance(b->second.anchor,l.anchor)<=merge_radius){
+         !migrating){
         l.last_owner_request=time;l.quarantined=false;
         // A fresh same-owner request may resume after a node/clock restart.
         // Keep the original physical resource reserved while adopting its id.
@@ -159,5 +174,6 @@ public:
         l.entered=distance(l.owner_anchor,best->position)<=l.release_radius;}
     }
   }
+  size_t migrations_completed{0};
 };
 } // namespace fire_scout

@@ -102,7 +102,14 @@ struct SplineConfig {
   double jerk_weight{3.0}, bending_weight{.5}, fitting_weight{1.0};
   double max_control_offset{.20}, optimization_budget_ms{8.0};
   int optimization_iterations{96};
+  // EGO-inspired finite-difference dynamic feasibility. The interval belongs
+  // to the geometric optimizer; the live follower still owns its independent
+  // acceleration/jerk-limited speed profile and every collision safeguard.
+  double feasibility_weight{.20},nominal_speed{1.2};
+  double max_velocity{1.8},max_acceleration{1.5},max_jerk{4.5};
+  bool time_reallocate{true};
   double obstacle_weight{0}; // ROS enables gap-adaptive obstacle repulsion.
+  double clearance_reserve{.25}; // Soft objective; final geometry is certified separately.
   GapPolicyConfig gap;
 };
 struct SplineResult {
@@ -113,12 +120,21 @@ struct SplineResult {
   bool optimized{false};
   int optimization_iterations{0};
   double optimization_cost_before{0}, optimization_cost_after{0};
+  double optimization_time_scale{1},optimization_interval{0};
 };
 struct ControlOptimization {
   std::vector<Vec3> controls;
   int iterations{0};
   double cost_before{0}, cost_after{0};
+  double time_scale{1},interval{0};
 };
+inline double controlFeasibilityScale(const std::vector<Vec3>&q,double interval,const SplineConfig&c){
+  double ratio=1;
+  for(size_t i=0;i+1<q.size();++i)ratio=std::max(ratio,norm(q[i+1]-q[i])/(interval*c.max_velocity));
+  for(size_t i=0;i+2<q.size();++i)ratio=std::max(ratio,std::sqrt(norm(q[i+2]-q[i+1]*2+q[i])/(interval*interval*c.max_acceleration)));
+  for(size_t i=0;i+3<q.size();++i)ratio=std::max(ratio,std::cbrt(norm(q[i+3]-q[i+2]*3+q[i+1]*3-q[i])/(interval*interval*interval*c.max_jerk)));
+  return ratio;
+}
 // Finite differences are a geometric jerk proxy, as in EGO's smoothness cost:
 // ZJU-FAST-Lab/ego-planner, src/planner/bspline_opt/src/bspline_optimizer.cpp,
 // calcSmoothnessCost. This dependency-free projected solver is local to this
@@ -156,6 +172,23 @@ inline double controlObjective(const std::vector<Vec3>&q,const std::vector<Vec3>
       (*gradient)[i+3]=(*gradient)[i+3]+v;
     }
   }
+  if(cfg.feasibility_weight>0){
+    const double interval=std::max(.1,cfg.control_spacing/cfg.nominal_speed);
+    const double limits[]{cfg.max_velocity,cfg.max_acceleration,cfg.max_jerk};
+    const double coefficients[3][4]{{-1,1,0,0},{1,-2,1,0},{-1,3,-3,1}};
+    for(int order=1;order<=3;++order){
+      const double scale=std::pow(interval,order);
+      for(size_t i=0;i+size_t(order)<q.size();++i){
+        Vec3 d{};for(int j=0;j<=order;++j)d=d+q[i+j]*coefficients[order-1][j];
+        const double length=norm(d),excess=std::max(0.,length/scale-limits[order-1]);
+        cost+=cfg.feasibility_weight*excess*excess;
+        if(gradient&&excess>0&&length>1e-9){
+          const Vec3 v=d*(2*cfg.feasibility_weight*excess/(length*scale));
+          for(int j=0;j<=order;++j)(*gradient)[i+j]=(*gradient)[i+j]+v*coefficients[order-1][j];
+        }
+      }
+    }
+  }
   return cost;
 }
 inline ControlOptimization optimizeSplineControls(
@@ -163,11 +196,12 @@ inline ControlOptimization optimizeSplineControls(
     const std::chrono::steady_clock::time_point&deadline,
     const std::function<bool()>&cancelled={},const Grid*grid=nullptr){
   ControlOptimization out{seed};
+  out.interval=std::max(.1,cfg.control_spacing/cfg.nominal_speed);
   std::vector<double> margin(seed.size(),0);
   if(grid && cfg.obstacle_weight>0 && cfg.gap.enabled)
     for(size_t i=1;i+1<seed.size();++i){
       if((cancelled&&cancelled())||std::chrono::steady_clock::now()>=deadline)break;
-      margin[i]=localGap(*grid,seed[i],seed[i+1]-seed[i-1],1.,cfg.gap).extra_margin;
+      margin[i]=std::max(cfg.clearance_reserve,localGap(*grid,seed[i],seed[i+1]-seed[i-1],1.,cfg.gap).extra_margin);
     }
   auto objective=[&](const std::vector<Vec3>&q,std::vector<Vec3>*gradient=nullptr){
     double value=controlObjective(q,seed,cfg,gradient);
@@ -192,7 +226,9 @@ inline ControlOptimization optimizeSplineControls(
   const double radius=std::max(0.,std::min(cfg.max_control_offset,cfg.max_deviation));
   // Spectral upper bound for the Hessian of squared first/second/third
   // differences: this fixed step makes projected gradient descent monotone.
-  const double L=2*cfg.fitting_weight+32*cfg.bending_weight+128*cfg.jerk_weight+8*cfg.obstacle_weight;
+  const double dt=std::max(.1,cfg.control_spacing/cfg.nominal_speed);
+  const double L=2*cfg.fitting_weight+32*cfg.bending_weight+128*cfg.jerk_weight+8*cfg.obstacle_weight+
+    2*cfg.feasibility_weight*(4/(dt*dt)+16/std::pow(dt,4)+64/std::pow(dt,6));
   if(radius<=0 || !std::isfinite(L) || L<=0)return out;
   const double step=.95/L;
   std::vector<Vec3> gradient;
@@ -215,6 +251,20 @@ inline ControlOptimization optimizeSplineControls(
   if(!std::isfinite(out.cost_after) || out.cost_after>=out.cost_before-1e-9){
     out.controls=seed;out.cost_after=out.cost_before;
   }
+  // Lengthen the nominal control interval and perform a bounded refit, as in
+  // EGO's feasibility/refinement idea. This timing belongs to optimization;
+  // live PX4 velocity timing still belongs to the independent follower.
+  out.time_scale=controlFeasibilityScale(out.controls,out.interval,cfg);
+  if(cfg.time_reallocate&&out.time_scale>1.01&&std::chrono::steady_clock::now()<deadline){
+    auto retimed=cfg;retimed.time_reallocate=false;retimed.nominal_speed/=out.time_scale;
+    auto refit=optimizeSplineControls(out.controls,retimed,deadline,cancelled,grid);
+    const double cost=objective(refit.controls);
+    bool in_region=true;for(size_t i=0;i<seed.size();++i)
+      if(distance(refit.controls[i],seed[i])>radius+1e-8){in_region=false;break;}
+    if(in_region&&std::isfinite(cost)&&cost<out.cost_after){out.controls=std::move(refit.controls);
+      out.cost_after=cost;out.iterations+=refit.iterations;}
+  }
+  out.time_scale=controlFeasibilityScale(out.controls,out.interval,cfg);out.interval*=out.time_scale;
   return out;
 }
 inline SplineResult smoothPath(const Grid&g,const std::vector<Vec3>&route,
@@ -231,6 +281,11 @@ inline SplineResult smoothPath(const Grid&g,const std::vector<Vec3>&route,
      !std::isfinite(cfg.jerk_weight) || cfg.jerk_weight<0 ||
      !std::isfinite(cfg.bending_weight) || cfg.bending_weight<0 ||
      !std::isfinite(cfg.fitting_weight) || cfg.fitting_weight<0 ||
+     !std::isfinite(cfg.feasibility_weight)||cfg.feasibility_weight<0||
+     !std::isfinite(cfg.nominal_speed)||cfg.nominal_speed<=0||
+     !std::isfinite(cfg.max_velocity)||cfg.max_velocity<=0||
+     !std::isfinite(cfg.max_acceleration)||cfg.max_acceleration<=0||
+     !std::isfinite(cfg.max_jerk)||cfg.max_jerk<=0||
      !std::isfinite(cfg.obstacle_weight)||cfg.obstacle_weight<0||!cfg.gap.valid()||
      cfg.attempts<1 || cfg.attempts>8 || cfg.optimization_iterations<0 ||
      cfg.optimization_iterations>1000)return {{},"INVALID_CONFIG",0};
@@ -310,7 +365,8 @@ inline SplineResult smoothPath(const Grid&g,const std::vector<Vec3>&route,
     if(cancelled && cancelled())return {{},"CANCELLED",0};
     if(valid)return {out,"BSPLINE",spans.size(),spacing,deviation,refined,
                      refined?optimized.iterations:0,
-                     refined?optimized.cost_before:0,refined?optimized.cost_after:0};
+                     refined?optimized.cost_before:0,refined?optimized.cost_after:0,
+                     refined?optimized.time_scale:1,refined?optimized.interval:0};
     }
   }
   // Never publish an unverified smooth curve. The speed profile stops at sharp

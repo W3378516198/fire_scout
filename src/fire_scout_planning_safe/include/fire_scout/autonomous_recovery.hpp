@@ -48,6 +48,7 @@ class RecoveryCampaign {
 };
 struct ObservedEscapeConfig {
   double step{.25},max_length{1.20},max_height_change{.50},max_ms{25};int max_checks{256};
+  bool prefer_clearance{false};double minimum_clearance_gain{.10},maximum_clearance_loss{.02};
 };
 // Small 3-D graph over observed free space. It can take a side leg before
 // advancing, unlike the old single radial move. Every edge must pass the
@@ -57,7 +58,9 @@ std::vector<Vec3> observedEscapeRoute(Vec3 start,Vec3 goal,const ObservedEscapeC
     Certificate certified,Clearance clearance,Novel novel){
   if(!finite(start)||!finite(goal)||!std::isfinite(cfg.step)||!std::isfinite(cfg.max_length)||!std::isfinite(cfg.max_height_change)||cfg.step<.15||cfg.max_length<.4||cfg.max_length>2||
      cfg.max_height_change<0||cfg.max_height_change>.75||cfg.max_checks<1||cfg.max_checks>2048||
-     !std::isfinite(cfg.max_ms)||cfg.max_ms<=0||cfg.max_ms>100)return {};
+     !std::isfinite(cfg.max_ms)||cfg.max_ms<=0||cfg.max_ms>100||
+     !std::isfinite(cfg.minimum_clearance_gain)||cfg.minimum_clearance_gain<0||cfg.minimum_clearance_gain>.6||
+     !std::isfinite(cfg.maximum_clearance_loss)||cfg.maximum_clearance_loss<0||cfg.maximum_clearance_loss>.10)return {};
   const auto began=std::chrono::steady_clock::now();
   struct Node{Vec3 p;double length;int parent;};struct Item{double score;int id;bool operator<(const Item&o)const{return score<o.score;}};
   std::vector<Node>nodes{{start,0,-1}};std::priority_queue<Item>open;open.push({0,0});
@@ -72,11 +75,16 @@ std::vector<Vec3> observedEscapeRoute(Vec3 start,Vec3 goal,const ObservedEscapeC
       Vec3 p=n.p+d*cfg.step;double length=n.length+cfg.step;
       if(length>cfg.max_length+1e-8||std::abs(p.z-start.z)>cfg.max_height_change+1e-8)continue;
       Key k=key(p,cfg.step*.5);auto old=cost.find(k);if(old!=cost.end()&&old->second<=length+1e-8)continue;
-      ++checks;if(!certified(n.p,p))continue;cost[k]=length;
+      ++checks;if(!certified(n.p,p))continue;
+      if(cfg.prefer_clearance&&clearance(p)+cfg.maximum_clearance_loss<clearance(n.p))continue;
+      cost[k]=length;
       const double progress=distance(start,goal)-distance(p,goal),gain=clearance(p)-initial;
-      const double score=2*progress+1.5*gain-.12*length;
+      const double score=cfg.prefer_clearance?4*gain+.2*progress-.12*length:
+        2*progress+1.5*gain-.12*length;
       int added=int(nodes.size());nodes.push_back({p,length,id});open.push({score,added});
-      if(distance(start,p)>=.35&&(progress>=.15||gain>=.08)&&novel(p)&&score>best){best=score;best_id=added;}
+      const bool useful=cfg.prefer_clearance?gain+1e-9>=cfg.minimum_clearance_gain:
+        (progress>=.15||gain>=.08);
+      if(distance(start,p)>=.35&&useful&&novel(p)&&score>best){best=score;best_id=added;}
     }
   }
   if(best_id<0)return {};

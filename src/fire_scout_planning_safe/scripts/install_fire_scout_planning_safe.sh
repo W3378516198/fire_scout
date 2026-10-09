@@ -66,10 +66,10 @@ if [ -d "${INSTALL_TARGET}" ]; then mv -- "${INSTALL_TARGET}" "${BACKUP_DIR}/ins
 echo "旧构建产物已保存在：${BACKUP_DIR}（相对symlink可能因移动而失效）"
 cd "${WORKSPACE}"
 colcon build --packages-select "${PACKAGE_NAME}" --allow-overriding "${PACKAGE_NAME}" \
-  --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+  --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release -DFIRE_SCOUT_CORE_ONLY=OFF
 source "${WORKSPACE}/install/setup.bash"
 
 echo "构建完成：$(ros2 pkg prefix "${PACKAGE_NAME}")"
 echo "请重新启动 launch；运行中的旧进程不会被 source 自动替换。"
-echo "期望跟随器版本：2.1.2-geometric-cooperative"
-echo "期望规划器版本：2.1.2-straight-route-cooperative"
+echo "期望跟随器版本：2.1.10-safe-planning-handoff"
+echo "期望规划器版本：2.1.10-incremental-detour"

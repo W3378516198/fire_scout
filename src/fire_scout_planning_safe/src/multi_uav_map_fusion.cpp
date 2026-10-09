@@ -1,5 +1,6 @@
 #include "fire_scout/map_pair_buffer.hpp"
 #include "fire_scout/confidence_fusion.hpp"
+#include "fire_scout/fusion_snapshot.hpp"
 #include "fire_scout/peer_uav_filter.hpp"
 #include "fire_scout/ros_utils.hpp"
 
@@ -35,7 +36,7 @@ class MultiUavMapFusion : public rclcpp::Node {
 public:
   MultiUavMapFusion()
       : Node("multi_uav_map_fusion"), tf_(get_clock()), listener_(tf_) {
-    declare_parameter<std::string>("runtime_version", "2.1.2-atomic-map");
+    declare_parameter<std::string>("runtime_version", "2.1.4-sparse-confidence-fusion");
     world_frame_ = declare_parameter<std::string>("world_frame", "world");
     resolution_ = declare_parameter("voxel_size", 0.15);
     source_timeout_ = declare_parameter("source_timeout", 5.0);
@@ -252,7 +253,7 @@ public:
                                [this] { tick(); });
     config_lock_ = lockParameters(*this);
     RCLCPP_INFO(get_logger(),
-                "V2.1.2 multi-UAV map fusion ready: sources=%zu world=%s voxel=%.2f m "
+                "V2.1.4 multi-UAV map fusion ready: sources=%zu world=%s voxel=%.2f m "
                 "timeout=%.2f s peer_filter=%s box=%.2fx%.2fx%.2f m "
                 "trail=%.2f s/%.2f m/%zu "
                 "confidence=self:%.2f peer:%.2f history:%.2f",
@@ -539,6 +540,14 @@ private:
     double free{0};
   };
 
+  struct EvidenceTable {
+    // Scores and observer-dependent decisions are only needed where at least
+    // one source reports occupied/uncertain evidence. The usually much larger
+    // free-only region has the same decision for every observer.
+    std::unordered_map<Key, WeightedEvidence, KeyHash> occupied;
+    KeySet common_free;
+  };
+
   struct FusionResult {
     KeySet occupied;
     KeySet free;
@@ -553,42 +562,55 @@ private:
         0.0, 1.0);
   }
 
-  std::unordered_map<Key, WeightedEvidence, KeyHash> buildEvidence(
+  EvidenceTable buildEvidence(
       const std::vector<PreparedSource> &prepared,
       const std::vector<bool> &active_sources) const {
-    size_t reserve = 0;
+    size_t occupied_reserve = 0, free_reserve = 0;
     for (size_t i = 0; i < prepared.size(); ++i)
-      if (active_sources[i])
-        reserve = std::max(reserve, prepared[i].occupied.size() +
-                                        prepared[i].uncertain_occupied.size() +
-                                        (prepared[i].free ? prepared[i].free->size() : 0));
-    std::unordered_map<Key, WeightedEvidence, KeyHash> evidence;
-    evidence.reserve(reserve);
+      if (active_sources[i]) {
+        occupied_reserve += prepared[i].occupied.size() + prepared[i].uncertain_occupied.size();
+        free_reserve = std::max(free_reserve, prepared[i].free ? prepared[i].free->size() : 0);
+      }
+    EvidenceTable evidence;
+    evidence.occupied.reserve(occupied_reserve);
+    evidence.common_free.reserve(free_reserve);
+    // Populate every occupied key before processing free evidence. Retain
+    // zero-weight occupied keys too: the observer's own confidence may still
+    // upgrade them when peer_map_confidence is configured to zero.
     for (size_t i = 0; i < prepared.size(); ++i) {
       if (!active_sources[i] || !prepared[i].free) continue;
       const double normal = peer_map_confidence_ * prepared[i].freshness;
       const double uncertain = normal * dynamic_obstacle_confidence_;
       for (const Key voxel : prepared[i].occupied)
-        evidence[voxel].occupied += normal;
+        evidence.occupied[voxel].occupied += normal;
       for (const Key voxel : prepared[i].uncertain_occupied)
-        evidence[voxel].occupied += uncertain;
-      for (const Key voxel : *prepared[i].free)
-        evidence[voxel].free += normal;
+        evidence.occupied[voxel].occupied += uncertain;
+    }
+    for (size_t i = 0; i < prepared.size(); ++i) {
+      if (!active_sources[i] || !prepared[i].free) continue;
+      const double normal = peer_map_confidence_ * prepared[i].freshness;
+      for (const Key voxel : *prepared[i].free) {
+        const auto found = evidence.occupied.find(voxel);
+        if (found != evidence.occupied.end()) found->second.free += normal;
+        else if (normal > 0) evidence.common_free.insert(voxel);
+        else if (!evidence.common_free.count(voxel)) evidence.occupied.try_emplace(voxel);
+      }
     }
     return evidence;
   }
 
   FusionResult classifyEvidence(
-      const std::unordered_map<Key, WeightedEvidence, KeyHash> &evidence,
+      const EvidenceTable &evidence,
       const std::vector<PreparedSource> &prepared,
-      std::optional<size_t> observer) const {
+      std::optional<size_t> observer, bool include_common_free = true) const {
     FusionResult result;
-    result.occupied.reserve(evidence.size() / 4);
-    result.free.reserve(evidence.size());
+    result.occupied.reserve(evidence.occupied.size());
+    if (include_common_free) result.free = evidence.common_free;
+    result.free.reserve(result.free.size() + evidence.occupied.size());
     const ConfidenceDecisionConfig decision_config{
         minimum_occupied_confidence_, occupied_conflict_bias_,
         self_observation_priority_};
-    for (const auto &[voxel, base] : evidence) {
+    for (const auto &[voxel, base] : evidence.occupied) {
       double occupied = base.occupied;
       double free = base.free;
       bool self_occupied = false, self_free = false;
@@ -619,6 +641,26 @@ private:
     return result;
   }
 
+  std::optional<Key> snapshotTranslation(const tf2::Transform &transform) const {
+    const auto rotation = transform.getRotation();
+    // Any rotation, including a tiny nonzero one, uses the existing general
+    // transform/quantize path. No yaw or frame-origin assumption is imposed.
+    if (rotation.x() != 0 || rotation.y() != 0 || rotation.z() != 0) return std::nullopt;
+    const auto origin = transform.getOrigin();
+    return fusion_snapshot::translationShift({origin.x(), origin.y(), origin.z()}, resolution_);
+  }
+
+  Cloud sparseSnapshot(const FusionResult &result, const std::vector<Key> &common_free,
+                       Key shift, const std::string &frame,
+                       const builtin_interfaces::msg::Time &stamp) const {
+    auto packet = makeMapSnapshot({}, {}, resolution_, frame, stamp);
+    packet.data = fusion_snapshot::encode(result.occupied, result.free, common_free, resolution_, shift);
+    if (packet.data.size() > UINT32_MAX) throw std::runtime_error("Compact map exceeds ROS row size");
+    packet.width = uint32_t(packet.data.size() / packet.point_step);
+    packet.row_step = uint32_t(packet.data.size());
+    return packet;
+  }
+
   void tick() {
     for (size_t i = 0; i < sources_.size(); ++i) drain(i);
     const int64_t now_ns = now().nanoseconds();
@@ -634,6 +676,7 @@ private:
   }
 
   void publish(const std::vector<bool> &active_sources, int64_t now_ns) {
+    const auto publish_started = std::chrono::steady_clock::now();
     std::vector<PreparedSource> prepared(sources_.size());
     size_t active_count = 0, fresh_pose_count = 0;
     size_t uncertain_occupied = 0, applied_boxes = 0;
@@ -656,7 +699,9 @@ private:
     // personalized classification in which its own current observation has
     // higher confidence and, when configured, explicit priority over peers.
     const auto evidence = buildEvidence(prepared, active_sources);
-    auto shared = classifyEvidence(evidence, prepared, std::nullopt);
+    const auto common_free = fusion_snapshot::sortedKeys(evidence.common_free);
+    auto shared = classifyEvidence(evidence, prepared, std::nullopt, false);
+    const size_t shared_free_count = evidence.common_free.size() + shared.free.size();
 
     // When all sources time out, keep the last transient-local visualization
     // instead of replacing it with an empty cloud. No new message is sent, so
@@ -666,33 +711,47 @@ private:
       const auto shared_stamp = timeMessage(std::max<int64_t>(0, newest_stamp));
       shared_occupied_pub_->publish(
           makeCloud(shared.occupied, resolution_, world_frame_, shared_stamp));
-      if(!compact_maps_ || (publish_free_clouds_&&shared_free_pub_->get_subscription_count()>0))
-        shared_free_pub_->publish(makeCloud(shared.free,resolution_,world_frame_,shared_stamp));
+      if(!compact_maps_ || (publish_free_clouds_&&shared_free_pub_->get_subscription_count()>0)) {
+        auto all_free = evidence.common_free; all_free.insert(shared.free.begin(), shared.free.end());
+        shared_free_pub_->publish(makeCloud(all_free,resolution_,world_frame_,shared_stamp));
+      }
       if(shared_snapshot_pub_&&shared_snapshot_pub_->get_subscription_count()>0)
-        shared_snapshot_pub_->publish(makeMapSnapshot(shared.occupied,shared.free,resolution_,world_frame_,shared_stamp));
+        shared_snapshot_pub_->publish(sparseSnapshot(shared,common_free,{},world_frame_,shared_stamp));
     }
 
-    size_t local_conflicts = 0, self_overrides = 0;
+    size_t local_conflicts = 0, self_overrides = 0, fast_snapshots = 0;
     for (size_t i = 0; i < sources_.size(); ++i) {
       auto &source = *sources_[i];
       // A planner output is fresh only when that UAV's own mapper is fresh. Remote
       // traffic therefore cannot conceal a failed local radar/mapping chain.
       if (!active_sources[i] || source.stamp_ns <= source.last_output_stamp_ns) continue;
       try {
-        auto personalized = classifyEvidence(evidence, prepared, i);
+        auto personalized = classifyEvidence(evidence, prepared, i, false);
         local_conflicts += personalized.conflicts;
         self_overrides += personalized.self_overrides;
         const auto stamp = timeMessage(source.stamp_ns);
         const auto local_tf = tf2Transform(lookup(source.frame, world_frame_, stamp));
-        auto occupied_local = transformKeys(personalized.occupied, local_tf);
-        auto free_local = transformKeys(personalized.free, local_tf);
+        const auto shift = snapshotTranslation(local_tf);
+        const bool need_free_cloud = !compact_maps_ ||
+          (publish_free_clouds_ && source.fused_free_pub->get_subscription_count() > 0);
+        KeySet occupied_local, free_local;
+        if (!shift || need_free_cloud) {
+          personalized.free.insert(evidence.common_free.begin(), evidence.common_free.end());
+          occupied_local = transformKeys(personalized.occupied, local_tf);
+          free_local = transformKeys(personalized.free, local_tf);
+        } else if (!compact_maps_ || source.fused_occupied_pub->get_subscription_count() > 0) {
+          occupied_local = transformKeys(personalized.occupied, local_tf);
+        }
         if(source.fused_snapshot_pub){
-          auto packet=makeMapSnapshot(occupied_local,free_local,resolution_,source.frame,stamp);
+          auto packet = shift && !need_free_cloud
+            ? sparseSnapshot(personalized,common_free,*shift,source.frame,stamp)
+            : makeMapSnapshot(occupied_local,free_local,resolution_,source.frame,stamp);
+          fast_snapshots += shift.has_value() && !need_free_cloud;
           source.output_bytes=packet.data.size();source.fused_snapshot_pub->publish(std::move(packet));
         }
         if(!compact_maps_||source.fused_occupied_pub->get_subscription_count()>0)
           source.fused_occupied_pub->publish(makeCloud(occupied_local,resolution_,source.frame,stamp));
-        if(!compact_maps_||(publish_free_clouds_&&source.fused_free_pub->get_subscription_count()>0))
+        if(need_free_cloud)
           source.fused_free_pub->publish(makeCloud(free_local,resolution_,source.frame,stamp));
         source.last_output_stamp_ns = source.stamp_ns;
       } catch (const tf2::TransformException &error) {
@@ -711,7 +770,7 @@ private:
       peer_history_samples += source->peer_history.size();
     std::ostringstream status;
     status << "active=" << active_count << "/" << sources_.size()
-           << " occupied=" << shared.occupied.size() << " free=" << shared.free.size()
+           << " occupied=" << shared.occupied.size() << " free=" << shared_free_count
            << " peer_filter=" << (peer_filter_enabled_ ? "on" : "off")
            << " peer_poses=" << fresh_pose_count << '/' << sources_.size()
            << " boxes=" << applied_boxes
@@ -720,6 +779,10 @@ private:
            << " shared_conflicts=" << shared.conflicts
            << " local_conflicts=" << local_conflicts
            << " self_overrides=" << self_overrides
+           << " common_free=" << common_free.size() << " weighted_cells=" << evidence.occupied.size()
+           << " fast_snapshots=" << fast_snapshots
+           << " processing_ms=" << std::chrono::duration<double,std::milli>(
+                std::chrono::steady_clock::now()-publish_started).count()
            << " confidence=" << self_map_confidence_ << '/' << peer_map_confidence_
            << " transport="<<(compact_maps_?"compact":"legacy")<<" sources=";
     for (size_t i = 0; i < sources_.size(); ++i) {

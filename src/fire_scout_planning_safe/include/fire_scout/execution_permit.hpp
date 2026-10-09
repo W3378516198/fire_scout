@@ -8,10 +8,12 @@ namespace fire_scout {
 struct RoutePermit {
   int64_t stamp_ns{0},route_ns{0};bool ready{false};std::string reason;Vec3 goal{};
   int64_t instance{1};
+  bool searching{false}; // Advisory only; never grants execution permission.
   std::string encode()const{
     std::ostringstream s;s<<"v=1 stamp_ns="<<stamp_ns<<" route_ns="<<route_ns
       <<" ready="<<ready<<" reason="<<reason<<" instance="<<instance;
     s.precision(17);s<<" goal_x="<<goal.x<<" goal_y="<<goal.y<<" goal_z="<<goal.z;
+    if(searching)s<<" searching=1";
     return s.str();
   }
   static bool decode(const std::string&text,RoutePermit &out){
@@ -31,6 +33,9 @@ struct RoutePermit {
         }else if(key=="ready"){
           if((value!="0"&&value!="1")||mask&8)return false;
           mask|=8;p.ready=value=="1";
+        }else if(key=="searching"){
+          if((value!="0"&&value!="1")||mask&256)return false;
+          mask|=256;p.searching=value=="1";
         }else if(key=="reason"){p.reason=value;}
         else if(key=="goal_x"||key=="goal_y"||key=="goal_z"){
           const double n=std::stod(value,&used);if(used!=value.size()||!std::isfinite(n))return false;
@@ -41,7 +46,7 @@ struct RoutePermit {
         }else return false;
       }catch(const std::exception&){return false;}
     }
-    if(mask!=255||p.route_ns<=0||p.instance<=0)return false;
+    if((mask&255)!=255||p.route_ns<=0||p.instance<=0)return false;
     out=std::move(p);return true;
   }
 };

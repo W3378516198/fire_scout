@@ -1,5 +1,8 @@
+#include "fire_scout/measured_braking.hpp"
 #include "fire_scout/ros_utils.hpp"
 #include "fire_scout/tracker.hpp"
+#include "fire_scout/profile_progress.hpp"
+#include "fire_scout/diagnostic_snapshot.hpp"
 #include "fire_scout/execution_permit.hpp"
 #include "fire_scout/passage_scheduler.hpp"
 #include "fire_scout/route_topology.hpp"
@@ -8,6 +11,7 @@
 #include "fire_scout/glass_risk.hpp"
 #include "fire_scout/local_recovery.hpp"
 #include "fire_scout/navigation_contract.hpp"
+#include "fire_scout/planning_wait.hpp"
 #include "fire_scout/autonomous_recovery.hpp"
 #include "fire_scout/envelope_escape.hpp"
 #include "fire_scout/px4_command_clock.hpp"
@@ -41,7 +45,7 @@ class SafeAirFarPathFollower : public rclcpp::Node {
 public:
   SafeAirFarPathFollower()
       : Node("safe_airfar_path_follower"), tf_(get_clock()), listener_(tf_) {
-    declare_parameter<std::string>("runtime_version","2.1.2-geometric-cooperative");
+    declare_parameter<std::string>("runtime_version","2.1.10-safe-planning-handoff");
     px4_clock_.require_sim_clock=get_parameter("use_sim_time").as_bool();
     px4_clock_.policy=declare_parameter<std::string>("px4_timestamp_clock","auto");
     if(!px4_clock_.validPolicy()||(px4_clock_.require_sim_clock&&px4_clock_.policy=="system"))
@@ -56,6 +60,7 @@ public:
     grid_ = std::make_unique<Grid>(gridParameters(*this));
     gap_config_=gapParameters(*this);
     planner_execution_timeout_=declare_parameter("planner_execution_timeout",.8);
+    route_handoff_enabled_=declare_parameter("route_handoff_enabled",true);
     passage_scheduler_enabled_=declare_parameter("passage_scheduler_enabled",false);
     passage_width_=declare_parameter("passage_admission_width",2.6);
     passage_lookahead_=declare_parameter("passage_admission_lookahead",5.0);
@@ -91,8 +96,21 @@ public:
       configured_peer_hard:2*grid_->cfg.inflation_xy;
     peer_safety_config_.vertical_separation=configured_peer_vertical>0?
       configured_peer_vertical:2*grid_->cfg.inflation_z;
-    peer_safety_config_.reaction_time=declare_parameter("peer_reaction_time",.45);
-    peer_safety_config_.brake_accel=declare_parameter("peer_brake_accel",1.0);
+    measured_brake_.response_time=declare_parameter("measured_brake_response_time",.80);
+    measured_brake_.comfort_speed_cap=declare_parameter("comfort_speed_cap",.20);
+    measured_brake_.deceleration=declare_parameter("measured_brake_deceleration",.65);
+    measured_brake_.reserve=declare_parameter("operational_clearance",.25);
+    if(!measured_brake_.valid())throw std::runtime_error("Invalid measured braking configuration");
+    planning_wait_.grace=declare_parameter("planning_wait_grace",2.0);
+    planning_wait_.wall_grace=declare_parameter("planning_wait_wall_grace",6.0);
+    if(!std::isfinite(planning_wait_.grace)||planning_wait_.grace<.3||planning_wait_.grace>8||
+       !std::isfinite(planning_wait_.wall_grace)||planning_wait_.wall_grace<1||planning_wait_.wall_grace>20)
+      throw std::runtime_error("Invalid safe planning wait configuration");
+    peer_safety_config_.vertical_brake_accel=declare_parameter("peer_vertical_brake_accel",.50);
+    peer_safety_config_.vertical_braking_reserve=declare_parameter("peer_vertical_braking_reserve",.10);
+    peer_safety_config_.braking_reserve=declare_parameter("peer_braking_reserve",.20);
+    peer_safety_config_.reaction_time=declare_parameter("peer_reaction_time",.80);
+    peer_safety_config_.brake_accel=declare_parameter("peer_brake_accel",.65);
     peer_safety_config_.prediction_horizon=declare_parameter(
       "peer_prediction_horizon",2.0);
     peer_safety_config_.passage_width=declare_parameter(
@@ -173,6 +191,14 @@ public:
     c.max_jerk_z=declare_parameter("max_jerk_z",3.0);
     c.lateral_accel=declare_parameter("max_lateral_accel",1.0);
     c.face_motion=declare_parameter("face_motion",true);
+    c.turn.enabled=declare_parameter("turn_policy_enabled",true);
+    c.turn.max_curvature=declare_parameter("turn_max_curvature",1.6);
+    c.turn.min_curve_speed=declare_parameter("turn_min_curve_speed",.35);
+    c.turn.capture_distance=declare_parameter("turn_capture_distance",.10);
+    c.turn.stop_speed=declare_parameter("turn_stop_speed",.10);
+    c.turn.yaw_tolerance=declare_parameter("turn_yaw_tolerance_deg",8.0)*pi/180.;
+    c.turn.repair_budget_ms=declare_parameter("turn_repair_budget_ms",16.0);
+    if(!c.turn.valid())throw std::runtime_error("Invalid global turn policy");
     adaptive_direction_=declare_parameter("adaptive_direction",true);
     c.relaxed_lateral_speed=declare_parameter("lateral_speed_limit",.60);
     c.relaxed_reverse_speed=declare_parameter("reverse_speed_limit",.40);
@@ -373,6 +399,18 @@ public:
     for(double value:{progress_watchdog_.timeout,progress_watchdog_.repeat,alignment})
       if(!std::isfinite(value)||value<=0)throw std::runtime_error("Invalid progress watchdog timing");
     progress_watchdog_.max_alignment_time=std::max(alignment,pi/c.yaw_rate+2.0);
+    profile_progress_.cfg.speed_threshold=declare_parameter("progress_profile_speed_threshold",.12);
+    profile_progress_.cfg.repair_delay=declare_parameter("progress_profile_repair_delay",2.0);
+    profile_progress_.cfg.repair_repeat=declare_parameter("progress_profile_repair_repeat",2.0);
+    profile_progress_.cfg.recovery_grace=declare_parameter("progress_profile_recovery_grace",8.0);
+    turn_progress_.cfg=profile_progress_.cfg;
+    if(!profile_progress_.cfg.valid())
+      throw std::runtime_error("Invalid profile-progress monitoring configuration");
+    execution_progress_.cfg.useful_distance=declare_parameter("progress_execution_useful_distance",.25);
+    execution_progress_.cfg.repair_delay=profile_progress_.cfg.repair_delay;
+    execution_progress_.cfg.repair_repeat=profile_progress_.cfg.repair_repeat;
+    execution_progress_.cfg.recovery_grace=profile_progress_.cfg.recovery_grace;
+    if(!execution_progress_.cfg.valid())throw std::runtime_error("Invalid execution progress limits");
     tracker_ = std::make_unique<Tracker>(c);
     odom_sub_ = create_subscription<nav_msgs::msg::Odometry>(
         declare_parameter<std::string>("odom_topic", "/scout1/odom"), rclcpp::SensorDataQoS(),
@@ -442,17 +480,28 @@ public:
       Vec3 goal{m->pose.position.x,m->pose.position.y,m->pose.position.z};
       if(m->header.frame_id!=frame_||!finite(goal))return;
       if(!have_mission_goal_||distance(goal,mission_goal_)>.05){
+        const bool seamless_goal=route_handoff_enabled_&&state_==State::NAV&&
+          have_path_&&!recovery_.active();
         // A goal changes task intent, not the autonomous recovery allowance.
         // Preserve the campaign across messages; only real normal progress rearms it.
         if(recovery_.active())campaign_.finish(now().seconds());
         mission_goal_=goal;have_mission_goal_=true;recovery_.cancel();separating_active_=false;recovery_requested_=false;
+        profile_progress_.reset();turn_progress_.reset();execution_progress_.reset();progress_cause_="NEW_GOAL";
+        planning_wait_.reset();
+        progress_watchdog_.update(current_,yaw_current_,0,false);
         peer_yield_watchdog_.reset();peer_yield_active_=peer_yield_stalled_=false;
         peer_deadlock_recovery_=false;have_peer_blocker_position_=false;
         have_approach_=false;goal_geometry_blocked_=false;observed_escape_active_=false;observed_escape_.clear();
         retreat_route_=RetreatRoute{};history_retreat_active_=false;retreat_waypoint_=1;
-        route_channel_.reset();tracker_->setPath({},current_);have_path_=false;pending_path_.clear();
+        // Preserve velocity/yaw filters and DDS candidates during a goal
+        // handoff. The old goal's permit cannot authorize the new mission;
+        // motion resumes only with the planner's matching NEW-goal prefix.
+        if(!seamless_goal){
+          route_channel_.reset();tracker_->setPath({},current_);have_path_=false;pending_path_.clear();
+        }
         nonforward_budget_.clear();nonforward_session_=false;forward_reset_progress_=0;
         strict_after_unobserved_=false;observation_fallback_.clear();handoff_.clear();handoff_ready_=false;
+        synchronizeRoute();
       }
     };
     mission_sub_=create_subscription<geometry_msgs::msg::PoseStamped>(
@@ -609,7 +658,13 @@ public:
     target_pub_ =
         create_publisher<geometry_msgs::msg::PoseStamped>(declare_parameter<std::string>("tracking_target_topic","/scout1/planning/tracking_target"), 10);
     state_pub_ = create_publisher<std_msgs::msg::String>(declare_parameter<std::string>("follower_state_topic","/scout1/planning/follower_state"), 10);
-    diagnostic_pub_=create_publisher<std_msgs::msg::String>(declare_parameter<std::string>("diagnostics_topic","/scout1/planning/control_diagnostics"),10);
+    const auto diagnostic_topic=declare_parameter<std::string>("diagnostics_topic","/scout1/planning/control_diagnostics");
+    diagnostic_pub_=create_publisher<std_msgs::msg::String>(diagnostic_topic,10);
+    const auto topic_slash=diagnostic_topic.find_last_of('/');
+    const auto conflict_topic=topic_slash==std::string::npos?"map_conflict_snapshot":
+      diagnostic_topic.substr(0,topic_slash)+"/map_conflict_snapshot";
+    map_conflict_pub_=create_publisher<std_msgs::msg::String>(
+      declare_parameter<std::string>("map_conflict_topic",conflict_topic),10);
     replan_pub_=create_publisher<std_msgs::msg::String>(declare_parameter<std::string>("replan_request_topic","/scout1/planning/replan_request"),10);
     sonar_reset_service_=create_service<std_srvs::srv::Trigger>(
       "~/reset_sonar_memory",[this](const std::shared_ptr<std_srvs::srv::Trigger::Request>,
@@ -625,7 +680,7 @@ public:
     timer_ = create_wall_timer(std::chrono::milliseconds(int(1000 / rate)), [this] { control(); });
     config_lock_=lockParameters(*this);
     RCLCPP_INFO(get_logger(),
-                "V2.1.2 geometric follower: centered_formation=%d rank=%d/%d spacing=%.2fm local_offset=(%.2f,%.2f)m speed=%.2fm/s obstacle_lookahead=%.2fm; peer safety peers=%zu hard=%.3fm vertical=%.3fm passage=%.3fm rear_guard=%.2fm deadlock=%.2fs retreat=%.2fm/s; sonar ttl=%.2fs clear_frames=%d; staged heading speed=%d forward_during_alignment=%d angles=%.1f/%.1f/%.1f/%.1f deg min_speed=%.2f cap=%.2f m/s",
+                "V2.1.6 drift-safe follower: centered_formation=%d rank=%d/%d spacing=%.2fm local_offset=(%.2f,%.2f)m speed=%.2fm/s obstacle_lookahead=%.2fm; peer safety peers=%zu hard=%.3fm vertical=%.3fm passage=%.3fm rear_guard=%.2fm deadlock=%.2fs retreat=%.2fm/s; sonar ttl=%.2fs clear_frames=%d; staged heading speed=%d forward_during_alignment=%d angles=%.1f/%.1f/%.1f/%.1f deg min_speed=%.2f cap=%.2f m/s",
                 startup_spread_enabled_,startup_formation_rank_,
                 startup_formation_count_,startup_spread_spacing_,
                 startup_spread_offset_x_,startup_spread_offset_y_,
@@ -766,7 +821,7 @@ private:
     const auto peers=freshPeerStates();
     last_peer_decision_=constrainPeerMotion(
       current_,control.velocity,own_priority_,peers,
-      peer_safety_config_,last_passage_reservation_);
+      peer_safety_config_,last_passage_reservation_,&velocity_);
     if(last_peer_decision_.limited){
       control.velocity=last_peer_decision_.velocity;
       switch(last_peer_decision_.reason){
@@ -865,6 +920,9 @@ private:
     poses_=PoseHistory{};velocity_={};odom_source_stamp_=0;have_odom_=false;
     trail_.clear();frozen_trail_.clear();retreat_history_.clear();retreat_route_=RetreatRoute{};
     recovery_.reset();campaign_.reset();nonforward_budget_.clear();nonforward_session_=false;
+    planning_wait_.reset();
+    profile_progress_.reset();turn_progress_.reset();execution_progress_.reset();progress_cause_="TIME_RESET";recovery_requested_=false;
+    progress_watchdog_.update(current_,yaw_current_,0,false);
     history_retreat_active_=observed_escape_active_=separating_active_=false;
     for(auto &peer:peer_observations_){
       peer.have=false;peer.source_stamp=0;peer.motion.velocity={};
@@ -886,6 +944,7 @@ private:
     px4_clock_.reset();
     path_stamp_=map_stamp_=odom_stamp_=status_stamp_=
       rclcpp::Time(0,0,get_clock()->get_clock_type());
+    last_map_conflict_=rclcpp::Time(0,0,get_clock()->get_clock_type());
     last_control_=last_diagnostic_=last_sonar_debug_=last_watchdog_=last_direction_=
       path_wait_since_=last_wait_request_=last_request_=state_since_=
       rclcpp::Time(0,0,get_clock()->get_clock_type());
@@ -1121,9 +1180,12 @@ private:
       u.velocity={};u.target=current_;u.yaw=yaw_current_;
       effective="PX4_CLOCK_DEGRADED_HOLD";
     }
+    comfort_limited_=false;
     const Vec3 proposed_velocity=u.velocity;
     auto sonar=frontLimit();
     const bool following=state=="FOLLOW_BSPLINE" || state=="ALIGN_AND_ADVANCE" ||
+                         state=="TURN_APPROACH" || state=="TURN_BRAKE" || state=="TURN_IN_PLACE" ||
+                         state=="TURN_REJOIN" || state=="TURN_REJOIN_BLOCKED" ||
                          state=="ROTATE_TO_PATH" ||
                          state=="LOCAL_PATH_BLOCKED" || state=="CERTIFIED_LOCAL_ESCAPE" ||
                          state=="CERTIFIED_HISTORY_RETREAT" || state=="CERTIFIED_OBSERVED_ESCAPE" || state=="SEPARATING_ENVELOPE_ESCAPE" || state=="PARTIAL_PATH_END";
@@ -1139,7 +1201,7 @@ private:
         if(navigation_motion && norm(u.velocity)>1e-6 && !separating_active_)
           effective="RECOVERY_MARGIN_ESCAPE";
       }
-      if(navigation_motion && u.heading_wait && std::hypot(velocity_.x,velocity_.y)>.15)
+      if(navigation_motion && !u.turn_stop && u.heading_wait && std::hypot(velocity_.x,velocity_.y)>.15)
         effective="BRAKE_AND_ALIGN";
       // Protect the complete braking horizon, not merely one command tick.
       const double reaction=.45+std::max(0.,(now()-map_stamp_).seconds())+
@@ -1188,18 +1250,25 @@ private:
         if(directional.requires_alignment)u.heading_wait=true;
         if(directional.reason==DirectionalReason::COLLISION)u.blocked=true;
       }
-      measured_braking_risk_=false;
-      const double measured_speed=norm(velocity_);
-      if(measured_speed>.05){
-        const double travel=measured_speed*reaction+measured_speed*measured_speed/
-          (2*std::min(.7*tracker_->cfg.max_accel_xy,sonar_guard_->cfg.brake_accel));
-        measured_braking_risk_=!collisionClear(current_,current_+velocity_*(travel/measured_speed));
-        // An opposite/away command is already braking. Do not zero it solely
-        // because the vehicle has not yet stopped moving toward the obstacle.
-        if(measured_braking_risk_ && dot(u.velocity,velocity_)>0){
-          u.velocity={};effective="MEASURED_BRAKING_RISK";
-        }
-      }
+      auto brake_config=measured_brake_;
+      brake_config.response_time=std::min(3.,brake_config.response_time+
+        std::max(0.,(now()-map_stamp_).seconds()));
+      // A genuine narrow corridor may have less than the preferred reserve.
+      // Rank command speed using current clearance minus 5 mm. This is a
+      // preferred query only: measured drift is checked against the HARD
+      // envelope, and cannot turn this comfort boundary into a universal stop.
+      const double live_margin=std::clamp(grid_->clearanceAt(current_,brake_config.reserve)-.005,
+        0.,brake_config.reserve);
+      const auto brake=measuredStoppingVelocity(current_,u.velocity,velocity_,brake_config,
+        [this](Vec3 a,Vec3 b){return collisionClear(a,b);},
+        [this,live_margin](Vec3 a,Vec3 b){
+          return altitude_return_active_||live_margin<=.001||grid_->segmentWithMargin(a,b,live_margin,true);
+        });
+      measured_braking_risk_=brake.momentum_risk;
+      measured_stop_distance_=brake.measured_stop_distance;
+      comfort_limited_=brake.comfort_limited;
+      if(brake.limited){u.velocity=brake.velocity;effective=brake.momentum_risk?
+        "MEASURED_BRAKING_RISK":brake.hard_limited?"MEASURED_RESPONSE_BRAKE":"COMFORT_SPEED_LIMIT";}
       // Test the swept braking corridor of the COMMAND, not only the lookahead chord.
       const double v=norm(u.velocity);
       if(have_map_ && v>1e-6){
@@ -1230,7 +1299,22 @@ private:
       const double cap=passageSpeedLimit(norm(u.velocity));
       if(cap<norm(u.velocity)-1e-6){u.velocity=limitNorm(u.velocity,cap);effective="PASSAGE_LEASE_WAIT";}
     }
+    const Vec3 before_peer=u.velocity;
     applyPeerSafety(u,effective);
+    // Half-space projection can rotate the command. Recheck that new direction
+    // against the map before publishing it; zero never invents an escape.
+    if(state_==State::NAV && distance(before_peer,u.velocity)>1e-5 && norm(u.velocity)>1e-6){
+      auto config=measured_brake_;
+      config.response_time=std::min(3.,config.response_time+std::max(0.,(now()-map_stamp_).seconds()));
+      const double margin=std::clamp(grid_->clearanceAt(current_,config.reserve)-.005,0.,config.reserve);
+      const auto final=measuredStoppingVelocity(current_,u.velocity,velocity_,config,
+        [this](Vec3 a,Vec3 b){return collisionClear(a,b);},
+        [this,margin](Vec3 a,Vec3 b){return
+          altitude_return_active_||margin<=.001||grid_->segmentWithMargin(a,b,margin,true);});
+      comfort_limited_=comfort_limited_||final.comfort_limited;
+      if(final.limited){u.velocity=final.velocity;effective=final.hard_limited?
+        "PEER_PROJECTED_MAP_BRAKE":"PEER_PROJECTED_COMFORT_LIMIT";}
+    }
     if(state=="PLANNER_INPUT_PAUSED"&&!peer_yield_active_)effective=state;
     sendPassageRequest();
     if(passage_wait_monitor_.update(steadySeconds(),effective=="PASSAGE_LEASE_WAIT",
@@ -1239,7 +1323,7 @@ private:
       replan_pub_->publish(textMessage("PASSAGE_WAIT_TIMEOUT"));
     }
     // A lost path is timed separately; an empty route cannot supply an endpoint.
-    const bool waiting_path=state=="WAIT_PATH_HOLD" ||
+    const bool waiting_path=state=="WAIT_PATH_HOLD" || state=="PLANNING_WAIT_HOLD" ||
       state=="MAP_ENVELOPE_CONFLICT_HOLD" || state=="SONAR_ENVELOPE_CONFLICT_HOLD" ||
       state=="MAP_AND_SONAR_ENVELOPE_CONFLICT_HOLD" ||
       state=="RECOVERY_BUDGET_EXHAUSTED" || state=="GOAL_UNREACHABLE_HOLD";
@@ -1260,13 +1344,65 @@ private:
       distance(current_,navigationGoal())>std::max(.30,2*tracker_->cfg.goal_tolerance);
     double watch_dt=last_watchdog_.nanoseconds()==0?0:(now()-last_watchdog_).seconds();
     last_watchdog_=now();
-    if(progress_watchdog_.update(current_,yaw_current_,watch_dt,can_request)){
+    if(!following||recovery_.active()||!have_mission_goal_||
+       distance(current_,navigationGoal())<=std::max(.30,2*tracker_->cfg.goal_tolerance))
+      execution_progress_.reset();
+    // A tiny reference curvature cap cannot produce the watchdog's ordinary
+    // 10 cm / 2 s progress. Treat that as a profile repair first, provided no
+    // map, sonar, peer, heading, endpoint or directional guard explains it.
+    // The final emitted command (after every safety gate) remains unchanged.
+    const bool profile_limited=can_request && navigation_motion &&
+      state=="FOLLOW_BSPLINE" && effective==state && !u.heading_wait &&
+      !u.alignment_active && !pending_path_.empty() &&
+      distance(current_,pending_path_.back())>.55 &&
+      u.speed_limit>=0 && u.speed_limit<profile_progress_.cfg.speed_threshold &&
+      norm(u.velocity)<profile_progress_.cfg.speed_threshold+.03 &&
+      map_speed_factor_>=.5 &&
+      (!gap_config_.enabled || gap_state_.speed*map_speed_factor_>=.30) &&
+      sonar.speed_limit>=.30 && !glass_risk_active_ && !measured_braking_risk_ &&
+      direction_reason_=="ALLOWED" && !last_peer_decision_.limited &&
+      have_map_ && grid_->segment(current_,current_);
+    const auto profile=profile_progress_.update(profile_limited,current_,u.velocity,watch_dt);
+    // A blocked pivot/rejoin used to be excluded from profile repair and went
+    // straight into recovery, which promptly handed back the same geometry.
+    // Give geometry repair a bounded opportunity before a physical escape.
+    const auto turn=turn_progress_.update(can_request&&navigation_motion&&u.turn_stop&&
+      effective==state&&norm(u.velocity)<.15&&!last_peer_decision_.limited&&
+      !glass_risk_active_&&!measured_braking_risk_&&map_speed_factor_>=.5&&
+      sonar.speed_limit>=.30&&have_map_&&grid_->segment(current_,current_),
+      current_,u.velocity,watch_dt);
+    const bool execution_eligible=can_request&&navigation_motion&&
+      (effective==state||direction_reason_=="ALIGNMENT_REQUIRED"||direction_reason_=="ALIGNMENT_FORWARD")&&
+      !last_peer_decision_.limited&&!glass_risk_active_&&!measured_braking_risk_&&
+      map_speed_factor_>=.5&&sonar.speed_limit>=.30&&have_map_&&grid_->segment(current_,current_);
+    const auto execution=execution_progress_.update(execution_eligible,current_,watch_dt,
+      u.speed_limit>=.30&&!u.turn_stop&&!u.heading_wait);
+    // Profile monitoring owns a separate bounded deadline. Do not carry its
+    // intentionally suppressed ordinary timeout into the first repaired-route
+    // command: that would launch a recovery just as useful motion can resume.
+    const bool stalled=progress_watchdog_.update(current_,yaw_current_,watch_dt,
+      can_request&&!profile.limited&&!turn.limited);
+    progress_cause_=!can_request?"INACTIVE":u.turn_stop?u.turn_phase:profile.limited?profile.reason:
+      (u.heading_wait||u.alignment_active)?"HEADING_ALIGNMENT":
+      effective!=state?"SAFETY_GUARD":"NORMAL_PROGRESS";
+    if(profile.request_repair){
+      replan_pub_->publish(textMessage("PROFILE_LIMITED_PROGRESS"));
+      RCLCPP_WARN_THROTTLE(get_logger(),*get_clock(),2000,
+        "Low route profile: cap %.3f m/s for %.2f s; requesting geometry repair, commanded %.3f m, actual displacement %.3f m",
+        u.speed_limit,profile_progress_.seconds(),profile_progress_.expectedDistance(),profile_progress_.displacement());
+    }
+    if(turn.request_repair)replan_pub_->publish(textMessage("TURN_EXECUTION_REPAIR"));
+    if(execution.request_repair&&!turn.limited&&!profile.limited)
+      replan_pub_->publish(textMessage("TURN_EXECUTION_REPAIR"));
+    if(execution.request_recovery&&!profile.request_recovery&&!turn.request_recovery)
+      progress_cause_=execution.reason;
+    if((stalled&&!profile.limited&&!turn.limited)||profile.request_recovery||turn.request_recovery||execution.request_recovery){
       recovery_requested_=true;
       replan_pub_->publish(textMessage("STALLED_PROGRESS"));
       RCLCPP_WARN_THROTTLE(get_logger(),*get_clock(),2000,
-        "Progress timeout: translation stagnant %.2f s, overall %.2f s, useful displacement stagnant %.2f s (%s)",
+        "Progress timeout: translation stagnant %.2f s, overall %.2f s, useful displacement stagnant %.2f s (%s; cause=%s)",
         progress_watchdog_.translationStagnantSeconds(),progress_watchdog_.stagnantSeconds(),
-        progress_watchdog_.usefulStagnantSeconds(),effective.c_str());
+        progress_watchdog_.usefulStagnantSeconds(),effective.c_str(),progress_cause_.c_str());
     }
     const double direction_dt=last_direction_.nanoseconds()==0?0:(now()-last_direction_).seconds();
     last_direction_=now();
@@ -1316,6 +1452,11 @@ private:
     }
     if((now()-last_diagnostic_).seconds()>.2){
       last_diagnostic_=now();
+      if(have_map_&&!grid_->geometrySegment(current_,current_)&&
+         (last_map_conflict_.nanoseconds()==0||(now()-last_map_conflict_).seconds()>=2.)){
+        last_map_conflict_=now();
+        map_conflict_pub_->publish(textMessage(mapConflictSnapshot(*grid_,current_,frame_)));
+      }
       const double sonar_evidence_now=steadySeconds();
       std::ostringstream os;
       if((now()-last_sonar_debug_).seconds()>=1.0){
@@ -1334,6 +1475,8 @@ private:
       os<<"state="<<effective<<" source_state="<<state<<" sonar_range="<<front_distance_
         <<" sonar_age="<<(now()-ultrasonic_stamp_).seconds()<<" sonar_limit="<<sonar.speed_limit
         <<" brake_distance="<<sonar.stop_required<<" route_limit="<<u.speed_limit
+        <<" turn_phase="<<u.turn_phase<<" turn_stop="<<u.turn_stop
+        <<" turn_curvature="<<u.turn_curvature<<" turn_anchor_distance="<<u.turn_anchor_distance
         <<" measured_speed="<<norm(velocity_)<<" command_speed="<<norm(u.velocity)
         <<" yaw_error_deg="<<wrap(u.yaw-yaw_current_)*180/pi
         <<" course_error_deg="<<u.course_error*180/pi<<" heading_wait="<<u.heading_wait
@@ -1345,6 +1488,13 @@ private:
         <<" alignment_forward_speed_cap="<<direction_config_.alignment_forward_speed_cap
         <<" stagnant_seconds="<<progress_watchdog_.stagnantSeconds()
         <<" translation_stagnant_seconds="<<progress_watchdog_.translationStagnantSeconds()
+        <<" progress_cause="<<progress_cause_
+        <<" profile_limited_seconds="<<profile_progress_.seconds()
+        <<" profile_expected_distance="<<profile_progress_.expectedDistance()
+        <<" profile_actual_displacement="<<profile_progress_.displacement()
+        <<" turn_limited_seconds="<<turn_progress_.seconds()
+        <<" execution_useful_seconds="<<execution_progress_.seconds()
+        <<" execution_net_displacement="<<execution_progress_.displacement()
         <<" path_wait_seconds="<<(path_wait_since_.nanoseconds()==0?0:(now()-path_wait_since_).seconds())
         <<" normal_envelope_clear="<<(have_map_&&grid_->segment(current_,current_))
         <<" recovery_envelope_clear="<<(have_map_&&grid_->recoveryClear(current_))
@@ -1378,12 +1528,17 @@ private:
         <<" map_transport="<<(compact_maps_?"compact":"legacy")
         <<" snapshot_commits="<<snapshot_commits_<<" snapshot_rejected="<<snapshot_rejected_
         <<" snapshot_bytes="<<snapshot_bytes_
-        <<" measured_braking_risk="<<measured_braking_risk_;
+        <<" measured_braking_risk="<<measured_braking_risk_
+        <<" measured_stop_distance="<<measured_stop_distance_
+        <<" operational_clearance="<<measured_brake_.reserve<<" comfort_limited="<<comfort_limited_;
       os<<" strict_unobserved_fallback="<<strict_after_unobserved_
         <<" path_available="<<have_path_<<" path_points="<<pending_path_.size()
         <<" path_age="<<(now()-path_stamp_).seconds()<<" recovery_handoff_ready="<<handoff_ready_;
       const double peer_watch_time=now().seconds();
-      os<<" runtime_version=2.1.2-geometric-cooperative"
+      os<<" planning_wait_seconds="<<planning_wait_.seconds
+        <<" planning_wait_reason="<<planning_wait_.reason
+        <<" planner_searching="<<route_channel_.gate.permit.searching
+        <<" runtime_version=2.1.10-safe-planning-handoff"
         <<" startup_spread_enabled="<<startup_spread_enabled_
         <<" startup_spread_offset_x="<<startup_spread_offset_x_
         <<" startup_spread_offset_y="<<startup_spread_offset_y_
@@ -1400,6 +1555,10 @@ private:
         <<" peer_fresh="<<last_peer_decision_.fresh_peers
         <<" peer_nearest_distance="<<last_peer_decision_.nearest_distance
         <<" peer_nearest_clearance="<<last_peer_decision_.nearest_clearance
+        <<" peer_predicted_vertical_peers="<<last_peer_decision_.predicted_vertical_peers
+        <<" peer_vertical_limited="<<last_peer_decision_.vertical_limited
+        <<" peer_measured_braking_risk="<<last_peer_decision_.measured_braking_risk
+        <<" peer_required_braking_clearance="<<last_peer_decision_.required_braking_clearance
         <<" peer_predicted_miss="<<last_peer_decision_.predicted_miss
         <<" peer_predicted_time="<<last_peer_decision_.predicted_time
         <<" peer_blocking_priority="<<last_peer_decision_.blocking_priority
@@ -1505,7 +1664,11 @@ private:
     campaign_.finish(now().seconds());recovery_requested_=false;holding_=false;
     peer_deadlock_recovery_=false;peer_yield_stalled_=false;
     tracker_->resetMotion();tracker_->initializeYaw(yaw_current_);
+    // Re-localize after an actual escape instead of retaining a latched pivot
+    // on an identical path heartbeat. The new local connection is checked on
+    // the next normal tracking tick before any translation is emitted.
     tracker_->setPath(have_path_?pending_path_:std::vector<Vec3>{},current_);
+    tracker_->resumeAfterRecovery(current_);
     replan_pub_->publish(textMessage("LOCAL_RECOVERY_FINISHED"));
   }
   // Invoked BEFORE the physical-envelope hold. There is no mission callback
@@ -1597,12 +1760,25 @@ private:
     if(recovery_.active() && !separating_active_){
       const double time=now().seconds();
       const bool fresh=have_path_&&plannerAllowed()&&(now()-path_stamp_).seconds()>=0&&(now()-path_stamp_).seconds()<path_timeout_;
+      const bool new_route=fresh&&route_channel_.generation!=recovery_entry_generation_;
+      Vec3 geometric_join=current_;
+      const bool connected=new_route&&certifiedRouteHandoff(pending_path_,current_,
+        [this](Vec3 a,Vec3 b){return collisionClear(a,b);},geometric_join,0.,.80);
+      // Stop the old escape as soon as a NEW route has a physically checked
+      // local connection. Continuing it while waiting for observation used to
+      // carry the aircraft outside the old 25 cm handoff window.
+      if(connected&&recoveryNeedsBraking(velocity_)){
+        publish(tracker_->hold(current_,current_,{},dt),"RECOVERY_HANDOFF_BRAKE");return true;
+      }
       if(!fresh){handoff_.clear();handoff_ready_=false;}
-      if(time<last_handoff_check_ || time-last_handoff_check_>=.20){
+      if(time<last_handoff_check_ || time-last_handoff_check_>=(new_route?.10:.20)){
         last_handoff_check_=time;Vec3 join{};
-        const bool certified=fresh&&certifiedRouteHandoff(pending_path_,current_,
-          [this](Vec3 a,Vec3 b){return observedMapMotion(a,b)&&!detectedGlassRisk(a,b);},join);
-        handoff_ready_=handoff_.update(certified,time,join);
+        const bool changed_or_moved=route_channel_.generation!=recovery_entry_generation_||
+          distance(current_,recovery_entry_position_)>=.35;
+        const bool certified=fresh&&changed_or_moved&&certifiedRouteHandoff(pending_path_,current_,
+          [this](Vec3 a,Vec3 b){return observedMapMotion(a,b)&&!detectedGlassRisk(a,b);},join,
+          route_channel_.generation==recovery_entry_generation_?tracker_->progress():0.,new_route?.80:.25);
+        handoff_ready_=handoff_.update(certified,time,join,new_route?.15:.30);
       }
       if(handoff_ready_){
         if(!recovery_.step(time,current_,true)){endRecovery();return false;}
@@ -1612,6 +1788,13 @@ private:
           publish(tracker_->hold(current_,current_,{},dt),"RECOVERY_HANDOFF_BRAKE");return true;
         }
         recovery_.cancel();endRecovery();return false;
+      }
+      if(connected){
+        // Look along the certified connection, with zero translation. Full
+        // body free-space and glass checks still gate the actual handoff.
+        auto look=tracker_->directMove(current_,geometric_join,{},dt,0.,yaw_current_);
+        look.velocity={};look.reached=false;
+        publish(look,"RECOVERY_HANDOFF_OBSERVE");return true;
       }
     }
     if(!recovery_.active() && (!have_mission_goal_||distance(current_,navigationGoal())<2*tracker_->cfg.goal_tolerance))return false;
@@ -1641,6 +1824,9 @@ private:
       // same blocked forward route.  It first uses actual flight history below.
       if(autonomous_recovery_&&!glass_risk_active_&&!peer_deadlock_recovery_){
         auto cfg=escape_config_;cfg.max_length=std::min(cfg.max_length,campaign_.cfg.max_distance-campaign_.distanceSpent());
+        // A missing global route calls for room around the aircraft, not
+        // another goal-greedy sideways step along the same blocking wall.
+        cfg.prefer_clearance=!plannerAllowed();
         auto route=observedEscapeRoute(current_,navigationGoal(),cfg,
           [this](Vec3 a,Vec3 b){return observedMapMotion(a,b)&&!detectedGlassRisk(a,b)&&recoveryCertificate(a,b);},
           [this](Vec3 p){return std::min(grid_->clearanceAt(p),sonar_collision_->clearanceAt(p));},
@@ -1687,6 +1873,7 @@ private:
           [this](Vec3 a,Vec3 b){return !detectedGlassRisk(a,b)&&recoveryCertificate(a,b);},
           [this](Vec3 p){return std::min(grid_->clearanceAt(p),sonar_collision_->clearanceAt(p));});
       if(started){
+        recovery_entry_generation_=route_channel_.generation;recovery_entry_position_=current_;
         handoff_.clear();handoff_ready_=false;
         holding_=false;tracker_->resetMotion();
         tracker_->initializeYaw(yaw_current_);
@@ -2076,9 +2263,14 @@ private:
     if(portal_waiting_ && passageSpeedLimit(tracker_->cfg.max_speed_xy)<.03){
       hold(dt,"PASSAGE_LEASE_WAIT");return;
     }
-    if(runRecovery(dt,missing_path||recovery_requested_))return;
+    const double local_clearance=std::min(grid_->clearanceAt(current_),sonar_collision_->clearanceAt(current_));
+    const bool comfortable=local_clearance>=measured_brake_.reserve+.05;
+    const bool defer=planning_wait_.deferRecovery(missing_path,route_channel_.gate.permit.searching,
+      comfortable,recovery_requested_||peer_deadlock_recovery_,now().seconds(),steadySeconds());
+    if(runRecovery(dt,(missing_path&&!defer)||recovery_requested_))return;
     if (missing_path) {
-      hold(dt, autonomous_recovery_&&campaign_.exhausted()?"RECOVERY_BUDGET_EXHAUSTED":"WAIT_PATH_HOLD");
+      hold(dt, defer?"PLANNING_WAIT_HOLD":autonomous_recovery_&&campaign_.exhausted()?
+        "RECOVERY_BUDGET_EXHAUSTED":"WAIT_PATH_HOLD");
       return;
     }
     holding_ = false;
@@ -2109,13 +2301,14 @@ private:
                               [this](Vec3 p){return grid_->clearanceAt(p);},heading_mode_,
                               [this](Vec3 a,Vec3 b){return observedMapMotion(a,b);});
     const bool partial_end=u.reached&&have_mission_goal_&&distance(current_,navigationGoal())>2*tracker_->cfg.goal_tolerance;
-    publish(u, u.blocked ? "LOCAL_PATH_BLOCKED" : u.heading_wait ? "ROTATE_TO_PATH" :
+    publish(u, u.blocked ? "LOCAL_PATH_BLOCKED" : u.turn_stop ? u.turn_phase : u.heading_wait ? "ROTATE_TO_PATH" :
       u.alignment_active ? "ALIGN_AND_ADVANCE" : partial_end ? "PARTIAL_PATH_END" :
       u.reached ? (have_approach_&&distance(approach_goal_,mission_goal_)>.01?
       "TARGET_APPROACH_HOLD":"TARGET_HOLD") : "FOLLOW_BSPLINE");
   }
   GeometricRouteChannel route_channel_;
   double planner_execution_timeout_{.8};
+  bool route_handoff_enabled_{true};
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr execution_state_sub_;
   bool passage_scheduler_enabled_{false},portal_active_{false},portal_waiting_{false},passage_granted_{false};
   Vec3 portal_anchor_{},portal_direction_{};
@@ -2133,6 +2326,7 @@ private:
   rclcpp::Clock px4_system_clock_{RCL_SYSTEM_TIME};
   PeerSafetyConfig peer_safety_config_;
   PeerSafetyDecision last_peer_decision_;
+  MeasuredBrakeConfig measured_brake_;double measured_stop_distance_{0};bool comfort_limited_{false};
   PassageReservation last_passage_reservation_;
   PeerYieldWatchdog peer_yield_watchdog_;
   std::vector<PeerObservation>peer_observations_;
@@ -2166,6 +2360,7 @@ private:
   std::vector<Vec3>pending_path_;
   ObservationFallback observation_fallback_;
   StableRouteHandoff handoff_;bool handoff_ready_{false};double last_handoff_check_{-1};
+  PlanningWait planning_wait_;
   bool strict_after_unobserved_{false};Vec3 unobserved_probe_{};
   bool altitude_return_active_{false};Vec3 altitude_return_target_{};
   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr mission_sub_,rviz_mission_sub_;
@@ -2196,6 +2391,9 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr snapshot_sub_;
   rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr glass_sub_;
   MotionProgressWatchdog progress_watchdog_;
+  ProfileProgressMonitor profile_progress_,turn_progress_;
+  ExecutionProgressMonitor execution_progress_;std::string progress_cause_{"INACTIVE"};
+  size_t recovery_entry_generation_{0};Vec3 recovery_entry_position_{};
   rclcpp::Time last_watchdog_{0,0,RCL_ROS_TIME},path_wait_since_{0,0,RCL_ROS_TIME},last_wait_request_{0,0,RCL_ROS_TIME};
   PoseHistory poses_;
   PoseSample current_pose_,sonar_pose_;
@@ -2209,7 +2407,8 @@ private:
   size_t sonar_pending_queue_size_{32},sonar_matched_{0},sonar_pose_fallbacks_{0},sonar_pose_drops_{0},sonar_epoch_resets_{0};
   bool sonar_inf_clear_;
   rclcpp::Time map_stamp_{0,0,RCL_ROS_TIME},last_diagnostic_{0,0,RCL_ROS_TIME};
-  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr diagnostic_pub_,replan_pub_;
+  rclcpp::Time last_map_conflict_{0,0,RCL_ROS_TIME};
+  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr diagnostic_pub_,replan_pub_,map_conflict_pub_;
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr sonar_reset_service_;
   std::string frame_, last_state_, hold_reason_;
   std::unique_ptr<Grid> grid_;

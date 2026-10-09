@@ -325,6 +325,14 @@ def _make_actions(context):
 
         if start_planner:
             p = copy.deepcopy(planner_base)
+            # Local curve repair ranks the same speed profile as the follower.
+            for key in ("lookahead", "max_speed_xy", "max_accel_xy", "max_jerk_xy",
+                        "max_lateral_accel", "max_yaw_rate", "sharp_turn_stop_deg"):
+                if key in follower_base:
+                    p[key] = follower_base[key]
+            speed = LaunchConfiguration("max_speed_xy").perform(context).strip()
+            if speed:
+                p["max_speed_xy"] = float(speed)
             p["use_sim_time"] = use_sim_time
             p["voxel_size"] = voxel_size
             _apply_optional_geometry(context, p)

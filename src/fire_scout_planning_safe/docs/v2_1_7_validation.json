@@ -1,0 +1,263 @@
+{
+  "package": "fire_scout_planning_safe",
+  "version": "2.1.7",
+  "validation_date_utc": "2026-10-07",
+  "input_package": "fire_scout_planning_safe.tar(20261007-110204).xz",
+  "runtime_versions": {
+    "planner": "2.1.7-global-turn-policy",
+    "follower": "2.1.7-stop-turn-depart"
+  },
+  "environment": {
+    "os": "Linux",
+    "architecture": "x86_64",
+    "python": "3.12.14",
+    "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+    "ros2_available": false,
+    "colcon_available": false,
+    "cmake_available": false
+  },
+  "execution": {
+    "compile_flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-UNDEBUG",
+      "-pthread"
+    ],
+    "core": "Compile and execute portable production headers with assertions enabled.",
+    "node": "Execute actual node method and launch logic with communication stubs.",
+    "full_ros_build_performed": false,
+    "px4_gazebo_flight_performed": false,
+    "exact_pointcloud_replay_performed": false
+  },
+  "result": {
+    "total_targets": 29,
+    "passed_targets": 29,
+    "cpp_targets": 21,
+    "node_launch_targets": 8,
+    "test_log_warnings_or_errors": false,
+    "python_ast": "passed",
+    "shell_syntax": "passed",
+    "yaml_parse": "passed",
+    "package_version": "passed"
+  },
+  "new_regressions": [
+    "Continuous wide curve without turn stop",
+    "90/180-degree measured-stop rotate and depart, same-path heartbeat",
+    "Initial reverse course without internal corner, no early departure",
+    "Hard collision veto during turn",
+    "Protected prefix, certified global edits and cancellation",
+    "Obstacle-blocked local shortcut and projection/cancellation gates",
+    "Dynamic feasibility penalty finite-difference gradient",
+    "Nominal timing ratio, bounded control refit and endpoint preservation",
+    "Actual plan-worker-complete immediate local refresh despite global cooldown",
+    "Local refresh rejected when peer generation changes during work",
+    "Fast clearance YAML schedule validation"
+  ],
+  "limitations": [
+    "No ROS2 full-package compilation or PX4/Gazebo four-UAV flight run.",
+    "Discrete curvature and finite-difference dynamics are approximations, not complete continuous-trajectory certificates.",
+    "Optimizer nominal time is not a transmitted timed trajectory; follower owns execution timing.",
+    "20Hz is a wall-clock scheduling target, not a guaranteed A* or sensor update frequency."
+  ],
+  "changed_files_from_input": [
+    "CMakeLists.txt",
+    "README.md",
+    "config/safe_airfar.yaml",
+    "include/fire_scout/bspline.hpp",
+    "include/fire_scout/clearance_contract.hpp",
+    "include/fire_scout/tracker.hpp",
+    "package.xml",
+    "scripts/install_fire_scout_planning_safe.sh",
+    "src/safe_airfar_like_planner.cpp",
+    "src/safe_airfar_path_follower.cpp",
+    "tests/profile_repair_test.cpp",
+    "tests/v210_launch_test.py",
+    "tests/v210_node_continuity_test.py"
+  ],
+  "new_files_from_input": [
+    "docs/V2_1_7_GLOBAL_TURN_REFRESH_ZH.md",
+    "include/fire_scout/turn_geometry.hpp",
+    "include/fire_scout/turn_policy.hpp",
+    "tests/dynamic_refresh_test.cpp",
+    "tests/global_turn_policy_test.cpp"
+  ],
+  "targets": [
+    {
+      "name": "clearance_contract_test",
+      "passed": true,
+      "seconds": 5.89,
+      "returncode": 0
+    },
+    {
+      "name": "coordination_components_test",
+      "passed": true,
+      "seconds": 3.965,
+      "returncode": 0
+    },
+    {
+      "name": "drift_and_altitude_regression_test",
+      "passed": true,
+      "seconds": 2.343,
+      "returncode": 0
+    },
+    {
+      "name": "dynamic_refresh_test",
+      "passed": true,
+      "seconds": 2.768,
+      "returncode": 0
+    },
+    {
+      "name": "follower_alignment_test",
+      "passed": true,
+      "seconds": 2.017,
+      "returncode": 0
+    },
+    {
+      "name": "global_turn_policy_test",
+      "passed": true,
+      "seconds": 3.648,
+      "returncode": 0
+    },
+    {
+      "name": "incremental_repair_v19_test",
+      "passed": true,
+      "seconds": 5.441,
+      "returncode": 0
+    },
+    {
+      "name": "map_input_test",
+      "passed": true,
+      "seconds": 2.441,
+      "returncode": 0
+    },
+    {
+      "name": "map_snapshot_test",
+      "passed": true,
+      "seconds": 3.346,
+      "returncode": 0
+    },
+    {
+      "name": "measured_braking_test",
+      "passed": true,
+      "seconds": 1.365,
+      "returncode": 0
+    },
+    {
+      "name": "near_repair_search_regression_test",
+      "passed": true,
+      "seconds": 5.153,
+      "returncode": 0
+    },
+    {
+      "name": "profile_progress_test",
+      "passed": true,
+      "seconds": 1.269,
+      "returncode": 0
+    },
+    {
+      "name": "profile_repair_test",
+      "passed": true,
+      "seconds": 4.237,
+      "returncode": 0
+    },
+    {
+      "name": "replan_schedule_test",
+      "passed": true,
+      "seconds": 2.698,
+      "returncode": 0
+    },
+    {
+      "name": "route_handoff_test",
+      "passed": true,
+      "seconds": 4.35,
+      "returncode": 0
+    },
+    {
+      "name": "route_switch_test",
+      "passed": true,
+      "seconds": 1.531,
+      "returncode": 0
+    },
+    {
+      "name": "ultrasonic_memory_test",
+      "passed": true,
+      "seconds": 1.704,
+      "returncode": 0
+    },
+    {
+      "name": "v210_entrance_test",
+      "passed": true,
+      "seconds": 5.972,
+      "returncode": 0
+    },
+    {
+      "name": "v210_header_integration_test",
+      "passed": true,
+      "seconds": 1.737,
+      "returncode": 0
+    },
+    {
+      "name": "v210_route_channel_test",
+      "passed": true,
+      "seconds": 1.976,
+      "returncode": 0
+    },
+    {
+      "name": "v2_passage_handshake_test",
+      "passed": true,
+      "seconds": 1.375,
+      "returncode": 0
+    },
+    {
+      "name": "measured_braking_node_test",
+      "passed": true,
+      "seconds": 2.676,
+      "returncode": 0
+    },
+    {
+      "name": "profile_progress_node_test",
+      "passed": true,
+      "seconds": 1.397,
+      "returncode": 0
+    },
+    {
+      "name": "v210_launch_test",
+      "passed": true,
+      "seconds": 3.341,
+      "returncode": 0
+    },
+    {
+      "name": "v210_node_continuity_test",
+      "passed": true,
+      "seconds": 16.261,
+      "returncode": 0
+    },
+    {
+      "name": "v212_map_pipeline_test",
+      "passed": true,
+      "seconds": 3.805,
+      "returncode": 0
+    },
+    {
+      "name": "v214_fusion_fast_test",
+      "passed": true,
+      "seconds": 4.372,
+      "returncode": 0
+    },
+    {
+      "name": "v214_peer_progress_test",
+      "passed": true,
+      "seconds": 2.025,
+      "returncode": 0
+    },
+    {
+      "name": "v2_node_passage_test",
+      "passed": true,
+      "seconds": 3.632,
+      "returncode": 0
+    }
+  ]
+}

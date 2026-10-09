@@ -1,5 +1,5 @@
 #pragma once
-#include "grid.hpp"
+#include "route_repair.hpp"
 namespace fire_scout {
 // Own the published geometry. Map validation never rebuilds a retained spline.
 class RouteMemory {
@@ -18,15 +18,18 @@ public:
       join_s=progress_;join=atArc(path_,arc_,join_s);
       if(!g.segmentFrom(current,join,unknown))return false;
     }
-    for(size_t i=1;i<path_.size();++i)if(arc_[i]>join_s+1e-8){
-      if(!g.segmentFrom(join,path_[i],unknown))return false;
-      join=path_[i];
+    // The controller follows the original curve, not the shortcut used only
+    // to validate cross-track rejoining. Certify every future curve segment.
+    Vec3 previous=atArc(path_,arc_,progress_);
+    for(size_t i=1;i<path_.size();++i)if(arc_[i]>progress_+1e-8){
+      if(!g.segmentFrom(previous,path_[i],unknown))return false;
+      previous=path_[i];
     }
     return true;
   }
   // Return only the checked future part; the follower's terminal speed profile
   // brakes before the first invalid segment. An invalid tail is never reused.
-  std::vector<Vec3> safePrefix(const Grid&g,Vec3 current,bool unknown=true){
+  std::vector<Vec3> safePrefix(const Grid&g,Vec3 current,bool unknown=true,double terminal_margin=0){
     if(!advance(current))return {};
     // Use the same forward connector as valid(). The perpendicular
     // projection can point back into the wall when a vehicle is displaced
@@ -38,20 +41,38 @@ public:
       join_s=progress_;join=atArc(path_,arc_,join_s);
       if(!g.segmentFrom(current,join,unknown))return {};
     }
-    std::vector<Vec3> out{current};
-    if(distance(current,join)>.02)out.push_back(join);
+    // Keep the original curve. The current-to-route connector is a collision
+    // check, never an extra polyline edge: tiny lateral odometry errors would
+    // otherwise create centimetre-scale corners and near-zero yaw speed caps.
+    double end=join_s;
+    Vec3 previous=join;
     for(size_t i=1;i<path_.size();++i)if(arc_[i]>join_s+1e-8){
-      if(!g.segmentFrom(out.back(),path_[i],unknown)){
-        // Retain the valid part of a long sparse segment too. A failed far
-        // endpoint must not discard metres of collision-checked forward path.
-        Vec3 a=out.back(),d=path_[i]-a;double lo=0,hi=1;
-        for(int n=0;n<14;++n){double m=(lo+hi)*.5;if(g.segmentFrom(a,a+d*m,unknown))lo=m;else hi=m;}
-        lo=std::max(0.,lo-.03/std::max(.001,norm(d)));
-        if(lo*norm(d)>.02)out.push_back(a+d*lo);
+      if(!g.segmentFrom(previous,path_[i],unknown)){
+        Vec3 d=path_[i]-previous;double lo=0,hi=1;
+        for(int n=0;n<14;++n){double m=(lo+hi)*.5;if(g.segmentFrom(previous,previous+d*m,unknown))lo=m;else hi=m;}
+        end+=std::max(0.,lo*norm(d)-.03);
+        // Stop at a comfortable point before this blocked tail. This only
+        // shortens a temporary prefix; it never inflates an entire narrow
+        // corridor or changes the hard body envelope.
+        if(terminal_margin>0){
+          const double earliest=std::max(progress_,end-2.0);
+          while(end>earliest&&!g.segmentWithMargin(atArc(path_,arc_,end),
+                  atArc(path_,arc_,end),terminal_margin,unknown))end=std::max(earliest,end-.05);
+          if(!g.segmentWithMargin(atArc(path_,arc_,end),atArc(path_,arc_,end),
+                                  terminal_margin,unknown))return {};
+        }
         break;
       }
-      out.push_back(path_[i]);
+      end=arc_[i];previous=path_[i];
     }
+    // A short exact backward overlap gives the follower a bounded, unambiguous
+    // projection even when the original route began many metres ago.
+    double begin=std::max(0.,progress_-.25);
+    const auto initial=routeSlice(path_,progress_,join_s);
+    for(size_t i=1;i<initial.size();++i)
+      if(!g.segmentFrom(initial[i-1],initial[i],unknown)){begin=join_s;break;}
+    if(end-progress_<=.35)return {};
+    auto out=routeSlice(path_,begin,end);
     return pathLength(out)>.35?out:std::vector<Vec3>{};
   }
 private:

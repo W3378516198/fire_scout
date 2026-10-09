@@ -1,9 +1,11 @@
 #pragma once
 #include "geometry.hpp"
+#include "turn_policy.hpp"
 #include <deque>
 #include <functional>
 namespace fire_scout {
 struct TrackerConfig {
+  TurnPolicyConfig turn;
   double lookahead{.65}, max_speed_xy{1.8}, max_speed_z{.50}, max_accel_xy{1.5}, max_accel_z{.70};
   double max_jerk_xy{3.0}, max_jerk_z{2.0}, lateral_accel{.7};
   double kp_xy{1.2}, kp_z{1.0}, kd_xy{.10}, kd_z{.20};
@@ -63,6 +65,9 @@ struct Control {
   bool alignment_active{false}, alignment_forward_enabled{false};
   bool alignment_min_speed_active{false};
   double heading_speed_scale{1};
+  bool turn_stop{false};
+  const char *turn_phase{"NONE"};
+  double turn_curvature{0},turn_anchor_distance{-1};
 };
 // Configured preserves the legacy cfg.face_motion behavior. A sensor policy can
 // select Strict around glass-risk observations and Relaxed for small smooth
@@ -140,6 +145,15 @@ public:
   TrackerConfig cfg;
   void initializeYaw(double yaw) { yaw_=yaw; yaw_rate_=0; yaw_ready_=true; course_ready_=false; course_rate_=0; }
   void resetMotion() { last_={}; acceleration_={}; yaw_rate_=0; }
+  void resumeAfterRecovery(Vec3 current){
+    resetMotion();pivot_active_=course_turn_active_=rejoin_active_=false;
+    if(path_.empty())return;
+    // Keep the local arc neighborhood, including a bounded retreat. Reusing
+    // setPath from scratch on a long mission would jump back to its first 2 m.
+    progress_=project(path_,arc_,current,std::max(0.,progress_-.75),
+      std::min(arc_.back(),progress_+2.)).s;
+    passed_corner_s_=std::min(passed_corner_s_,progress_-.01);
+  }
   // Feed back the command actually sent after an emergency/sensor speed override.
   void appliedVelocity(Vec3 v) {
     if(distance(v,last_)>1e-6){last_=v; acceleration_={};}
@@ -150,7 +164,7 @@ public:
   bool setPath(const std::vector<Vec3>&points,Vec3 current) {
     if(points.empty()){
       const bool changed=!path_.empty();
-      path_.clear();arc_.clear();profile_.clear();corner_.clear();progress_=0;
+      path_.clear();arc_.clear();profile_.clear();corner_.clear();progress_=0;pivot_active_=false;course_turn_active_=false;rejoin_active_=false;
       return changed;
     }
     for(Vec3 p:points)if(!finite(p))return false;
@@ -159,17 +173,44 @@ public:
     bool same=path_.size()==candidate.size();
     if(same)for(size_t i=0;i<candidate.size();++i)if(distance(path_[i],candidate[i])>1e-5){same=false;break;}
     if(same)return false;
+    const bool had_rejoin=rejoin_active_&&!path_.empty();
+    const Vec3 old_rejoin=had_rejoin?atArc(path_,arc_,rejoin_s_):Vec3{};
+    Vec3 old_course=previewTarget(current)-current;
+    rejoin_active_=false;
     // Prefix repairs often only trim already-flown samples. Keep continuous
     // yaw-rate tracking when the immediate geometric direction is unchanged.
-    Vec3 old_course=previewTarget(current)-current;
+    const bool had_passed_corner=passed_corner_s_>=0&&!path_.empty();
+    const Vec3 passed_corner=had_passed_corner?atArc(path_,arc_,passed_corner_s_):Vec3{};
     path_=std::move(candidate);
-    arc_=arcLengths(path_); progress_=project(path_,arc_,current).s;
+    if(pivot_active_){
+      bool retained=false;
+      for(size_t i=1;i+1<path_.size();++i)if(distance(path_[i],pivot_route_point_)<.015){
+        const auto outgoing=path_[i+1]-path_[i];
+        if(std::hypot(outgoing.x,outgoing.y)>1e-6&&
+           std::abs(wrap(std::atan2(outgoing.y,outgoing.x)-pivot_yaw_))<=.35)retained=true;
+        break;
+      }
+      if(!retained)pivot_active_=false;
+    }
+    // The planner validates a new route from its first two metres. Use the
+    // same local projection, otherwise a crossing in the new tail can jump
+    // past the retained prefix and instantly reverse the tracking direction.
+    arc_=arcLengths(path_); progress_=project(path_,arc_,current,0,std::min(arc_.back(),2.0)).s;
     passed_corner_s_=-1;
     buildProfile();
+    if(had_rejoin){
+      const auto retained=project(path_,arc_,old_rejoin,progress_,std::min(arc_.back(),progress_+1.5));
+      if(retained.error<.03&&retained.s>progress_+.05){rejoin_active_=true;rejoin_s_=retained.s;}
+    }
+    if(had_passed_corner){
+      const double end=rejoin_active_?rejoin_s_:progress_+.10;
+      const auto old_corner=project(path_,arc_,passed_corner,0,std::min(arc_.back(),end));
+      if(old_corner.error<.03)passed_corner_s_=old_corner.s;
+    }
     const Vec3 new_course=previewTarget(current)-current;
     if(std::hypot(old_course.x,old_course.y)<.02||std::hypot(new_course.x,new_course.y)<.02||
        std::abs(wrap(std::atan2(old_course.y,old_course.x)-std::atan2(new_course.y,new_course.x)))>.35){
-      course_ready_=false;course_rate_=0;
+      course_ready_=false;course_rate_=0;course_turn_active_=false;
     }
     return true;
   }
@@ -187,12 +228,108 @@ public:
     if(path_.size()==1)return terminalHold(current,path_.front(),measured_velocity,dt,measured_yaw,strict);
     auto pr=project(path_,arc_,current,std::max(0.,progress_-.10),
                     std::min(arc_.back(),progress_+2.0));
+    const bool rejoin_passed=rejoin_active_&&pr.s>rejoin_s_+.05&&pr.s<rejoin_s_+.35&&
+      pr.error<.15&&clear(current,atArc(path_,arc_,std::min(arc_.back(),pr.s+.15)));
+    if(rejoin_active_&&(distance(current,atArc(path_,arc_,rejoin_s_))<=cfg.turn.capture_distance||rejoin_passed)){
+      progress_=std::max(progress_,rejoin_s_);rejoin_active_=false;course_turn_active_=false;
+    }
     // Do not project past an unpassed fallback corner: with cross-track error,
     // nearest-point projection can already lie on its outgoing segment.
-    double next_corner=arc_.back()+1;
+    double next_corner=arc_.back()+1;size_t next_corner_index=path_.size();
     for(size_t i=1;i+1<path_.size();++i){
       if(!corner_[i] || arc_[i]<=passed_corner_s_)continue;
-      if(distance(current,path_[i])<.08 && norm(measured_velocity)<.10){
+      if(cfg.turn.enabled){
+        const bool captured=distance(current,path_[i])<=cfg.turn.capture_distance;
+        const bool past=spatiallyPastCorner(i,current,pr.s);
+        const bool active=pivot_active_&&distance(path_[i],pivot_route_point_)<.015;
+        const Vec3 incoming=path_[i]-path_[i-1];
+        const double overrun=dot(current-path_[i],incoming)/std::max(1e-9,norm(incoming));
+        const bool overshot=overrun>cfg.turn.capture_distance+.03&&
+          (active||(distance(current,path_[i])<=1.2&&arc_[i]<=progress_+1.2));
+        const Vec3 out_direction=path_[i+1]-path_[i];
+        const double observed_yaw=std::isfinite(measured_yaw)?measured_yaw:yaw_;
+        const Vec3 to_corner=path_[i]-current;
+        const bool stopped=norm(measured_velocity)<=cfg.turn.stop_speed;
+        // A short entry stitch can lie behind/sideways of a stopped aircraft.
+        // Turning toward it and then toward its outgoing leg creates two
+        // contradictory yaw owners. Join the future leg only through a checked
+        // chord, before the next mandatory corner. This is never bookkeeping
+        // permission to cross an obstacle or a later corner.
+        const bool backward_entry=arc_[i]<=.35&&norm(to_corner)<=.40&&
+          norm(to_corner)>cfg.turn.capture_distance&&
+          (course_turn_active_||std::abs(wrap(std::atan2(to_corner.y,to_corner.x)-observed_yaw))>=cfg.heading_stop);
+        if(stopped&&backward_entry){
+          double end=std::min(arc_.back(),arc_[i]+1.2);
+          for(size_t j=i+1;j+1<path_.size();++j)if(corner_[j]){end=std::min(end,arc_[j]);break;}
+          const auto local=project(path_,arc_,current,arc_[i],end);
+          const double join_s=std::min(end,std::max(arc_[i],local.s)+cfg.lookahead);
+          const Vec3 join=atArc(path_,arc_,join_s);
+          if(join_s>arc_[i]+.05&&distance(current,join)<=1.5&&clear(current,join)){
+            passed_corner_s_=arc_[i];progress_=std::max(progress_,local.s);
+            pivot_active_=course_turn_active_=false;rejoin_active_=true;rejoin_s_=join_s;
+            resetMotion();initializeYaw(observed_yaw);continue;
+          }
+          last_={};acceleration_={};Control u;u.target=current;u.yaw=observed_yaw;u.progress=progress_;
+          u.turn_stop=true;u.turn_phase="TURN_REJOIN_BLOCKED";
+          u.turn_anchor_distance=norm(to_corner);u.blocked=!clear(current,current);return u;
+        }
+        // An obsolete stitch already behind an aligned, departing vehicle is
+        // not a new turn. Retain the existing no-return spatial certificate.
+        if(past&&!active&&std::hypot(out_direction.x,out_direction.y)>1e-6&&
+           std::abs(wrap(std::atan2(out_direction.y,out_direction.x)-observed_yaw))<=cfg.turn.yaw_tolerance){
+          passed_corner_s_=arc_[i];progress_=std::max(progress_,arc_[i]);continue;
+        }
+        if(captured||past||overshot||active){
+          const double actual_yaw=std::isfinite(measured_yaw)?measured_yaw:yaw_;
+          if(!active){
+            course_turn_active_=false;pivot_active_=true;pivot_anchor_=current;pivot_route_point_=path_[i];
+            pivot_yaw_=std::hypot(out_direction.x,out_direction.y)>1e-6?
+              std::atan2(out_direction.y,out_direction.x):actual_yaw;
+            initializeYaw(actual_yaw);
+          }
+          // The first outgoing edge is the commanded geometry. Looking across
+          // the next corner could align yaw with a chord that is never flown.
+          const Vec3 outgoing=path_[i+1]-path_[i];
+          const double direction=pivot_yaw_;
+          const double error=wrap(direction-actual_yaw);
+          // Braking drift can carry the vehicle beyond a newly introduced
+          // corner. Never servo back to that old point by bookkeeping alone.
+          // After measured braking, join only its immediate outgoing region,
+          // before the next mandatory corner and through a checked chord.
+          if(stopped&&overshot){
+            double end=std::min(arc_.back(),arc_[i]+1.2);
+            for(size_t j=i+1;j+1<path_.size();++j)if(corner_[j]){end=std::min(end,arc_[j]);break;}
+            const auto local=project(path_,arc_,current,arc_[i],end);
+            const double join_s=std::min(end,std::max(arc_[i],local.s)+cfg.lookahead);
+            const Vec3 join=atArc(path_,arc_,join_s);
+            if(join_s>arc_[i]+.05&&distance(current,join)<=1.5&&clear(current,join)){
+              passed_corner_s_=arc_[i];progress_=std::max(progress_,local.s);
+              pivot_active_=false;rejoin_active_=true;rejoin_s_=join_s;
+              resetMotion();initializeYaw(actual_yaw);continue;
+            }
+            // No certified connector: hold and let the execution-repair
+            // watchdog request new geometry. Do not turn toward a stale point.
+            last_={};acceleration_={};Control u;u.target=current;u.yaw=actual_yaw;u.progress=progress_;
+            u.turn_stop=true;u.turn_phase="TURN_REJOIN_BLOCKED";
+            u.turn_anchor_distance=distance(current,path_[i]);return u;
+          }
+          if(stopped&&std::abs(error)<=cfg.turn.yaw_tolerance){
+            passed_corner_s_=arc_[i];progress_=std::max(progress_,arc_[i]);
+            pivot_active_=false;continue;
+          }
+          // Brake before rotating. A zero translational setpoint is still
+          // passed through the node's map/sonar/peer safeguards; it is not a
+          // certificate that the measured vehicle has already stopped.
+          if(!stopped)initializeYaw(actual_yaw);else stepYaw(direction,dt);
+          last_={};acceleration_={};Control u;u.target=pivot_anchor_;u.yaw=yaw_;u.progress=progress_;
+          u.heading_wait=true;u.course_error=error;u.alignment_active=true;
+          u.turn_stop=true;u.turn_phase=stopped?"TURN_IN_PLACE":"TURN_BRAKE";
+          u.turn_curvature=turnSample(path_[i]-path_[i-1],outgoing,cfg.lateral_accel,cfg.yaw_rate).curvature;
+          u.turn_anchor_distance=distance(current,pivot_route_point_);
+          u.blocked=!clear(current,current);return u;
+        }
+      }
+      if(!cfg.turn.enabled&&distance(current,path_[i])<.08 && norm(measured_velocity)<.10){
         passed_corner_s_=arc_[i];
         progress_=std::max(progress_,arc_[i]+.01);
         continue;
@@ -201,14 +338,14 @@ public:
       // vehicle which is still decelerating.  If the live projection and the
       // spatial position are already on the outgoing leg, never command a
       // return to that obsolete corner.
-      if(spatiallyPastCorner(i,current,pr.s)){
+      if(!cfg.turn.enabled&&spatiallyPastCorner(i,current,pr.s)){
         passed_corner_s_=arc_[i];
         progress_=std::max(progress_,arc_[i]+.01);
         continue;
       }
       // A new path may legitimately begin behind the current position.
       if(arc_[i]+.10<progress_){passed_corner_s_=arc_[i];continue;}
-      next_corner=arc_[i];break;
+      next_corner=arc_[i];next_corner_index=i;break;
     }
     progress_=std::min(next_corner,std::max(progress_,pr.s));
     const double remaining=std::max(0.,arc_.back()-progress_);
@@ -217,6 +354,7 @@ public:
       return terminalHold(current,path_.back(),measured_velocity,dt,measured_yaw,strict);
     }
     double ahead=std::min(arc_.back(),progress_+cfg.lookahead);
+    if(rejoin_active_)ahead=rejoin_s_;
     for(size_t i=1;i+1<path_.size();++i)
       if(corner_[i] && arc_[i]>passed_corner_s_ && arc_[i]>=progress_-1e-6)
         ahead=std::min(ahead,arc_[i]);
@@ -270,7 +408,7 @@ public:
     const Vec3 reference=atArc(path_,arc_,progress_);
     Vec3 geometry=target-reference;
     const Vec3 course=target-current;
-    const bool anchor=std::abs(ahead-next_corner)<1e-6 || remaining<cfg.lookahead;
+    const bool anchor=rejoin_active_ || std::abs(ahead-next_corner)<1e-6 || remaining<cfg.lookahead;
     Vec3 tangent=geometry*(1./std::max(1e-9,norm(geometry)));
     Vec3 desired{};
     if(anchor || norm(geometry)<1e-6){
@@ -326,6 +464,27 @@ public:
       desired=desired*(cfg.max_speed_z/std::abs(desired.z));
     desired=limitXY(desired,cfg.max_speed_xy);
     const double actual_yaw=std::isfinite(measured_yaw)?measured_yaw:yaw_;
+    // A new route/rejoin may require a large initial heading change without
+    // containing any internal corner. Latch it until stopped AND aligned,
+    // rather than releasing translation as soon as error falls below 85 deg.
+    if(cfg.turn.enabled&&std::hypot(geometry.x,geometry.y)>1e-5){
+      const double direction=std::atan2(geometry.y,geometry.x);
+      if(!course_turn_active_&&std::abs(wrap(direction-actual_yaw))>=cfg.heading_stop){
+        course_turn_active_=true;course_turn_yaw_=direction;initializeYaw(actual_yaw);
+      }
+      if(course_turn_active_){
+        const double error=wrap(course_turn_yaw_-actual_yaw);
+        const bool stopped=norm(measured_velocity)<=cfg.turn.stop_speed;
+        if(stopped&&std::abs(error)<=cfg.turn.yaw_tolerance){course_turn_active_=false;resetMotion();}
+        else {
+          if(!stopped)initializeYaw(actual_yaw);else stepYaw(course_turn_yaw_,dt);
+          last_={};acceleration_={};Control u;u.target=current;u.yaw=yaw_;u.progress=progress_;
+          u.heading_wait=true;u.course_error=error;u.alignment_active=true;u.turn_stop=true;
+          u.turn_phase=stopped?"TURN_IN_PLACE":"TURN_BRAKE";u.turn_anchor_distance=0;
+          u.blocked=!clear(current,current);return u;
+        }
+      }
+    }
     bool waiting=false,alignment_active=false,alignment_forward=false;
     bool alignment_min_speed=false;
     double heading_speed_scale=1.;
@@ -402,6 +561,12 @@ public:
       if(norm(desired)>1e-6 && !clear(current,current+desired*.35))desired={};
     }
     Vec3 command=smooth(desired,dt);
+    // A filter with the previous route's velocity must not emit 1.3 m/s when
+    // a new stop profile allows 0.2 m/s. This command cap requests braking;
+    // measured inertia is still checked by the downstream stopping sweep.
+    if(cfg.turn.enabled&&(rejoin_active_||next_corner<=progress_+horizon)){
+      command=limitNorm(command,speed);appliedVelocity(command);
+    }
     if(heading_mode==HeadingMode::Strict && !waiting && !alignment_forward &&
        std::abs(course_error)<cfg.heading_stop){
       // The jerk filter can retain an OLD lateral direction after the desired
@@ -419,8 +584,20 @@ public:
         if(clear(current,current+candidate*.35))command=candidate;
       }
     }
-    return {command,target,yaw_,progress_,false,false,waiting,speed,course_error,
+    Control result{command,target,yaw_,progress_,false,false,waiting,speed,course_error,
       alignment_active,alignment_forward,alignment_min_speed,heading_speed_scale};
+    for(size_t i=1;i+1<path_.size();++i)if(arc_[i]>=progress_&&arc_[i]<=progress_+horizon)
+      result.turn_curvature=std::max(result.turn_curvature,
+        turnSample(path_[i]-path_[i-1],path_[i+1]-path_[i],cfg.lateral_accel,cfg.yaw_rate).curvature);
+    if(cfg.turn.enabled&&anchor&&next_corner_index<path_.size()){
+      result.turn_stop=true;result.turn_phase="TURN_APPROACH";
+      const size_t i=next_corner_index;
+      result.turn_curvature=turnSample(path_[i]-path_[i-1],path_[i+1]-path_[i],cfg.lateral_accel,cfg.yaw_rate).curvature;
+      result.turn_anchor_distance=distance(current,path_[i]);
+    }
+    if(rejoin_active_){result.turn_stop=true;result.turn_phase="TURN_REJOIN";
+      result.turn_anchor_distance=distance(current,atArc(path_,arc_,rejoin_s_));}
+    return result;
   }
   Control hold(Vec3 current,Vec3 anchor,Vec3 velocity,double dt){
     return positionHold(current,anchor,velocity,dt,1.,false);
@@ -465,6 +642,7 @@ public:
   Vec3 previewTarget(Vec3 current,Vec3 measured_velocity={})const{
     if(path_.empty())return current;
     if(path_.size()==1)return path_.front();
+    if(rejoin_active_)return atArc(path_,arc_,rejoin_s_);
     auto pr=project(path_,arc_,current,std::max(0.,progress_-.10),
                     std::min(arc_.back(),progress_+2.0));
     double progress=progress_,next_corner=arc_.back()+1;
@@ -496,12 +674,15 @@ private:
   bool yaw_ready_{false},course_ready_{false},profile_strict_{true};
   double previous_course_{0},course_rate_{0};
   Vec3 last_{},acceleration_{};
+  bool pivot_active_{false};Vec3 pivot_anchor_{},pivot_route_point_{};double pivot_yaw_{0};
+  bool rejoin_active_{false};double rejoin_s_{0};
+  bool course_turn_active_{false};double course_turn_yaw_{0};
   bool spatiallyPastCorner(size_t index,Vec3 current,double projected_s)const{
     if(index==0 || index+1>=path_.size() ||
        projected_s<=arc_[index]+.05)return false;
     Vec3 outgoing=path_[index+1]-path_[index];
     const double length=norm(outgoing);
-    if(length<.03)return false;
+    if(length<1e-6)return false;
     outgoing=outgoing*(1./length);
     const Vec3 offset=current-path_[index];
     const double along=dot(offset,outgoing);
@@ -568,7 +749,9 @@ private:
         double k=std::abs(wrap(std::atan2(b.y,b.x)-std::atan2(a.y,a.x)))/std::max(.001,.5*(la+lb));
         if(k>1e-5)profile_[i]=std::min(profile_[i],.75*cfg.yaw_rate/k);
       }
-      if(angle>cfg.sharp_turn){profile_[i]=0;corner_[i]=true;}
+      if(requiresExecutionStop(turnSample(a,b,cfg.lateral_accel,cfg.yaw_rate),cfg.turn,cfg.sharp_turn)){
+        profile_[i]=0;corner_[i]=true;
+      }
     }
     for(size_t i=path_.size()-1;i>0;--i)
       profile_[i-1]=std::min(profile_[i-1],std::sqrt(profile_[i]*profile_[i]+2*.7*cfg.max_accel_xy*(arc_[i]-arc_[i-1])));

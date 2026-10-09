@@ -1,0 +1,376 @@
+{
+  "version": "2.1.3",
+  "mode": "portable core and extracted node-body transport stubs; not ROS/DDS/Gazebo",
+  "results": [
+    {
+      "test": "coordination_components_test",
+      "returncode": 0,
+      "seconds": 3.853,
+      "commands": [
+        [
+          "g++",
+          "-std=c++17",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-UNDEBUG",
+          "-pthread",
+          "-I",
+          "${SOURCE_DIR}/include",
+          "${SOURCE_DIR}/tests/coordination_components_test.cpp",
+          "-o",
+          "${BUILD_DIR}/coordination_components_test"
+        ],
+        [
+          "${BUILD_DIR}/coordination_components_test"
+        ]
+      ],
+      "output": "\ncoordination_components_test: PASS\n"
+    },
+    {
+      "test": "follower_alignment_test",
+      "returncode": 0,
+      "seconds": 2.259,
+      "commands": [
+        [
+          "g++",
+          "-std=c++17",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-UNDEBUG",
+          "-pthread",
+          "-I",
+          "${SOURCE_DIR}/include",
+          "${SOURCE_DIR}/tests/follower_alignment_test.cpp",
+          "-o",
+          "${BUILD_DIR}/follower_alignment_test"
+        ],
+        [
+          "${BUILD_DIR}/follower_alignment_test"
+        ]
+      ],
+      "output": "\nfollower_alignment_test: PASS\n"
+    },
+    {
+      "test": "incremental_repair_v19_test",
+      "returncode": 0,
+      "seconds": 4.555,
+      "commands": [
+        [
+          "g++",
+          "-std=c++17",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-UNDEBUG",
+          "-pthread",
+          "-I",
+          "${SOURCE_DIR}/include",
+          "${SOURCE_DIR}/tests/incremental_repair_v19_test.cpp",
+          "-o",
+          "${BUILD_DIR}/incremental_repair_v19_test"
+        ],
+        [
+          "${BUILD_DIR}/incremental_repair_v19_test"
+        ]
+      ],
+      "output": "\nincremental_repair_v19_test: PASS\n"
+    },
+    {
+      "test": "map_input_test",
+      "returncode": 0,
+      "seconds": 1.841,
+      "commands": [
+        [
+          "g++",
+          "-std=c++17",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-UNDEBUG",
+          "-pthread",
+          "-I",
+          "${SOURCE_DIR}/include",
+          "${SOURCE_DIR}/tests/map_input_test.cpp",
+          "-o",
+          "${BUILD_DIR}/map_input_test"
+        ],
+        [
+          "${BUILD_DIR}/map_input_test"
+        ]
+      ],
+      "output": "\nmap_input_test: PASS stale-fusion/fresh-local, both-stale rejection, clock skew, conservative occupied and no stale remote free\n"
+    },
+    {
+      "test": "map_snapshot_test",
+      "returncode": 0,
+      "seconds": 3.053,
+      "commands": [
+        [
+          "g++",
+          "-std=c++17",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-UNDEBUG",
+          "-pthread",
+          "-I",
+          "${SOURCE_DIR}/include",
+          "${SOURCE_DIR}/tests/map_snapshot_test.cpp",
+          "-o",
+          "${BUILD_DIR}/map_snapshot_test"
+        ],
+        [
+          "${BUILD_DIR}/map_snapshot_test"
+        ]
+      ],
+      "output": "\nmap_snapshot_test: PASS; synthetic_free_cells=800000 xyz_bytes=12800000 snapshot_bytes=96024 codec_roundtrip_ms=643.081\n"
+    },
+    {
+      "test": "route_handoff_test",
+      "returncode": 0,
+      "seconds": 2.915,
+      "commands": [
+        [
+          "g++",
+          "-std=c++17",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-UNDEBUG",
+          "-pthread",
+          "-I",
+          "${SOURCE_DIR}/include",
+          "${SOURCE_DIR}/tests/route_handoff_test.cpp",
+          "-o",
+          "${BUILD_DIR}/route_handoff_test"
+        ],
+        [
+          "${BUILD_DIR}/route_handoff_test"
+        ]
+      ],
+      "output": "\nroute_handoff_test: PASS\n"
+    },
+    {
+      "test": "route_switch_test",
+      "returncode": 0,
+      "seconds": 1.244,
+      "commands": [
+        [
+          "g++",
+          "-std=c++17",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-UNDEBUG",
+          "-pthread",
+          "-I",
+          "${SOURCE_DIR}/include",
+          "${SOURCE_DIR}/tests/route_switch_test.cpp",
+          "-o",
+          "${BUILD_DIR}/route_switch_test"
+        ],
+        [
+          "${BUILD_DIR}/route_switch_test"
+        ]
+      ],
+      "output": "\nroute_switch_test: PASS\n"
+    },
+    {
+      "test": "ultrasonic_memory_test",
+      "returncode": 0,
+      "seconds": 1.329,
+      "commands": [
+        [
+          "g++",
+          "-std=c++17",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-UNDEBUG",
+          "-pthread",
+          "-I",
+          "${SOURCE_DIR}/include",
+          "${SOURCE_DIR}/tests/ultrasonic_memory_test.cpp",
+          "-o",
+          "${BUILD_DIR}/ultrasonic_memory_test"
+        ],
+        [
+          "${BUILD_DIR}/ultrasonic_memory_test"
+        ]
+      ],
+      "output": "\nultrasonic_memory_test: PASS\n"
+    },
+    {
+      "test": "v210_entrance_test",
+      "returncode": 0,
+      "seconds": 4.961,
+      "commands": [
+        [
+          "g++",
+          "-std=c++17",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-UNDEBUG",
+          "-pthread",
+          "-I",
+          "${SOURCE_DIR}/include",
+          "${SOURCE_DIR}/tests/v210_entrance_test.cpp",
+          "-o",
+          "${BUILD_DIR}/v210_entrance_test"
+        ],
+        [
+          "${BUILD_DIR}/v210_entrance_test"
+        ]
+      ],
+      "output": "\nv210_entrance_test: PASS three doors, unchanged corridor, one-door fallback, budget/count, detour bound, committed approach\n"
+    },
+    {
+      "test": "v210_header_integration_test",
+      "returncode": 0,
+      "seconds": 1.328,
+      "commands": [
+        [
+          "g++",
+          "-std=c++17",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-UNDEBUG",
+          "-pthread",
+          "-I",
+          "${SOURCE_DIR}/include",
+          "${SOURCE_DIR}/tests/v210_header_integration_test.cpp",
+          "-o",
+          "${BUILD_DIR}/v210_header_integration_test"
+        ],
+        [
+          "${BUILD_DIR}/v210_header_integration_test"
+        ]
+      ],
+      "output": "\n"
+    },
+    {
+      "test": "v210_route_channel_test",
+      "returncode": 0,
+      "seconds": 1.65,
+      "commands": [
+        [
+          "g++",
+          "-std=c++17",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-UNDEBUG",
+          "-pthread",
+          "-I",
+          "${SOURCE_DIR}/include",
+          "${SOURCE_DIR}/tests/v210_route_channel_test.cpp",
+          "-o",
+          "${BUILD_DIR}/v210_route_channel_test"
+        ],
+        [
+          "${BUILD_DIR}/v210_route_channel_test"
+        ]
+      ],
+      "output": "\nv210_route_channel_test: PASS revisions, DDS arrival skew, no heartbeat reset, stale input, recovery eligibility, publisher restart\n"
+    },
+    {
+      "test": "v2_passage_handshake_test",
+      "returncode": 0,
+      "seconds": 1.44,
+      "commands": [
+        [
+          "g++",
+          "-std=c++17",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-UNDEBUG",
+          "-pthread",
+          "-I",
+          "${SOURCE_DIR}/include",
+          "${SOURCE_DIR}/tests/v2_passage_handshake_test.cpp",
+          "-o",
+          "${BUILD_DIR}/v2_passage_handshake_test"
+        ],
+        [
+          "${BUILD_DIR}/v2_passage_handshake_test"
+        ]
+      ],
+      "output": "\nscout1 logged exit: lease retained through old stop, completion recoverable\nscout2 logged exit: lease retained through old stop, completion recoverable\nv2_passage_handshake_test: PASS log replay, completion, FIFO, owner loss, clustered anchors, wait monitor, reentry\n"
+    },
+    {
+      "test": "v210_launch_test",
+      "returncode": 0,
+      "seconds": 2.257,
+      "commands": [
+        [
+          "python3",
+          "${SOURCE_DIR}/tests/v210_launch_test.py"
+        ]
+      ],
+      "output": "v210_launch_test: PASS real 1..4 scout wiring, DAG priority, radius agreement, YAML/CLI resolution, coordinator switch\n"
+    },
+    {
+      "test": "v210_node_continuity_test",
+      "returncode": 0,
+      "seconds": 9.055,
+      "commands": [
+        [
+          "python3",
+          "${SOURCE_DIR}/tests/v210_node_continuity_test.py"
+        ]
+      ],
+      "output": "v210_node_continuity_test: PASS actual odometry/publisher/worker/completion; retained progress beyond 8m, fixed revision, reused geometry, past/future obstacles, stale-map denial\n"
+    },
+    {
+      "test": "v212_map_pipeline_test",
+      "returncode": 0,
+      "seconds": 2.333,
+      "commands": [
+        [
+          "python3",
+          "${SOURCE_DIR}/tests/v212_map_pipeline_test.py"
+        ]
+      ],
+      "output": "v212_map_pipeline_test: PASS actual envelope/callback/drain/selector; fusion outage, recovery, both-stale hold, retained progress, coalescing, missing TF, malformed packet, bounded follower decode\n"
+    },
+    {
+      "test": "v2_node_passage_test",
+      "returncode": 0,
+      "seconds": 3.704,
+      "commands": [
+        [
+          "python3",
+          "${SOURCE_DIR}/tests/v2_node_passage_test.py"
+        ]
+      ],
+      "output": "v2_node_passage_test: PASS actual follower/coordinator methods, both logged exits, local release, dropped completion, old reply, wrong frame/id, inside rejection, rewind\n"
+    }
+  ],
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "limitations": [
+    "No ROS2/PX4/Gazebo available; no full ROS node link build, DDS test, simulation flight, or hardware flight.",
+    "Portable tests compile with assertions enabled; node-body tests stub transport."
+  ],
+  "static_checks": [
+    "All launch/scripts/tests Python parsed",
+    "All bundled shell scripts pass bash -n",
+    "package.xml version 2.1.3"
+  ]
+}
